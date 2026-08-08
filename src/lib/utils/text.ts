@@ -1,3 +1,4 @@
+// src/lib/utils/text.ts
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 

@@ -1,3 +1,4 @@
+// src/lib/utils/date.ts
 import { formatDistanceToNow, differenceInMinutes, formatDuration, differenceInSeconds } from 'date-fns';
 import { pl } from 'date-fns/locale';
 

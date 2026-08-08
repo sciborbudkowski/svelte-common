@@ -1,3 +1,4 @@
+<!-- src/lib/ui/ToastStack.svelte -->
 <script lang="ts">
     import { dismissToast, getVisibleToasts } from '$lib/stores/toaststack.svelte';
     import { fly } from 'svelte/transition';
@@ -7,7 +8,7 @@
 
     import CircularTimer from './CircularTimer.svelte';
 
-    let lastToastId: string[] = [];
+    let lastToastId: string[] = $state([]);
     let initialized = false;
 
     const SWIPE_THRESHOLD = 40;
@@ -55,7 +56,7 @@
     $effect(() => {
         const visible = getVisibleToasts();
         const ids = visible.map((t) => t.id);
-        const newestId = ids[0] ?? null;
+        // const newestId = ids[0] ?? null;
 
         if(!initialized) {
             initialized = true;
