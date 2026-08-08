@@ -1,3 +1,4 @@
+<!-- src/lib/ui/Modal.svelte -->
 <script lang="ts">
     import { closeModal } from '$lib/stores/modal.svelte';
     import type { Snippet } from 'svelte';

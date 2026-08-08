@@ -5,6 +5,7 @@ export { default as Carousel } from './ui/Carousel.svelte';
 export { default as CircularTimer } from './ui/CircularTimer.svelte';
 export { default as FloatingButton } from './ui/FloatingButton.svelte';
 export { default as Loader } from './ui/Loader.svelte';
+export { default as Modal } from './ui/Modal.svelte';
 export { default as Timers } from './ui/Timers.svelte';
 export { default as ToastStack } from './ui/ToastStack.svelte';
 
