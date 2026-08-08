@@ -1,9 +1,9 @@
-import { APP_IDENTITY_KEY } from './configuration';
+// src/lib/utils/app-id.ts
 
-export function setupAppIdentity() {
-    const appId = localStorage.getItem(APP_IDENTITY_KEY) ?? null;
+export function setupAppIdentity(idKey: string) {
+    const appId = localStorage.getItem(idKey) ?? null;
     if(!appId) {
         const newAppId = crypto.randomUUID();
-        localStorage.setItem(APP_IDENTITY_KEY, newAppId);
+        localStorage.setItem(idKey, newAppId);
     }
 }
