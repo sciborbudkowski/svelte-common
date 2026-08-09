@@ -7,7 +7,10 @@
     --color-text: var(--clr-bg-a0);                         /* should change */
     --color-text-muted: var(--clr-bg-a2);                   /* should change */
     --color-background: var(--clr-bg-a9);                   /* should change */
+    --color-surface: var(--clr-bg-a3);                      /* should change */
+    --color-surface-light: var(--clr-bg-a4);                /* should change */
     --color-outline: oklch(39.093% 0.01634 107.182);      /* should change */
+    --color-accent: var(--clr-amber-a6);                    /* should change */
 
     --font-body: sans-serif;                                /* should change */
     --font-header: serif;                                   /* should change */

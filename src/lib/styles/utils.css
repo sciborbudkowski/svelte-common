@@ -106,6 +106,10 @@
 .j-content-end { justify-content: end !important; } .j-self-end { justify-self: end !important; }
 .j-content-between { justify-content: space-between !important; }
 
+.text-end { text-align: right !important; }
+.text-start { text-align: left !important;}
+.text-center { text-align: center !important;}
+
 .a-center { align-items: center !important; }
 .a-start { align-items: start !important; }
 .a-end { align-items: end !important; }
