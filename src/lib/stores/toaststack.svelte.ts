@@ -1,4 +1,4 @@
-import type { Component } from "svelte";
+// src/lib/stores/toaststack.svelte.ts
 
 export type UIToastType = 'info' | 'success' | 'warning' | 'error' | 'neutral';
 
@@ -19,8 +19,9 @@ export interface UIToast {
 
 let toasts: UIToast[] = $state([]);
 
+// eslint-disable-next-line svelte/prefer-svelte-reactivity -- timeout handles are private bookkeeping, not reactive UI state
+const timeouts = new Map<string, ReturnType<typeof setTimeout>>();
 const visibleToasts = $derived(toasts.slice(0, TOAST_QUEUE_LENGTH));
-const timeouts = new Map<string, number>();
 
 export const getVisibleToasts = () => visibleToasts;
 
@@ -37,7 +38,7 @@ export function showToast(input: Omit<UIToast, 'id' | 'timestamp'> & Partial<Pic
     if(t.autoClose && t.duration !== null) {
         const ms = typeof t.duration === 'number' ? t.duration : TOAST_VIEW_DURATION_MS;
         const timeout = setTimeout(() => dismissToast(t.id), ms);
-        timeouts.set(t.id, timeout as unknown as number);
+        timeouts.set(t.id, timeout);
     }
 
     return t.id;

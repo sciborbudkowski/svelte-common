@@ -1,3 +1,4 @@
+<!-- src/lib/ui/CircularTimer.svelte -->
 <script lang="ts">
     import { onMount } from 'svelte';
     
@@ -69,13 +70,6 @@
             intervalId = null;
         }
     }
-
-    // function resetTimer() {
-    //     stopTimer();
-    //     remainingTime = duration;
-    //     progress = 0;
-    //     startTime = null;
-    // }
 
     function tick() {
         if(!startTime) return;
@@ -167,7 +161,7 @@
     .remaining-time {
         font-size: var(--fs-timer);
         font-weight: bold;
-        color: rgb(var(--clr-darkgray-rgb) / .75);
+        color: var(--sc-circular-timer-remaining-time-color);
         line-height: 0;
         margin: 0;
         padding: 0;
@@ -176,7 +170,7 @@
     .time-unit {
         display: none;
         font-size: calc(var(--fs-timer) * 0.7);
-        color: rgb(var(--clr-darkgray-rgb) / .5);
+        color: var(--sc-circular-timer-color);
         margin-left: 0.1em;
         line-height: 1;
     }

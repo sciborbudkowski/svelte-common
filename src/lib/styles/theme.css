@@ -1,0 +1,100 @@
+/* src/lib/styles/theme.css */
+
+:root {
+    --sc-shadow-color: var(--clr-neutral-7);
+    --sc-shadow-1: oklch(from var(--sc-shadow-color) l c h / .33) 0px 1px 2px -1px;
+    --sc-shadow-2: 
+        oklch(from var(--sc-shadow-color) l c h / .27) 0px 3px 5px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .29) 0px 7px 14px -5px;
+    --sc-shadow-3:
+        oklch(from var(--sc-shadow-color) l c h / .26) 0px -1px 3px 0px,
+        oklch(from var(--sc-shadow-color) l c h / .26) 0px 1px 2px -5px,
+        oklch(from var(--sc-shadow-color) l c h / .28) 0px 2px 5px -5px,
+        oklch(from var(--sc-shadow-color) l c h / .29) 0px 4px 12px -5px,
+        oklch(from var(--sc-shadow-color) l c h / .31) 0px 12px 15px -5px;
+    --sc-shadow-4:
+        oklch(from var(--sc-shadow-color) l c h / .26) 0px -2px 5px 0px,
+        oklch(from var(--sc-shadow-color) l c h / .27) 0px 1px 1px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .27) 0px 2px 2px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .28) 0px 5px 5px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .29) 0px 9px 9px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .3) 0px 16px 16px -2px;
+    --sc-shadow-5:
+        oklch(from var(--sc-shadow-color) l c h / .26) 0px -1px 2px 0px,
+        oklch(from var(--sc-shadow-color) l c h / .27) 0px 2px 1px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .27) 0px 5px 5px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .28) 0px 10px 10px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .29) 0px 20px 20px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .31) 0px 40px 40px -2px;
+    --sc-shadow-6:
+        oklch(from var(--sc-shadow-color) l c h / .26) 0px -1px 2px 0px,
+        oklch(from var(--sc-shadow-color) l c h / .27) 0px 3px 2px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .27) 0px 7px 5px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .28) 0px 12px 10px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .29) 0px 22px 18px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .3) 0px 41px 33px -2px,
+        oklch(from var(--sc-shadow-color) l c h / .31) 0px 100px 80px -2px;
+}
+
+:root {
+    --sc-loader-overlay: var(--clr-bg-a5);
+    --sc-loader-content: var(--clr-bg-a3);
+    --sc-loader-content-border: var(--clr-neutral-a5);
+    --sc-loader-spinner: var(--clr-neutral-a9);
+    --sc-loader-spinner-accent: var(--clr-green-a5);
+    --sc-loader-title: var(--clr-neutral-a9);
+    --sc-loader-progress-bar: var(--clr-neutral-a9);
+    --sc-loader-status: var(--clr-neutral-a7);
+
+    --sc-modal-backdrop: var(--clr-neutral-a9);
+    --sc-modal-content-shadow: var(--sc-shadow-4);
+    --sc-modal-header-text: var(--clr-neutral-a1);
+    --sc-modal-header-bg: var(--clr-neutral-a8);
+    --sc-modal-header-button-text: var(--clr-neutral-a1);
+    --sc-modal-body-bg: var(--clr-neutral-a7);
+    --sc-modal-footer-bg: var(--clr-neutral-a8);
+
+    --sc-toast-error-text: var(--clr-red-a2);
+    --sc-toast-error-bg: var(--clr-red-a9);
+    --sc-toast-warning-text: var(--clr-neutral-a0);
+    --sc-toast-warning-bg: var(--clr-yellow-a6);
+    --sc-toast-success-text: var(--clr-neutral-a0);
+    --sc-toast-success-bg: var(--clr-green-a6);
+    --sc-toast-info-text: var(--clr-neutral-a9);
+    --sc-toast-info-bg: var(--clr-blue-a3);
+    --sc-toast-neutral-text: var(--clr-neutral-a9);
+    --sc-toast-neutral-bg: var(--clr-neutral-a4);
+    --sc-toast-shadow: var(--sc-shadow-4);
+
+    --sc-floating-button-bg: oklch(from var(--brand-color) l c h / .75);
+    --sc-floating-button-hover-bg: var(--brand-color);
+    --sc-floating-button-text: var(--clr-neutral-a9);
+    --sc-floating-button-transition: transform 120ms ease, box-shadow 120ms ease, background-color 120mx ease;
+    --sc-floating-button-focus-outline: var(--clr-neutral-a9);
+
+    --sc-carousel-font: var(--font-body);
+    --sc-carousel-header-bg: oklch(from var(--outline-color) / .4);
+    --sc-carousel-header-border: oklch(from var(--outline-color) / .2);
+    --sc-carousel-title-bg: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+    --sc-carousel-title-filter: drop-shadow(0 6px 6px oklch(from var(--clr-bg-a9) / .75));
+    --sc-carousel-bg: transparent;
+    --sc-carousel-slide-content-bg: var(--color-background);
+    --sc-corousel-slide-content-text: var(--color-text);
+    --sc-carousel-slide-subtitle-bg: oklch(from var(--color-text-muted) / .2);
+    --sc-carousel-nav-item-border: var(--clr-neutral-a5);
+    --sc-carousel-nav-item-active-bg: var(--clr-neutral-a9);
+    --sc-carousel-nav-item-active-border-color: var(--clr-neutral-a9);
+    --sc-carousel-nav-item-hover-border-color: var(--clr-neutral-a9);
+    --sc-carousel-progress-bar-background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+    --sc-carousel-slide-counter-color: var(--clr-neutral-a9);
+    --sc-carousel-counter-button-bg: transparent;
+    --sc-carousel-counter-button-color: var(--clr-neutral-a9);
+    --sc-carousel-counter-progress-bg: var(--clr-neutral-a5);
+    --sc-carousel-counter-progress-fill-bg: var(--clr-neutral-a4);
+    --sc-carousel-main-description-color: var(--clr-neutral-a8);
+    --sc-carousel-main-description-shadow-color: var(--clr-neutral-a6);
+
+    --sc-circular-timer-color: oklch(from var(--clr-neutral-a0) / .5);
+    --sc-circular-timer-remaining-time-color: oklch(from var(--clr-neutral-a0) / .75)
+    
+}

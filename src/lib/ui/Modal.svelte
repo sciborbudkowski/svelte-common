@@ -95,38 +95,38 @@
     </div>
 {/if}
 
-<style lang="scss">
+<style>
     .modal-backdrop {
         position: fixed;
         inset: 0;
-        background-color: rgb(var(--clr-black-rgb) / .75);
+        background-color: var(--sc-modal-backdrop);
         display: flex;
         justify-content: center;
         align-items: center;
         z-index: 1000;
         pointer-events: auto;
         opacity: 1;
+    }
 
-        &.mp-center {
-            justify-content: center;
-            align-items: center;
-        }
-        &.mp-top {
-            justify-content: center;
-            align-items: flex-start;
-        }
-        &.mp-bottom {
-            justify-content: center;
-            align-items: flex-end;
-        }
-        &.mp-left {
-            justify-content: flex-start;
-            align-items: center;
-        }
-        &.mp-right {
-            justify-content: flex-end;
-            align-items: center;
-        }
+    .modal-backdrop.mp-center {
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-backdrop.mp-top {
+        justify-content: center;
+        align-items: flex-start;
+    }
+    .modal-backdrop.mp-bottom {
+        justify-content: center;
+        align-items: flex-end;
+    }
+    .modal-backdrop.mp-left {
+        justify-content: flex-start;
+        align-items: center;
+    }
+    .modal-backdrop.mp-right {
+        justify-content: flex-end;
+        align-items: center;
     }
 
     .modal-content {
@@ -134,32 +134,35 @@
         flex-direction: column;
         padding: 0;
         border-radius: 0.5rem;
-        box-shadow: var(--modal-shadow);
+        box-shadow: var(--sc-modal-content-shadow);
         width: 100%;
         min-width: 300px;
         max-width: 55vw;
         max-height: 80vh;
         pointer-events: auto;
+    }
 
-        &.wide {
-            max-width: 90vw;
-        }
+    .modal-content.wide {
+        max-width: 90vw;
+    }
 
-        &.narrow {
-            max-width: 30vw;
-        }
+    .modal-content.narrow {
+        max-width: 30vw;
+    }
 
-        &.full {
-            max-width: 90vw;
-            max-height: 90vh;
-            height: 100%;
-        }
+    .modal-content.full {
+        max-width: 90vw;
+        max-height: 90vh;
+        height: 100%;
+    }
 
-        @media (max-width: 768px) {
+    @media (max-width: 768px) {
+        .modal-content {
             max-height: 95vh;
             max-width: 85vw;
         }
     }
+
     .modal-header, .modal-footer {
         flex: 0 0 auto;
     }
@@ -168,20 +171,21 @@
         justify-content: space-between;
         align-items: center;
         padding: var(--size-2) var(--size-3);
-        color: var(--c-white);
-        background-color: var(--c-slate);
+        color: var(--sc-modal-header-text);
+        background-color: var(--sc-modal-header-bg);
         font-size: var(--size-4);
         font-weight: 400;
-
-        .button-close {
-            color: var(--c-white);
-            font-size: var(--size-5);
-            padding: 0;
-        }
     }
+
+    .modal-header .button-close {
+        color: var(--sc-modal-header-button-text);
+        font-size: var(--size-5);
+        padding: 0;
+    }
+
     .modal-body {
         padding: var(--size-3);
-        background-color: rgb(var(--clr-black-rgb));
+        background-color: var(--modal-body-bg);
         flex: 1 1 auto;
         min-height: 0;
         overflow-y: auto;
@@ -191,13 +195,12 @@
         justify-content: space-between;
         align-items: center;
         padding: var(--size-2) var(--size-3);
-        background-color: var(--c-slate);
-
-        button {
-            min-width: 100px;
-        }
+        background-color: var(--sc-modal-footer-bg);
     }
-    .full-height {
+    .modal-footer button {
+        min-width: 100px;
+    }
+    .modal-footer.full-height {
         height: 100vh;
     }
 

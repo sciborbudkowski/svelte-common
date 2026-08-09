@@ -8,9 +8,6 @@
 
     import CircularTimer from './CircularTimer.svelte';
 
-    let lastToastId: string[] = $state([]);
-    let initialized = false;
-
     const SWIPE_THRESHOLD = 40;
 
     function handlePointerDown(event: PointerEvent, id: string) {
@@ -52,20 +49,6 @@
             case 'neutral': return 'bi bi-arrow-right-circle-fill';
         }
     }
-
-    $effect(() => {
-        const visible = getVisibleToasts();
-        const ids = visible.map((t) => t.id);
-        // const newestId = ids[0] ?? null;
-
-        if(!initialized) {
-            initialized = true;
-            lastToastId = ids;
-            return;
-        }
-
-        lastToastId = ids;
-    });
 </script>
 
 <div class="toast-stack" aria-live="polite" aria-relevant="additions removals">
@@ -111,120 +94,120 @@
     {/each}
 </div>
 
-<style lang="scss">
+<style>
     .toast-stack {
         position: fixed;
-        z-index: 10999;
+        z-index: var(--zi-always-top);
         display: flex;
         flex-direction: column;
         align-items: stretch;
         width: min(20rem, calc(100vw - 2rem));
-        gap: .5rem;
+        gap: var(--size-2);
         left: 50%;
-        bottom: calc(var(--bottom-bar-height) + 1rem);
+        bottom: calc(var(--sc-bottom-bar-height) + 1rem);
         transform: translateX(-50%);
         pointer-events: none;
+    }
 
-        .toast {
-            border-radius: var(--br);
-            pointer-events: auto;
-            display: flex;
-            flex-direction: row;
-            padding: .5rem;
-            gap: .5rem;
-            align-items: center;
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            min-width: 0;
-            box-shadow: var(--shadow-4);
-            pointer-events: auto;
+    .toast {
+        border-radius: var(--br);
+        pointer-events: auto;
+        display: flex;
+        flex-direction: row;
+        padding: var(--size-2);
+        gap: var(--size-2);
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+        width: 100%;
+        min-width: 0;
+        box-shadow: var(--sc-toast-shadow);
+        pointer-events: auto;
+    }
 
-            &.error {
-                color: rgb(var(--clr-white-rgb));
-                background-color: rgb(var(--clr-red-rgb));
-            }
-            &.warning {
-                background-color: rgb(var(--clr-yellow-rgb));
-            }
-            &.success {
-                background-color: rgb(var(--clr-green-rgb));
-            }
-            &.info {
-                background-color: rgb(var(--clr-blue-rgb));
-            }
-            &.neutral {
-                background-color: rgb(var(--clr-lightgray-rgb));
-            }
+    .toast.error {
+        color: var(--sc-toast-error-text);
+        background-color: var(--sc-toast-error-bg);
+    }
+    .toast.warning {
+        color: var(--sc-toast-warning-text);
+        background-color: var(--sc-toast-warning-bg);
+    }
+    .toast.success {
+        color: var(--sc-toast-success-text);
+        background-color: var(--sc-toast-success-bg);
+    }
+    .toast.info {
+        color: var(--sc-toast-info-text);
+        background-color: var(--sc-toast-info-bg);
+    }
+    .toast.neutral {
+        color: var(--sc-toast-neutral-text);
+        background-color: var(--sc-toast-neutral-bg);
+    }
 
-            &.warning, &.success, &.info, &.neutral {
-                color: rgb(var(--clr-black-rgb));
-            }
+    .toast .icon {
+        display: flex;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+    }
 
-            .icon {
-                display: flex;
-                flex-shrink: 0;
-                align-items: center;
-                justify-content: center;
+    .toast .icon i {
+        font-size: var(--font-size-5);
+    }
 
-                i {
-                    font-size: 1.75rem;
-                }
-            }
+    .toast .content {
+        display: flex;
+        flex-direction: column;
+        flex-grow: 1;
+        min-width: 0;
+    }
 
-            .content {
-                display: flex;
-                flex-direction: column;
-                flex-grow: 1;
-                min-width: 0;
+    .toast .content .title {
+        font-size: var(--font-size-1);
+        font-weight: 600;
+    }
+    .toast .content .message {
+        font-size: var(--font-size-0);
+        font-weight: 400;
+    }
 
-                .title {
-                    font-size: 1rem;
-                    font-weight: 600;
-                }
-                .message {
-                    font-size: .75rem;
-                    font-weight: 400;
-                }
-            }
+    .toast .x {
+        position: relative;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        width: 30px;
+        height: 30px;
+    }
 
-            .x {
-                position: relative;
-                display: grid;
-                place-items: center;
-                flex-shrink: 0;
-                width: 30px;
-                height: 30px;
+    .toast .timer-ring {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        pointer-events: none;
+    }
 
-                .timer-ring {
-                    position: absolute;
-                    inset: 0;
-                    display: grid;
-                    place-items: center;
-                    pointer-events: none;
-                }
+    .toast .x button {
+        position: relative;
+        z-index: var(--zi-1);
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--font-size-3);
+        padding: 0;
+        color: inherit;
+        background: transparent;
+        border: none;
+        line-height: 1;
+    }
 
-                button {
-                    position: relative;
-                    z-index: 1;
-                    width: 100%;
-                    height: 100%;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 1.25rem;
-                    padding: 0;
-                    color: inherit;
-                    background: transparent;
-                    border: none;
-                    line-height: 1;
-
-                    i {
-                        display: block;
-                        line-height: 1;
-                    }
-                }
-            }
-        }
+    .toast .x button i {
+        display: block;
+        line-height: 1;
     }
 </style>

@@ -1,3 +1,4 @@
+<!-- src/lib/ui/FloatingButton.svelte -->
 <script lang="ts">
     import type { Snippet } from 'svelte';
 
@@ -27,6 +28,7 @@
 </script>
 
 {#if href}
+    <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
     <a class="floating-button {position}" href={href} aria-label={ariaLabel} title={ariaLabel}>
         {#if children}
             {@render children()}
@@ -50,54 +52,54 @@
     </button>
 {/if}
 
-<style lang="scss">
+<style>
     .floating-button {
         position: fixed;
-        z-index: var(--layer-5);
+        z-index: var(--zi-5);
         inline-size: var(--size-9);
         block-size: var(--size-9);
         display: grid;
         place-items: center;
         border: 0;
         border-radius: var(--radius-round);
-        background-color: rgb(var(--clr-primary-rgb) / var(--darker));
-        color: var(--c-white);
+        background-color: var(--sc-floating-button-bg);
+        color: var(--sc-floating-button-text);
         box-shadow: var(--shadow-4);
         cursor: pointer;
         text-decoration: none;
         font-size: var(--font-size-5);
         padding: 0;
         line-height: 1;
-        transition: transform 120ms ease, box-shadow 120ms ease, background-color 120mx ease;
+        transition: var(--sc-floating-button-transition);
+    }
 
-        &:hover {
-            background-color: rgb(var(--clr-primary-rgb));
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-5);
-        }
-        &:active {
-            transform: translateY(0);
-            box-shadow: var(--shadow-3);
-        }
-        &:focus-visible {
-            outline: var(--border-size-2) solid var(--c-white);
-            outline-offset: var(--size-1);
-        }
-        &:disabled {
-            opacity: .5;
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: var(--shadow-2);
-        }
+    .floating-button:hover {
+        background-color: var(--sc-floating-button-hover-bg);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-5);
+    }
+    .floating-button:active {
+        transform: translateY(0);
+        box-shadow: var(--shadow-3);
+    }
+    .floating-button:focus-visible {
+        outline: var(--border-2) solid var(--sc-floating-button-focus-outline);
+        outline-offset: var(--size-1);
+    }
+    .floating-button:disabled {
+        opacity: .5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: var(--shadow-2);
     }
 
     .bottom-right {
         right: var(--size-5);
-        bottom: calc(var(--size-5) + var(--bottom-bar-height));
+        bottom: calc(var(--size-5) + var(--sc-bottom-bar-height));
     }
     .bottom-left {
         left: var(--size-5);
-        bottom: calc(var(--size-5) + var(--bottom-bar-height));
+        bottom: calc(var(--size-5) + var(--sc-bottom-bar-height));
     }
     .top-right {
         right: var(--size-5);
@@ -111,11 +113,11 @@
     @media(max-width: 640px) {
         .bottom-right {
             right: var(--size-4);
-            bottom: calc(var(--size-4) + var(--bottom-bar-height));
+            bottom: calc(var(--size-4) + var(--sc-bottom-bar-height));
         }
         .bottom-left {
             left: var(--size-4);
-            bottom: calc(var(--size-4) + var(--bottom-bar-height));
+            bottom: calc(var(--size-4) + var(--sc-bottom-bar-height));
         }
     }
 </style>

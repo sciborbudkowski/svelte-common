@@ -1,3 +1,4 @@
+// src/lib/stores/modal.svelte.ts
 type AlertModalType = 'info' | 'success' | 'warning' | 'error';
 type MaybePromise<T> = T | Promise<T>;
 

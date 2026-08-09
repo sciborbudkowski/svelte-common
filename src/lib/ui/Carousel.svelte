@@ -1,13 +1,15 @@
+<!-- src/lib/ui/Carousel.svelte -->
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { scrollToTarget } from '$lib/utils/scroll';
+	import { scrollToTarget } from '../utils/scroll.ts';
+	import { textToHtml } from '../utils/text.ts';
 
 	export type Slide = {
 		image: string;
 		filter?: string;
 		header: string;
 		title: string;
-		description: string;
+		descriptionHtml: string;
 		backgroundPosition?: 'left' | 'right' | 'center';
 		buttons: {
 			title: string;
@@ -300,15 +302,16 @@
 
 <div class="mc-progress-bar" bind:this={progressBarEl}></div>
 <div class="modern-carousel" bind:this={carouselEl}>
-	{#each slides as slide, index}
+	{#each slides as slide, index (slide.image)}
 		<div class="mc-slide" class:is-active={index === currentSlide}>
 			<div class="mc-slide-bg" style={createSlideStyle(slide.image, slide.filter, slide.backgroundPosition)}></div>
 			<div class="mc-slide-content">
 				<h4>{slide.header}</h4>
 				<h1>{slide.title}</h1>
-				<p>{@html slide.description}</p>
+				<!-- eslint-disable-next-line svelte/no-at-html-tags -- slide.description is sanitized before it reaches Carousel -->
+				<p>{@html textToHtml(slide.descriptionHtml)}</p>
 				<div class="buttons">
-					{#each slide.buttons as button, index}
+					{#each slide.buttons as button (button.target)}
 						<button type="button" class={button.class} style={button.customStyle} onclick={() => scrollToTarget(button.target)}>{button.title}</button>
 					{/each}
 				</div>
@@ -317,7 +320,7 @@
 	{/each}
 
 	<div class="mc-navigation" aria-label="Nawigacja karuzeli">
-		{#each slides as _, index}
+		{#each slides as _, index (_.image)}
 			<button
 				type="button"
 				class="mc-nav-item"
@@ -353,31 +356,31 @@
 	</div>
 </div>
 
-<style lang="scss">
+<style>
 	h4 {
 		display: inline-block;
 		padding: var(--size-2) var(--size-3);
 		margin-bottom: var(--size-4);
-		font-family: var(--font-body) !important;
+		font-family: var(--sc-carousel-font) !important;
 		font-size: calc(var(--size-2) * 1.5);
 		font-weight: 700;
-		letter-spacing: 0.22em;
+		letter-spacing: var(--font-ls-5);
 		text-transform: uppercase;
-		background-color: rgb(var(--c-outline-rgb) / .4);
-		border: var(--bw) var(--bs) rgb(var(--c-text-rgb) / .2);
-		border-radius: var(--br);
-		color: var(--color-primary);
+		background-color: var(--sc-carousel-header-bg);
+		border: var(border-ws) var(--sc-carousel-header-border);
+		border-radius: var(--border-radius);
+		color: var(--brand-color);
 	}
 
 	h1 {
-		font-family: var(--font-display) !important;
+		font-family: var(--font-header) !important;
 		font-size: clamp(2.3rem, 9vw, 5.35rem);
 		font-weight: 700;
-		letter-spacing: -0.02em;
+		letter-spacing: calc(var(--font-ls-0) * 0.5);
 		line-height: 1.05;
-		margin-bottom: 2rem;
+		margin-bottom: var(--size-7);
 		text-transform: uppercase;
-		background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
+		background: var(--sc-carousel-title-bg);
 		background-size: 400% 400%;
 		-webkit-background-clip: text;
 		-webkit-text-fill-color: transparent;
@@ -385,14 +388,14 @@
 		animation: gradientShift 6s ease infinite;
 		white-space: normal;
 		word-break: normal;
-		filter: drop-shadow(0 6px 6px rgb(0 0 0 / .75));
+		filter: var(--sc-carousel-title-filter);
 	}
 
 	.modern-carousel {
 		height: 100vh;
 		overflow: hidden;
 		position: relative;
-		background-color: #000;
+		background-color: var(--sc-carousel-bg);
 		width: 100%;
 	}
 
@@ -423,47 +426,47 @@
 		background-position: var(--bp);
 		filter: brightness(0.7);
 		transform: scale(1.1);
-		z-index: 1;
+		z-index: var(--zi-1);
 	}
 
 	.mc-slide-content {
 		font-family: var(--font-code);
 		position: relative;
-		z-index: 2;
+		z-index: var(--zi-2);
 		text-align: center;
-		color: var(--background-color);
+		color: var(--sc-carousel-slide-content-bg);
 		max-width: 900px;
-		padding: 2rem 1rem;
-		border-radius: 1rem;
+		padding: var(--size-7) var(--size-3);
+		border-radius: var(--size-3);
+	}
 
-		p {
-			max-width: 42rem;
-			margin: 0 auto 2.25rem;
-			font-size: clamp(1rem, 1.5vw, 1.2rem);
-			font-weight: 400;
-			color: var(--c-text);
-			text-align: center;
-		}
+	.mc-slide-content p {
+		max-width: 42rem;
+		margin: 0 auto 2.25rem;
+		font-size: clamp(1rem, 1.5vw, 1.2rem);
+		font-weight: 400;
+		color: var(--sc-corousel-slide-content-text);
+		text-align: center;
+	}
 
-		.buttons {
-			display: flex;
-			flex-direction: row;
-			gap: .5rem;
-			justify-content: center;
-		}
+	.mc-slide-content .buttons {
+		display: flex;
+		flex-direction: row;
+		gap: var(--size-2);
+		justify-content: center;
 	}
 
 	.mc-slide-subtitle {
 		font-size: clamp(1.2rem, 3vw, 2rem);
 		font-weight: 400;
-		letter-spacing: 0.05em;
+		letter-spacing: var(--font-ls-2);
 		opacity: 0.85;
-		margin-bottom: 1rem;
+		margin-bottom: var(--size-3);
 		text-indent: 0;
 		text-align: center;
 		border-radius: var(--border-radius);
-		padding: 1rem;
-		background-color: rgb(var(--muted-rgb) / 0.125);
+		padding: var(--size-3);
+		background-color: var(--sc-carousel-slide-subtitle-bg);
 	}
 
 	.mc-navigation {
@@ -475,14 +478,14 @@
 	}
 
 	.mc-nav-item {
-		width: 0.75rem;
-		height: 0.75rem;
+		width: calc(var(--size-2) * 1.5);
+		height: calc(var(--size-2) * 1.5);
 		aspect-ratio: 1 / 1;
-		border: 2px solid rgb(255 255 255 / 0.5);
-		border-radius: 50%;
-		margin: 1rem 0;
+		border: var(--border-ws) var(--sc-carousel-nav-item-border);
+		border-radius: var(--border-round);
+		margin: var(--size-3) 0;
 		cursor: pointer;
-		transition: all var(--transition-duration) ease;
+		transition: all var(--transition-duration) var(--transition-type);
 		position: relative;
 		display: block;
 		background: transparent;
@@ -493,13 +496,13 @@
 	}
 
 	.mc-nav-item.active {
-		background-color: #fff;
-		border-color: #fff;
+		background-color: var(--sc-carousel-nav-item-active-bg);
+		border-color: var(--sc-carousel-nav-item-active-border-color);
 		transform: scale(1.65);
 	}
 
 	.mc-nav-item:hover {
-		border-color: #fff;
+		border-color: var(--sc-carousel-nav-item-hover-border-color);
 		transform: scale(2);
 	}
 
@@ -509,7 +512,7 @@
 		top: 0;
 		width: 100%;
 		height: 3px;
-		background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
+		background: var(--sc-carousel-progress-bar-background);
 		z-index: var(--zi-2);
 		transform-origin: left;
 		transform: scaleX(0);
@@ -520,21 +523,21 @@
 		position: absolute;
 		bottom: 2.5rem;
 		right: 2.5rem;
-		color: #fff;
-		font-size: 1.2rem;
+		color: var(--sc-carousel-slide-counter-color);
+		font-size: var(--font-ls-3);
 		font-weight: 300;
 		z-index: var(--zi-2);
 		display: grid;
 		grid-template-columns: auto auto auto auto auto;
-		gap: 0.5rem;
+		gap: var(--size-2);
 		align-items: center;
 		min-width: 10rem;
 	}
 
 	.counter-button {
 		border: 0;
-		background: transparent;
-		color: #fff;
+		background-color: var(--sc-carousel-counter-button-bg);
+		color: var(--sc-carousel-counter-button-color);
 		padding: 0;
 		transition: transform 0.2s ease;
 	}
@@ -553,8 +556,8 @@
 		grid-column: 1 / -1;
 		width: 100%;
 		height: 4px;
-		background: rgb(255 255 255 / 0.1);
-		margin-top: 0.5rem;
+		background-color: var(--sc-carousel-counter-progress-bg);
+		margin-top: var(--size-2);
 		border-radius: 4px;
 		overflow: hidden;
 	}
@@ -562,21 +565,21 @@
 	.mc-counter-progress-fill {
 		display: block;
 		height: 100%;
-		background: rgb(var(--rgb-jsgreen)); // linear-gradient(90deg, #ff6b6b, #4ecdc4);
+		background-color: var(--sc-carousel-counter-progress-fill-bg);
 		border-radius: 1px;
 		transition: width 50ms linear;
 	}
 
 	.main-logo-container {
 		position: absolute;
-		bottom: 2rem;
-		left: 2rem;
+		bottom: var(--size-7);
+		left: var(--size-7);
 		z-index: var(--zi-1);
 		pointer-events: none;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 1rem;
+		gap: var(--size-3);
 	}
 
 	.main-logo {
@@ -584,30 +587,15 @@
 		text-align: center;
 	}
 
-	.main-logo img {
-		height: clamp(5rem, 11vw, 7.75rem);
-		width: auto;
-		filter: drop-shadow(2px 2px 10px rgb(0 0 0 / 0.5));
-	}
-
 	.main-description {
 		font-weight: 600;
 		font-style: italic;
-		color: #eee;
-		padding: 0.5rem 1rem;
+		color: var(--sc-carousel-main-description-color);
+		padding: var(--size-2) var(--size-3);
 		font-size: clamp(1rem, 4vw, 1.5rem);
 		border-radius: 4px;
 		text-align: center;
-		text-shadow: 3px 3px 3px rgb(0 0 0 / 0.65);
-	}
-
-	.main-description .polish-white {
-		color: #e9e8e7;
-	}
-
-	.main-description .polish-red {
-		color: #d4213d;
-		font-size: 125%;
+		text-shadow: 3px 3px 3px var(--sc-carousel-main-description-shadow-color);
 	}
 
 	@keyframes gradientShift {
@@ -622,9 +610,9 @@
 
 	@media (max-width: 991px) {
 		.main-logo-container {
-			bottom: 1rem;
-			left: 1rem;
-			right: 1rem;
+			bottom: var(--size-3);
+			left: var(--size-3);
+			right: var(--size-3);
 		}
 
 		.mc-slide-content {
@@ -633,13 +621,13 @@
 		}
 
 		.mc-navigation {
-			right: 1rem;
+			right: var(--size-3);
 		}
 
 		.mc-nav-item {
-			width: 0.5rem;
-			height: 0.5rem;
-			margin: 0.75rem 0;
+			width: var(--size-2);
+			height: var(--size-2);
+			margin: calc(var(--size-2) * 1.5) 0;
 		}
 
 		.mc-nav-item.active {
@@ -647,9 +635,9 @@
 		}
 
 		.mc-slide-counter {
-			bottom: 1.5rem;
-			right: 1.5rem;
-			font-size: 1rem;
+			bottom: var(--size-5);
+			right: var(--size-5);
+			font-size: var(--size-3);
 		}
 	}
 
@@ -660,14 +648,10 @@
 		}
 
 		.mc-slide-counter {
-			right: 1rem;
+			right: var(--size-3);
 			left: auto;
-			bottom: 4rem;
+			bottom: calc(var(--size-3) * 4);
 			min-width: 8.25rem;
-		}
-
-		.main-logo img {
-			height: clamp(4.75rem, 20vw, 6rem);
 		}
 	}
 </style>

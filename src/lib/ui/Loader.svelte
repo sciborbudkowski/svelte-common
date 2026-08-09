@@ -1,3 +1,4 @@
+<!-- src/lib/ui/Loader.svelte -->
 <script lang="ts">
     import { fade, fly } from 'svelte/transition';
     import { loaderState } from '$lib/stores/loader.svelte';
@@ -23,7 +24,7 @@
         left: 0 !important;
         width: 100% !important;
         height: 100% !important;
-        background-color: rgb(var(--clr-darkgray-rgb) / .2) !important;
+        background-color: var(--sc-loader-overlay) !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: center !important;
@@ -37,22 +38,22 @@
     }
 
     .loader-content {
-        background: rgb(var(--clr-black-rgb) / .75);
+        background: var(--sc-loader-content);
         backdrop-filter: blur(20px);
         padding: 2.5rem;
         border-radius: 16px;
         text-align: center;
         min-width: 320px;
         max-width: 380px;
-        box-shadow: 0 8px 32px rgb(var(--clr-black-rgb) / .72);
-        border: 1px solid rgb(var(--clr-white-rgb) / .8);
+        box-shadow: 0 8px 32px var(--sc-loader-content);
+        border: 1px solid var(--sc-loader-content-border);
     }
 
     .spinner {
         width: 50px;
         height: 50px;
-        border: 6px solid var(--c-white);
-        border-top: 6px solid rgb(var(--clr-green-rgb));
+        border: 6px solid var(--sc-loader-spinner);
+        border-top: 6px solid var(--sc-loader-spinner-accent);
         border-radius: 50%;
         animation: spin 1s linear infinite;
         margin: 0 auto 1rem;
@@ -65,13 +66,13 @@
 
     h4 {
         margin-bottom: 1rem;
-        color: rgb(var(--clr-white-rgb));
+        color: var(--sc-loader-title);
     }
 
     .progress-bar {
         width: 100%;
         height: 10px;
-        background: var(--c-white);
+        background: var(--sc-loader-progress-bar);
         border-radius: 5px;
         overflow: hidden;
         margin-bottom: 1rem;
@@ -103,7 +104,7 @@
     }
 
     .status {
-        color: rgb(var(--clr-lightgray-rgb));
+        color: var(--sc-loader-status);
         font-size: var(--font-size-1);
         margin: 0;
     }

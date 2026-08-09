@@ -1,3 +1,4 @@
+// src/lib/stores/loader.svelte.ts
 interface LoaderState {
     isVisible: boolean;
     message: string;
