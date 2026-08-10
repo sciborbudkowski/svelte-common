@@ -1,27 +1,27 @@
 <!-- src/lib/ui/Modal.svelte -->
 <script lang="ts">
-	import { closeModal } from '$lib/stores/modal.svelte';
+	import { closeModal, modalsState } from '$lib/stores/modal.svelte';
 	import type { Snippet } from 'svelte';
 
 	let {
-		id = crypto.randomUUID(),
-		isOpen = false,
+		id,
 		size = undefined,
 		position = 'center',
 		fullHeight = false,
 		confirmButtonLabel = 'Potwierdź',
+		cancelButtonLabel = 'Anuluj',
 		onConfirm = undefined,
 		onCancel = undefined,
 		header,
 		content,
 		footer
 	}: {
-		id?: string;
-		isOpen?: boolean;
+		id: string;
 		size?: 'wide' | 'narrow' | 'full' | undefined;
 		position?: 'center' | 'top' | 'bottom' | undefined;
 		fullHeight?: boolean;
 		confirmButtonLabel?: string;
+		cancelButtonLabel?: string;
 		onConfirm?: (() => Promise<void> | void) | undefined;
 		onCancel?: (() => void) | undefined;
 		header?: Snippet;
@@ -29,10 +29,8 @@
 		footer?: Snippet;
 	} = $props();
 
-	function cancel() {
-		onCancel?.();
-		closeModal(id);
-	}
+	const modal = $derived(modalsState.customModal[id]);
+	const isOpen = $derived(modal?.isOpen ?? false);
 
 	function close() {
 		cancel();
@@ -61,6 +59,18 @@
 			close();
 		}
 	}
+
+	async function confirm() {
+		const callback = onConfirm ?? modal?.onConfirm;
+		await callback?.(modal?.context);
+		closeModal(id);
+	}
+
+	function cancel() {
+		const callback = onCancel ?? modal?.onCancel;
+		callback?.(modal?.context);
+		closeModal(id);
+	}
 </script>
 
 <svelte:window onkeydown={handleKeyDown} />
@@ -86,14 +96,16 @@
 				{#if footer}
 					{@render footer()}
 				{:else}
-					<span
-						><button type="button" class="lightgray bordered" onclick={cancel}>Anuluj</button></span
-					>
-					<span
-						><button type="button" class="primary bordered" onclick={() => onConfirm?.()}
-							>{confirmButtonLabel}</button
-						></span
-					>
+					<span>
+						<button type="button" class="lightgray bordered" onclick={cancel}>
+							{cancelButtonLabel}
+						</button>
+					</span>
+					<span>
+						<button type="button" class="primary bordered" onclick={confirm}>
+							{confirmButtonLabel}
+						</button>
+					</span>
 				{/if}
 			</div>
 		</div>

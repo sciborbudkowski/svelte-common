@@ -19,9 +19,9 @@ export * from './services/storage.ts';
 
 // Stores
 export * from './stores/loader.svelte.ts';
-export * from './stores/modal.svelte.ts';
 export * from './stores/toaststack.svelte.ts';
 export * from './stores/gps.svelte.ts';
+export { openModal, openAlertModal, openConfirmModal, closeModal, getModalContext, requestConfirmation } from './stores/modal.svelte.ts';
 
 // Utils
 export * from './utils/app-id.ts';

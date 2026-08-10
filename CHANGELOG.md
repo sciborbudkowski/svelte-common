@@ -42,3 +42,11 @@
 ### Fixed
 
 - CSS color variables fixed for loader (colors)
+
+# 1.04 - 2026-08-10
+
+## Fixed
+
+- CSS colors
+- Modal has no more isOpen props and takes care of everything inside
+- Removed export of closeAlertModal function and modalsState store

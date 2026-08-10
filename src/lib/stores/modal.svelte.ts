@@ -83,13 +83,12 @@ export const openAlertModal = (message: string, type: AlertModalType = 'info') =
 	modalsState.alertModal = { isOpen: true, id: '__alert_modal_id', message, type };
 };
 
-export const openModal = (modalId?: string, options?: ModalOptions) => {
-	const customId = modalId ?? crypto.randomUUID();
+export const openModal = (modalId: string, options?: ModalOptions) => {
+	ensureCustomModal(modalId);
 
-	ensureCustomModal(customId);
-	modalsState.customModal[customId] = {
+	modalsState.customModal[modalId] = {
 		isOpen: true,
-		id: customId,
+		id: modalId,
 		context: options?.context ?? null,
 		onConfirm: options?.onConfirm ?? null,
 		onCancel: options?.onCancel ?? null

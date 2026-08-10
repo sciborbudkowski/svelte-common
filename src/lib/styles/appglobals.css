@@ -7,7 +7,7 @@
 	--color-text: var(--clr-neutral-a0); /* should change */
 	--color-text-muted: var(--clr-neutral-a4); /* should change */
 	--color-background: var(--clr-bg-a9); /* should change */
-	--color-surface: var(--clr-bg-a4) /* should change */
+	--color-surface: var(--clr-bg-a4); /* should change */
 	--color-surface-light: var(--clr-bg-a4); /* should change */
 	--color-surface-semitransparent: oklch(from var(--clr-bg-a5) l c h / .5);
 	--color-outline: oklch(39.093% 0.01634 107.182); /* should change */
