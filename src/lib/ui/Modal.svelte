@@ -5,6 +5,7 @@
 
 	let {
 		id,
+		open = undefined,
 		size = undefined,
 		position = 'center',
 		fullHeight = false,
@@ -17,6 +18,7 @@
 		footer
 	}: {
 		id: string;
+		open?: boolean;
 		size?: 'wide' | 'narrow' | 'full' | undefined;
 		position?: 'center' | 'top' | 'bottom' | undefined;
 		fullHeight?: boolean;
@@ -30,7 +32,8 @@
 	} = $props();
 
 	const modal = $derived(modalsState.customModal[id]);
-	const isOpen = $derived(modal?.isOpen ?? false);
+	const controlled = $derived(open !== undefined);
+	const isOpen = $derived(open ?? modal?.isOpen ?? false);
 
 	function close() {
 		cancel();
@@ -63,13 +66,13 @@
 	async function confirm() {
 		const callback = onConfirm ?? modal?.onConfirm;
 		await callback?.(modal?.context);
-		closeModal(id);
+		if(!controlled) closeModal(id);
 	}
 
 	function cancel() {
 		const callback = onCancel ?? modal?.onCancel;
 		callback?.(modal?.context);
-		closeModal(id);
+		if(!controlled) closeModal(id);
 	}
 </script>
 

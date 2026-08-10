@@ -30,7 +30,7 @@
         switch(modalsState.alertModal.type) {
             case 'error': return 'Błąd';
             case 'info': return 'Informacja';
-            case 'success': return 'Suckes';
+            case 'success': return 'Sukces';
             case 'warning': return 'Uwaga';
         }
     });
@@ -43,6 +43,8 @@
 
 <Modal
     id={id}
+    open={modal.isOpen}
+    onCancel={closeAlertModal}
     {header}
     {content}
     {footer}

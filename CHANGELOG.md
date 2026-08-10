@@ -56,7 +56,9 @@
 ## Added
 
 - ConfirmModal and AlertModal
+- buttons.css with button full default styling
 
 ## Fixed
 
 - minor fixes in css colors
+- Modal.svelte got optional prop for ConfirmModal and AlertModal

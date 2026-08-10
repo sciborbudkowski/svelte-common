@@ -30,6 +30,8 @@
 
 <Modal
     id={id}
+    open={modal.isOpen}
+    onCancel={cancel}
     {header}
     {content}
     {footer}
