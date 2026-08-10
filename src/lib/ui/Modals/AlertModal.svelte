@@ -6,9 +6,9 @@
     import Modal from '../Modal.svelte';
 
     const id = 'defaultAlertModalId';
-    const modal = $derived(modalsState.confirmModal);
+    const modal = $derived(modalsState.alertModal);
 
-    const alertClass = $derived(() => {
+    const alertClass = $derived.by(() => {
         switch(modalsState.alertModal.type) {
             case 'error': return 'alert-error';
             case 'info': return 'alert-info';
@@ -17,7 +17,7 @@
         }
     });
 
-    const icon = $derived(() => {
+    const icon = $derived.by(() => {
         switch(modalsState.alertModal.type) {
             case 'error': return 'fa-times-circle';
             case 'info': return 'fa-info-circle';
@@ -26,7 +26,7 @@
         }
     });
 
-    const title = $derived(() => {
+    const title = $derived.by(() => {
         switch(modalsState.alertModal.type) {
             case 'error': return 'Błąd';
             case 'info': return 'Informacja';
@@ -34,11 +34,6 @@
             case 'warning': return 'Uwaga';
         }
     });
-
-    async function confirm() {
-        await modal.onConfirm?.(modal.context);
-        closeAlertModal();
-    }
 </script>
 
 <Modal
@@ -59,4 +54,4 @@
     </div>
 {/snippet}
 
-{#snippet footer()}<div class="center"><button type="button" onclick={confirm}>Potwierdź</button></div>{/snippet}
+{#snippet footer()}<div class="center"><button type="button" onclick={closeAlertModal}>Potwierdź</button></div>{/snippet}
