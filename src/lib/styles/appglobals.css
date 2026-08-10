@@ -23,8 +23,40 @@
 	--border-width: 2px; /* should change */
 	--border-style: solid; /* should change */
 	--border-ws: var(--border-width) var(--border-style);
-	--border-radius: var(--border-2); /* should change */
+	--border-radius: var(--radius-2); /* should change */
 
 	--transition-duration: 0.25s; /* can change */
 	--transition-type: ease-in-out; /* can change */
+	--transition-all: all var(--transition-duration) var(--transition-type);
+
+	--backdrop-filter: blur(20px);
+
+    --sc-color-danger: var(--clr-red-a4);
+    --sc-color-danger-hover: var(--clr-red-a3);
+    --sc-color-on-danger: var(--clr-neutral-a8);
+    --sc-color-on-danger-hover: var(--clr-neutral-a9);
+
+    --sc-color-warning: var(--clr-yellow-a6);
+    --sc-color-warning-hover: var(--clr-yellow-a5);
+    --sc-color-on-warning: var(--clr-neutral-a2);
+    --sc-color-on-warning-hover: var(--clr-neutral-a1);
+
+    --sc-color-success: var(--clr-green-a2);
+    --sc-color-success-hover: var(--clr-green-a3);
+    --sc-color-on-success: var(--clr-neutral-a8);
+    --sc-color-on-success-hover: var(--clr-neutral-a9);
+
+    --sc-color-info: var(--clr-blue-a2);
+    --sc-color-info-hover: var(--clr-blue-a3);
+    --sc-color-on-info: var(--clr-neutral-a8);
+    --sc-color-on-info-hover: var(--clr-neutral-a9);
+
+    --sc-color-neutral: var(--clr-neutral-a7);
+    --sc-color-neutral-hover: var(--clr-neutral-a6);
+    --sc-color-on-neutral: var(--clr-neutral-a1);
+    --sc-color-on-neutral-hover: var(--clr-neutral-a2);
+}
+
+body {
+	font-family: var(--font-body);
 }

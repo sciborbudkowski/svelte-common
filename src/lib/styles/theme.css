@@ -1,39 +1,24 @@
 /* src/lib/styles/theme.css */
 
 :root {
-	--sc-shadow-color: var(--clr-neutral-a7);
-	--sc-shadow-1: oklch(from var(--sc-shadow-color) l c h / 0.33) 0px 1px 2px -1px;
-	--sc-shadow-2:
-		oklch(from var(--sc-shadow-color) l c h / 0.27) 0px 3px 5px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.29) 0px 7px 14px -5px;
+    --sc-shadow-color: var(--clr-neutral-a0);
+    --sc-shadow-1:
+        oklch(from var(--sc-shadow-color) l c h / 0.18) -1px -1px 1px 0px,
+        oklch(from var(--sc-shadow-color) l c h / 0.18) 2px 2px 4px 2px;
+
+    --sc-shadow-2:
+        oklch(from var(--sc-shadow-color) l c h / 0.22) -1px -1px 2px 0px,
+        oklch(from var(--sc-shadow-color) l c h / 0.22) 3px 3px 6px 4px;
 	--sc-shadow-3:
-		oklch(from var(--sc-shadow-color) l c h / 0.26) 0px -1px 3px 0px,
-		oklch(from var(--sc-shadow-color) l c h / 0.26) 0px 1px 2px -5px,
-		oklch(from var(--sc-shadow-color) l c h / 0.28) 0px 2px 5px -5px,
-		oklch(from var(--sc-shadow-color) l c h / 0.29) 0px 4px 12px -5px,
-		oklch(from var(--sc-shadow-color) l c h / 0.31) 0px 12px 15px -5px;
-	--sc-shadow-4:
-		oklch(from var(--sc-shadow-color) l c h / 0.26) 0px -2px 5px 0px,
-		oklch(from var(--sc-shadow-color) l c h / 0.27) 0px 1px 1px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.27) 0px 2px 2px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.28) 0px 5px 5px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.29) 0px 9px 9px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.3) 0px 16px 16px -2px;
-	--sc-shadow-5:
-		oklch(from var(--sc-shadow-color) l c h / 0.26) 0px -1px 2px 0px,
-		oklch(from var(--sc-shadow-color) l c h / 0.27) 0px 2px 1px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.27) 0px 5px 5px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.28) 0px 10px 10px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.29) 0px 20px 20px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.31) 0px 40px 40px -2px;
-	--sc-shadow-6:
-		oklch(from var(--sc-shadow-color) l c h / 0.26) 0px -1px 2px 0px,
-		oklch(from var(--sc-shadow-color) l c h / 0.27) 0px 3px 2px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.27) 0px 7px 5px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.28) 0px 12px 10px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.29) 0px 22px 18px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.3) 0px 41px 33px -2px,
-		oklch(from var(--sc-shadow-color) l c h / 0.31) 0px 100px 80px -2px;
+		oklch(from var(--sc-shadow-color) l c h / 0.26) -2px -2px 2px 0px,
+		oklch(from var(--sc-shadow-color) l c h / 0.26) 4px 4px 8px 6px;
+    --sc-shadow-4:
+        oklch(from var(--sc-shadow-color) l c h / 0.26) -2px -2px 3px 0px,
+        oklch(from var(--sc-shadow-color) l c h / 0.26) 6px 6px 12px 8px;
+
+    --sc-shadow-5:
+        oklch(from var(--sc-shadow-color) l c h / 0.26) -3px -3px 4px 0px,
+        oklch(from var(--sc-shadow-color) l c h / 0.26) 8px 8px 16px 10px;
 }
 
 :root {

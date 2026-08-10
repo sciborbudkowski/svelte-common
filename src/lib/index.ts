@@ -6,6 +6,8 @@ export { default as CircularTimer } from './ui/CircularTimer.svelte';
 export { default as FloatingButton } from './ui/FloatingButton.svelte';
 export { default as Loader } from './ui/Loader.svelte';
 export { default as Modal } from './ui/Modal.svelte';
+export { default as AlertModal } from './ui/Modals/AlertModal.svelte';
+export { default as ConfirmModal } from './ui/Modals/ConfirmModal.svelte';
 export { default as ToastStack } from './ui/ToastStack.svelte';
 export { default as CollapsibleCard } from './ui/CollapsibleCard.svelte';
 export { default as Accordion } from './ui/Accordion/Accordion.svelte';

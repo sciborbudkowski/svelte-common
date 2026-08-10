@@ -50,3 +50,13 @@
 - CSS colors
 - Modal has no more isOpen props and takes care of everything inside
 - Removed export of closeAlertModal function and modalsState store
+
+# 1.05 - 2026-08-10
+
+## Added
+
+- ConfirmModal and AlertModal
+
+## Fixed
+
+- minor fixes in css colors

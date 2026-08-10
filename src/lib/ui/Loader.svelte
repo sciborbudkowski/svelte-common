@@ -39,7 +39,7 @@
 
 	.loader-content {
 		background: var(--sc-loader-content);
-		backdrop-filter: blur(20px);
+		backdrop-filter: var(--backdrop-filter);
 		padding: 2.5rem;
 		border-radius: 16px;
 		text-align: center;

@@ -117,6 +117,7 @@
 		position: fixed;
 		inset: 0;
 		background-color: var(--sc-modal-backdrop);
+		backdrop-filter: blur(3px);
 		display: flex;
 		justify-content: center;
 		align-items: center;
@@ -197,8 +198,12 @@
 
 	.modal-header .button-close {
 		color: var(--sc-modal-header-button-text);
+		border: none;
+		background-color: transparent;
 		font-size: var(--size-5);
 		padding: 0;
+		box-shadow: none;
+		cursor: pointer;
 	}
 
 	.modal-body {
@@ -207,6 +212,7 @@
 		flex: 1 1 auto;
 		min-height: 0;
 		overflow-y: auto;
+		font-family: var(--font-body);
 	}
 	.modal-footer {
 		display: flex;
