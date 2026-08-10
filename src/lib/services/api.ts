@@ -53,7 +53,7 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
                 ...init
             });
 
-            const contentType = res.headers.get('Conent-Type') ?? '';
+            const contentType = res.headers.get('Content-Type') ?? '';
             const isJson = contentType.includes('application/json');
 
             if(!res.ok) {
@@ -119,6 +119,7 @@ export const createApiClient = (options: ApiClientOptions = {}) => {
         post<T>(path: string, body?: unknown, init: RequestInit = {}) {
             return request<T>(path, {
                 method: 'POST',
+                ...init,
                 headers: {
                     'Content-Type': 'application/json',
                     ...init.headers

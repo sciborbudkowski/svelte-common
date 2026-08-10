@@ -31,7 +31,7 @@
 
     let isOpen = $state((() => defaultOpen)());
 
-    const buttonAriaLabel = $derived(isOpen ? showMoreLabel : showLessLabel);
+    const buttonAriaLabel = $derived(isOpen ? showLessLabel : showMoreLabel);
 </script>
 
 <div class={'card ' + (rest.class ?? '')}>

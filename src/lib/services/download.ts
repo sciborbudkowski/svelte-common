@@ -95,7 +95,7 @@ export async function downloadAndSave(input: RequestInfo, init: RequestInit = {}
 	if(typeof document === 'undefined') return { error: true, message: 'Download allowed only in browser.' };
 
 	try {
-		const res = await fetch(input, { credentials: 'include', ...init, method: init.method ?? 'GET' });
+		const res = await fetch(input, { credentials: options.credentials, ...init, method: init.method ?? 'GET' });
 		if(!res.ok) {
 			const ct = res.headers.get('Content-Type') ?? '';
 			let msg = 'Pobieranie nieudane';

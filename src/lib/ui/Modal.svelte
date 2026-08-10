@@ -185,7 +185,7 @@
 
     .modal-body {
         padding: var(--size-3);
-        background-color: var(--modal-body-bg);
+        background-color: var(--sc-modal-body-bg);
         flex: 1 1 auto;
         min-height: 0;
         overflow-y: auto;

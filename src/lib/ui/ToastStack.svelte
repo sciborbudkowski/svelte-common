@@ -4,6 +4,7 @@
     import { fly } from 'svelte/transition';
     import { flip } from 'svelte/animate';
     import { cubicOut } from 'svelte/easing';
+    import { textToHtml } from '../utils/text.ts';
     import type { UIToastType } from '$lib/stores/toaststack.svelte';
 
     import CircularTimer from './CircularTimer.svelte';
@@ -71,12 +72,12 @@
             <div class="content">
                 <div class="title">
                     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                    {@html t.title ?? ''}
+                    {@html textToHtml(t.title) ?? ''}
                 </div>
                 {#if t.message}
                     <div class="message">
                         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                        {@html t.message}
+                        {@html textToHtml(t.message)}
                     </div>
                 {/if}
             </div>

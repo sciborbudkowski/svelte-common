@@ -1,6 +1,6 @@
 // src/lib/utils/text.ts
 import { marked } from 'marked';
-import DOMPurify from 'dompurify';
+import DOMPurify from 'isomorphic-dompurify';
 
 export const textToHtml = (text: string | null | undefined): string => {
     if(!text) return '';
@@ -16,4 +16,4 @@ export const friendlyFileSize = (bytes: number): string => {
         i++;
     }
     return `${bytes.toFixed(1)} ${units[i]}`;
-}
+};

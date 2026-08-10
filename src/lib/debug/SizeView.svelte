@@ -30,13 +30,13 @@
     class="indicator"
     style={`
         --sv-color: ${color};
-        --sv-background-color: ${backgroundColor}
-        --sv-border-color: ${borderColor}
-        --sv-left: ${left}
-        --sv-bottom: ${bottom}
-        --sv-right: ${right}
-        --sv-top: ${top}
-        --sv-font-size: ${fontSize}
+        --sv-background-color: ${backgroundColor};
+        --sv-border-color: ${borderColor};
+        --sv-left: ${left};
+        --sv-bottom: ${bottom};
+        --sv-right: ${right};
+        --sv-top: ${top};
+        --sv-font-size: ${fontSize};
     `}
     >
     [W: {w} | H: {h}]
@@ -51,7 +51,7 @@
         padding: 5px;
         position: absolute;
         left: var(--sv-left);
-        bottom: var(--sv-right);
+        bottom: var(--sv-bottom);
         right: var(--sv-right);
         top: var(--sv-top);
         font-size: var(--sv-font-size);

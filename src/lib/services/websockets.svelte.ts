@@ -66,7 +66,7 @@ export class WebSocketClient<T = unknown> {
 
         if(this.ws?.readyState === WebSocket.OPEN || this.ws?.readyState === WebSocket.CONNECTING) return;
 
-        const ws = new WebSocket(`${this.url}?token=${this.token}&uuid=${this.uuid}`);
+        const ws = new WebSocket(`${this.url}?token=${encodeURIComponent(this.token)}&uuid=${this.uuid}`);
         this.ws = ws;
         this.setStatus('connecting');
 
@@ -102,10 +102,7 @@ export class WebSocketClient<T = unknown> {
 
             const intentional =
                 this.intentionalClose ||
-                (event.code === 1000 &&
-                    (event.reason === 'DISCONNECT') ||
-                        event.reason === 'RECONNECT'
-                );
+                (event.code === 1000 && (event.reason === 'DISCONNECT' || event.reason === 'RECONNECT'));
             this.intentionalClose = false;
 
             if(!intentional && document.visibilityState === 'visible') this.scheduleReconnect();
@@ -129,10 +126,14 @@ export class WebSocketClient<T = unknown> {
         this.clearReconnectTimeout();
         this.intentionalClose = true;
 
-        this.ws?.close(1000, 'DISCONNECT');
-        this.ws = null;
+        if(!this.ws) {
+            this.intentionalClose = false
+            this.setStatus('disconnected');
+            return;
+        }
 
-        this.setStatus('disconnected');
+        this.setStatus('closing');
+        this.ws.close(1000, 'DISCONNECT');
     }
 
     dispose() {

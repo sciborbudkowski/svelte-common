@@ -6,7 +6,7 @@ type Box<T> = {
 };
 
 export class EphemeralStorage {
-    static set<T>(key: string, value: T, ttlMs = 1000 * 60 * 60) {
+    static async set<T>(key: string, value: T, ttlMs = 1000 * 60 * 60) {
         const payload: Box<T> = {
             value,
             expiresAt: Date.now() + ttlMs
@@ -15,7 +15,7 @@ export class EphemeralStorage {
         localStorage.setItem(key, JSON.stringify(payload));
     }
 
-    static get<T>(key: string): T | null {
+    static async get<T>(key: string): Promise<T | null> {
         const raw = localStorage.getItem(key);
         if(!raw) return null;
 
@@ -38,7 +38,7 @@ export class EphemeralStorage {
         }
     }
 
-    static clear(key: string): void {
+    static async delete(key: string): Promise<void> {
         localStorage.removeItem(key);
     }
 }

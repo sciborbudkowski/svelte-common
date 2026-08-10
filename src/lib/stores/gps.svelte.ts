@@ -25,7 +25,7 @@ export interface GpsState {
 };
 
 export interface GpsOptions {
-    enabledHighAccuracy: boolean;
+    enableHighAccuracy: boolean;
     maximumAge?: number;
     timeout?: number;
 };
@@ -33,7 +33,7 @@ export interface GpsOptions {
 const GPS_INTERVAL_MS = 10_000;
 
 export class Gps {
-    private state = $state<GpsState>({
+    state = $state<GpsState>({
         supported: browser && 'geolocation' in navigator,
         active: false,
         mode: 'balanced',
@@ -68,7 +68,7 @@ export class Gps {
 
     getGpsOptions(mode: GpsMode): GpsOptions {
         return {
-            enabledHighAccuracy: mode === 'precise' ? true : false,
+            enableHighAccuracy: mode === 'precise' ? true : false,
             timeout: mode === 'precise' ? 30_000 : 20_000,
             maximumAge: mode === 'precise' ? 5000 : 30_000
         };

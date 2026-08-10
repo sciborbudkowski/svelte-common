@@ -69,7 +69,7 @@
     --sc-floating-button-bg: oklch(from var(--brand-color) l c h / .75);
     --sc-floating-button-hover-bg: var(--brand-color);
     --sc-floating-button-text: var(--clr-neutral-a9);
-    --sc-floating-button-transition: transform 120ms ease, box-shadow 120ms ease, background-color 120mx ease;
+    --sc-floating-button-transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
     --sc-floating-button-focus-outline: var(--clr-neutral-a9);
 
     --sc-carousel-font: var(--font-body);
