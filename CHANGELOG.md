@@ -23,3 +23,15 @@
 ### Added
 
 - CHANGELOG.md added to avoid long commit messages.
+
+
+
+## 1.02 - 2026-08-10
+
+### Added
+
+- styles.css aggregates import of all css files
+
+### Changed
+
+- package.json exports styles.css properly

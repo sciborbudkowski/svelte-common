@@ -1,0 +1,7 @@
+/* src/lib/styles.css */
+
+@import './styles/palette.css';
+@import './styles/props.css';
+@import './styles//appglobals.css';
+@import './styles/theme.css';
+@import './styles/utils.css';
