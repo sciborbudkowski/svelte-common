@@ -35,3 +35,10 @@
 ### Changed
 
 - package.json exports styles.css properly
+
+
+## 1.03 - 2026-08-10
+
+### Fixed
+
+- CSS color variables fixed for loader (colors)

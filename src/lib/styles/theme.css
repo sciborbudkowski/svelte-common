@@ -1,7 +1,7 @@
 /* src/lib/styles/theme.css */
 
 :root {
-	--sc-shadow-color: var(--clr-neutral-7);
+	--sc-shadow-color: var(--clr-neutral-a7);
 	--sc-shadow-1: oklch(from var(--sc-shadow-color) l c h / 0.33) 0px 1px 2px -1px;
 	--sc-shadow-2:
 		oklch(from var(--sc-shadow-color) l c h / 0.27) 0px 3px 5px -2px,
@@ -37,14 +37,14 @@
 }
 
 :root {
-	--sc-loader-overlay: var(--clr-bg-a5);
-	--sc-loader-content: var(--clr-bg-a3);
+	--sc-loader-overlay: var(--color-surface-semitransparent);
+	--sc-loader-content: var(--color-surface);
 	--sc-loader-content-border: var(--clr-neutral-a5);
-	--sc-loader-spinner: var(--clr-neutral-a9);
-	--sc-loader-spinner-accent: var(--clr-green-a5);
-	--sc-loader-title: var(--clr-neutral-a9);
-	--sc-loader-progress-bar: var(--clr-neutral-a9);
-	--sc-loader-status: var(--clr-neutral-a7);
+	--sc-loader-spinner: var(--color-spinner);
+	--sc-loader-spinner-accent: var(--color-spinner-indicator);
+	--sc-loader-title: var(--color-text);
+	--sc-loader-progress-bar: var(--color-progress-bar);
+	--sc-loader-status: var(--color-text-muted);
 
 	--sc-modal-backdrop: var(--clr-neutral-a9);
 	--sc-modal-content-shadow: var(--sc-shadow-4);
@@ -103,7 +103,7 @@
 	--sc-collapsible-card-button-link-hover-color: var(--color-accent);
 
 	--sc-accordion-header-bg: transparent;
-	--sc-accorion-header-color: var(--clr-neutral-2);
+	--sc-accorion-header-color: var(--clr-neutral-a2);
 	--sc-accordion-trigger-bg: var(--color-surface);
 	--sc-accordion-trigger-color: var(--color-text);
 	--sc-accordion-trigger-hover-bg: var(--color-surface-light);
