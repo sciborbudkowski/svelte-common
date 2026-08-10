@@ -40,15 +40,16 @@
     id={id}
     open={modal.isOpen}
     onCancel={closeAlertModal}
+    headerClass={alertClass}
     {header}
     {content}
     {footer}
 />
 
-{#snippet header()}<i class="fa-solid {icon} me-2"></i>{title}{/snippet}
+{#snippet header()}<div><i class="fa-solid {icon} me-2"></i></div>{title}{/snippet}
 
 {#snippet content()}
-     <div class="alert {alertClass}" role="alert">
+     <div role="alert">
         <!-- eslint-disable-next-line svelte/no-at-html-tags -- slide.description is sanitized before it reaches here -->
         {@html textToHtml(modal.message)}
     </div>

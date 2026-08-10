@@ -11,6 +11,7 @@
 		fullHeight = false,
 		confirmButtonLabel = 'Potwierdź',
 		cancelButtonLabel = 'Anuluj',
+		headerClass = undefined,
 		onConfirm = undefined,
 		onCancel = undefined,
 		header,
@@ -22,6 +23,7 @@
 		size?: 'wide' | 'narrow' | 'full' | undefined;
 		position?: 'center' | 'top' | 'bottom' | undefined;
 		fullHeight?: boolean;
+		headerClass?: string;
 		confirmButtonLabel?: string;
 		cancelButtonLabel?: string;
 		onConfirm?: (() => Promise<void> | void) | undefined;
@@ -88,7 +90,7 @@
 		role="dialog"
 	>
 		<div class="modal-content {size} {fullHeight ? 'full-height' : ''}" role="document">
-			<div class="modal-header">
+			<div class="modal-header {headerClass}">
 				{@render header?.()}
 				<button type="button" class="button-close" aria-label="Zamknij" onclick={closeFromButton}>
 					<i class="fa-solid fa-xmark"></i>
@@ -236,4 +238,21 @@
 			font-size: var(--size-3) !important;
 		}
 	}
+
+	.alert-error {
+        color: var(--sc-color-on-danger);
+        background-color: var(--sc-color-danger);
+    }
+    .alert-warning {
+        color: var(--sc-color-on-warning);
+        background-color: var(--sc-color-warning);
+    }
+    .alert-success {
+        color: var(--sc-color-on-success);
+        background-color: var(--sc-color-success);
+    }
+    .aler-info {
+        color: var(--sc-color-on-info);
+        background-color: var(--sc-color-info);
+    }
 </style>
