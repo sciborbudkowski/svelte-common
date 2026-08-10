@@ -7,8 +7,8 @@ fi
 
 set -e
 
+npm install --package-lock-only
 npm run build
-npm run prepack
 npm run prepare
 
 git add .

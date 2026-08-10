@@ -1,70 +1,70 @@
 /* src/lib/styles/props.css */
 
 :root {
-    /* z-index */
-    --zi-0: 0;
-    --zi-1: 1;
-    --zi-2: 5;
-    --zi-3: 10;
-    --zi-4: 20;
-    --zi-5: 100;
-    --zi-always-top: 10000;
+	/* z-index */
+	--zi-0: 0;
+	--zi-1: 1;
+	--zi-2: 5;
+	--zi-3: 10;
+	--zi-4: 20;
+	--zi-5: 100;
+	--zi-always-top: 10000;
 
-    /* sizes */
-    --size-000: -.5rem;
-    --size-00: -.25rem;
-    --size-1: .25rem;
-    --size-2: .5rem;
-    --size-3: 1rem;
-    --size-4: 1.25rem;
-    --size-5: 1.5rem;
-    --size-6: 1.75rem;
-    --size-7: 2rem;
-    --size-8: 3rem;
-    --size-9: 4rem;
-    --size-10: 5rem;
-    --size-11: 7.5rem;
-    --size-12: 10rem;
-    --size-13: 15rem;
-    --size-14: 20rem;
-    --size-15: 30rem;
+	/* sizes */
+	--size-000: -0.5rem;
+	--size-00: -0.25rem;
+	--size-1: 0.25rem;
+	--size-2: 0.5rem;
+	--size-3: 1rem;
+	--size-4: 1.25rem;
+	--size-5: 1.5rem;
+	--size-6: 1.75rem;
+	--size-7: 2rem;
+	--size-8: 3rem;
+	--size-9: 4rem;
+	--size-10: 5rem;
+	--size-11: 7.5rem;
+	--size-12: 10rem;
+	--size-13: 15rem;
+	--size-14: 20rem;
+	--size-15: 30rem;
 
-    /* font sizes */
-    --font-size-00: .5rem;
-    --font-size-0: .75rem;
-    --font-size-1: 1rem;
-    --font-size-2: 1.1rem;
-    --font-size-3: 1.25rem;
-    --font-size-4: 1.5rem;
-    --font-size-5: 2rem;
-    --font-size-6: 2.5rem;
-    --font-size-7: 3rem;
-    --font-size-8: 3.5rem;
+	/* font sizes */
+	--font-size-00: 0.5rem;
+	--font-size-0: 0.75rem;
+	--font-size-1: 1rem;
+	--font-size-2: 1.1rem;
+	--font-size-3: 1.25rem;
+	--font-size-4: 1.5rem;
+	--font-size-5: 2rem;
+	--font-size-6: 2.5rem;
+	--font-size-7: 3rem;
+	--font-size-8: 3.5rem;
 
-    /* letter spacing */
-    --font-ls-0: -.05em;
-    --font-ls-1: .025em;
-    --font-ls-2: .050em;
-    --font-ls-3: .075em;
-    --font-ls-4: .150em;
-    --font-ls-5: .250em;
-    --font-ls-6: .500em;
-    --font-ls-7: .750em;
-    --font-ls-8: 1em;
-    --font-ls-9: 1.125em;
+	/* letter spacing */
+	--font-ls-0: -0.05em;
+	--font-ls-1: 0.025em;
+	--font-ls-2: 0.05em;
+	--font-ls-3: 0.075em;
+	--font-ls-4: 0.15em;
+	--font-ls-5: 0.25em;
+	--font-ls-6: 0.5em;
+	--font-ls-7: 0.75em;
+	--font-ls-8: 1em;
+	--font-ls-9: 1.125em;
 
-    /* border radius */
-    --radius-1: 2px;
-    --radius-2: 5px;
-    --radius-3: 1rem;
-    --radius-4: 2rem;
-    --radius-5: 4rem;
-    --radius-round: 1e5px;
+	/* border radius */
+	--radius-1: 2px;
+	--radius-2: 5px;
+	--radius-3: 1rem;
+	--radius-4: 2rem;
+	--radius-5: 4rem;
+	--radius-round: 1e5px;
 
-    /* border size */
-    --border-1: 1px;
-    --border-2: 2px;
-    --border-3: 5px;
-    --border-4: 10px;
-    --border-5: 25px;
+	/* border size */
+	--border-1: 1px;
+	--border-2: 2px;
+	--border-3: 5px;
+	--border-4: 10px;
+	--border-5: 25px;
 }

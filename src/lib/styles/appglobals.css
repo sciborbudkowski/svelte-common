@@ -1,26 +1,26 @@
 /* src/lib/styles/appglobals.css */
 :root {
-    --sc-top-bar-height: 0;                                 /* optional */
-    --sc-bottom-bar-height: 0;                              /* optional */
+	--sc-top-bar-height: 0; /* optional */
+	--sc-bottom-bar-height: 0; /* optional */
 
-    --color-brand: oklch(52.989% 0.06748 112.689);        /* should change */
-    --color-text: var(--clr-bg-a0);                         /* should change */
-    --color-text-muted: var(--clr-bg-a2);                   /* should change */
-    --color-background: var(--clr-bg-a9);                   /* should change */
-    --color-surface: var(--clr-bg-a3);                      /* should change */
-    --color-surface-light: var(--clr-bg-a4);                /* should change */
-    --color-outline: oklch(39.093% 0.01634 107.182);      /* should change */
-    --color-accent: var(--clr-amber-a6);                    /* should change */
+	--color-brand: oklch(52.989% 0.06748 112.689); /* should change */
+	--color-text: var(--clr-bg-a0); /* should change */
+	--color-text-muted: var(--clr-bg-a2); /* should change */
+	--color-background: var(--clr-bg-a9); /* should change */
+	--color-surface: var(--clr-bg-a3); /* should change */
+	--color-surface-light: var(--clr-bg-a4); /* should change */
+	--color-outline: oklch(39.093% 0.01634 107.182); /* should change */
+	--color-accent: var(--clr-amber-a6); /* should change */
 
-    --font-body: sans-serif;                                /* should change */
-    --font-header: serif;                                   /* should change */
-    --font-code: monospace;                                 /* should change */
+	--font-body: sans-serif; /* should change */
+	--font-header: serif; /* should change */
+	--font-code: monospace; /* should change */
 
-    --border-width: 2px;                                    /* should change */
-    --border-style: solid;                                  /* should change */
-    --border-ws: var(--border-width) var(--border-style);
-    --border-radius: var(--border-2);                       /* should change */
+	--border-width: 2px; /* should change */
+	--border-style: solid; /* should change */
+	--border-ws: var(--border-width) var(--border-style);
+	--border-radius: var(--border-2); /* should change */
 
-    --transition-duration: .25s;                            /* can change */
-    --transition-type: ease-in-out;                         /* can change */
+	--transition-duration: 0.25s; /* can change */
+	--transition-type: ease-in-out; /* can change */
 }
