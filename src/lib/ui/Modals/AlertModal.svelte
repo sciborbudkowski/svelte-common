@@ -46,7 +46,7 @@
     {footer}
 />
 
-{#snippet header()}<div><i class="fa-solid {icon} me-2"></i></div>{title}{/snippet}
+{#snippet header()}<div><i class="fa-solid {icon} me-2"></i>{title}</div>{/snippet}
 
 {#snippet content()}
      <div role="alert">
@@ -55,4 +55,4 @@
     </div>
 {/snippet}
 
-{#snippet footer()}<div class="center"><button type="button" onclick={closeAlertModal}>Potwierdź</button></div>{/snippet}
+{#snippet footer()}<div class="w-100 py-1 text-center"><button type="button" onclick={closeAlertModal}>Potwierdź</button></div>{/snippet}

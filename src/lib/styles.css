@@ -1,8 +1,11 @@
 /* src/lib/styles.css */
 
-@import './styles/palette.css';
-@import './styles/props.css';
-@import './styles//appglobals.css';
-@import './styles/theme.css';
-@import './styles/utils.css';
-@import './styles/buttons.css';
+@layer reset, base, components, utilities;
+
+@import './styles/reset.css' layer(reset);
+@import './styles/palette.css' layer(base);
+@import './styles/props.css' layer(base);
+@import './styles/appglobals.css' layer(base);
+@import './styles/theme.css' layer(base);
+@import './styles/buttons.css' layer(components);
+@import './styles/utils.css' layer(utilities);

@@ -101,16 +101,8 @@
 				{#if footer}
 					{@render footer()}
 				{:else}
-					<span>
-						<button type="button" class="lightgray bordered" onclick={cancel}>
-							{cancelButtonLabel}
-						</button>
-					</span>
-					<span>
-						<button type="button" class="primary bordered" onclick={confirm}>
-							{confirmButtonLabel}
-						</button>
-					</span>
+					<span><button type="button" onclick={cancel}>{cancelButtonLabel}</button></span>
+					<span><button type="button" onclick={confirm}>{confirmButtonLabel}</button></span>
 				{/if}
 			</div>
 		</div>
@@ -156,13 +148,14 @@
 		display: flex;
 		flex-direction: column;
 		padding: 0;
-		border-radius: 0.5rem;
 		box-shadow: var(--sc-modal-content-shadow);
 		width: 100%;
 		min-width: 300px;
 		max-width: 55vw;
 		max-height: 80vh;
 		pointer-events: auto;
+		border-radius: var(--radius-2);
+		overflow: hidden;
 	}
 
 	.modal-content.wide {
@@ -200,15 +193,45 @@
 		font-size: var(--size-4);
 		font-weight: 400;
 	}
-
+	.modal-header.alert-error {
+		background-color: var(--sc-color-danger);
+		color: var(--sc-color-on-danger);
+	}
+	.modal-header.alert-error .button-close {
+		color: var(--sc-color-on-danger);
+	}
+	.modal-header.alert-warning {
+		background-color: var(--sc-color-warning);
+		color: var(--sc-color-on-warning);
+	}
+	.modal-header.alert-warning .button-close {
+		color: var(--sc-color-warning);
+	}
+	.modal-header.alert-success {
+		background-color: var(--sc-color-success);
+		color: var(--sc-color-on-success);
+	}
+	.modal-header.alert-success .button-close {
+		color: var(--sc-color-success);
+	}
+	.modal-header.alert-info {
+		background-color: var(--sc-color-info);
+		color: var(--sc-color-on-info);
+	}
+	.modal-header.alert-info .button-close {
+		color: var(--sc-color-info);
+	}
 	.modal-header .button-close {
-		color: var(--sc-modal-header-button-text);
+		color: var(--color-text);
 		border: none;
 		background-color: transparent;
 		font-size: var(--size-5);
 		padding: 0;
 		box-shadow: none;
 		cursor: pointer;
+	}
+	@media (width > 768px) {
+		.modal-content { width: auto; }
 	}
 
 	.modal-body {
@@ -238,21 +261,4 @@
 			font-size: var(--size-3) !important;
 		}
 	}
-
-	.alert-error {
-        color: var(--sc-color-on-danger);
-        background-color: var(--sc-color-danger);
-    }
-    .alert-warning {
-        color: var(--sc-color-on-warning);
-        background-color: var(--sc-color-warning);
-    }
-    .alert-success {
-        color: var(--sc-color-on-success);
-        background-color: var(--sc-color-success);
-    }
-    .aler-info {
-        color: var(--sc-color-on-info);
-        background-color: var(--sc-color-info);
-    }
 </style>
