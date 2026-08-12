@@ -10,11 +10,11 @@
 		header = null,
 		footer = null,
 		padding = '1rem',
-		chevronPosition = 'bottom',
+		chevronPosition = 'right',
 		isVisibleContentClickable = false,
 		showMoreLabel = 'Pokaż więcej',
 		showLessLabel = 'Pokaż mniej',
-		showMoreLessLabelClass = null,
+		showMoreLessLabelClass = 'link',
 		...rest
 	}: {
 		visibleContent: import('svelte').Snippet;
@@ -42,7 +42,6 @@
 	{/if}
 	<div class="card-body" style={padding ? `--cbp: ${padding}` : ''}>
 		{#if chevronPosition === 'bottom'}
-			{@render visibleContent?.()}
 			<div class="text-end">
 				<button
 					type="button"
@@ -55,7 +54,7 @@
 				</button>
 			</div>
 		{:else if chevronPosition === 'right'}
-			<div class="flex-r j-content-between w-100">
+			<div class="flex-r j-content-between a-center w-100">
 				{#if isVisibleContentClickable}
 					<button
 						type="button"
@@ -78,30 +77,28 @@
 				</button>
 			</div>
 		{:else if chevronPosition === 'left'}
-			<div class="flex-r j-content-between">
-				<div class="text-end">
+			<div class="flex-r gap-2">
+				<button
+					type="button"
+					class={showMoreLessLabelClass}
+					aria-expanded={isOpen}
+					aria-label={buttonAriaLabel}
+					style="padding: 0;"
+					onclick={() => (isOpen = !isOpen)}>
+						<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
+						{showMoreLabel}
+				</button>
+				{#if isVisibleContentClickable}
 					<button
 						type="button"
 						class={showMoreLessLabelClass}
 						aria-expanded={isOpen}
-						aria-label={buttonAriaLabel}
-						style="padding: 0;"
 						onclick={() => (isOpen = !isOpen)}>
-							<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-							{showMoreLabel}
+							{@render visibleContent?.()}
 					</button>
-					{#if isVisibleContentClickable}
-						<button
-							type="button"
-							class={showMoreLessLabelClass}
-							aria-expanded={isOpen}
-							onclick={() => (isOpen = !isOpen)}>
-								{@render visibleContent?.()}
-						</button>
-					{:else}
-						{@render visibleContent?.()}
-					{/if}
-				</div>
+				{:else}
+					{@render visibleContent?.()}
+				{/if}
 			</div>
 		{/if}
 		{#if isOpen}
@@ -126,28 +123,5 @@
 	}
 	.card-body.compact {
 		padding: var(--size-1) var(--size-2) !important;
-	}
-
-	.btn-link {
-		padding: 0;
-		text-decoration: none;
-		color: var(--sc-collapsible-card-button-link-color);
-		font-size: 1rem;
-		border-bottom: 1px solid var(--clr-primary-a40);
-		border-radius: 0;
-		transition: all var(--sc-transition-duration) var(--sc-transition-type);
-	}
-
-	.btn-link:hover {
-		color: var(--sc-collapsible-card-button-link-hover-color);
-		border-bottom: 1px solid var(--sc-collapsible-card-button-link-hover-color);
-	}
-	.btn-link,
-	.btn-link:hover,
-	.btn-link:active,
-	.btn-link:focus {
-		border-bottom: 0;
-		padding: 0 !important;
-		margin: 0 !important;
 	}
 </style>

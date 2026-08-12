@@ -11,6 +11,7 @@ button {
     box-shadow: var(--sc-shadow-1);
     font-weight: 500;
     letter-spacing: var(--font-ls-3);
+    cursor: pointer;
 
     color: var(--sc-button-color);
     background-color: var(--sc-button-bg);
@@ -132,6 +133,15 @@ button.brand {
                 --sc-button-border: var(--sc-color-brand-hover);
             }
 
-.button.link {
-    --sc-button-border: none;
+button.link {
+    --sc-button-border: none !important;
+    --sc-button-bg: transparent !important;
+    box-shadow: none !important;
 }
+    button.link.info {
+        color: var(--sc-color-info);
+        text-decoration: underline;
+    }
+        button.link.info:hover {
+            color: var(--sc-color-info-hover);
+        }
