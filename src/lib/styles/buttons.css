@@ -3,23 +3,23 @@
 button {
     --sc-button-color: var(--sc-color-on-neutral);
     --sc-button-bg: var(--sc-color-neutral);
-    --sc-button-border: var(--border-ws) var(--sc-color-neutral);
+    --sc-button-border: var(--sc-border-ws) var(--sc-color-neutral);
 
     padding: var(--sc-button-padding);
-    border-radius: var(--border-radius);
-    transition: var(--transition-all);
+    border-radius: var(--sc-border-radius);
+    transition: var(--sc-transition-all);
     box-shadow: var(--sc-shadow-1);
     font-weight: 500;
     letter-spacing: var(--font-ls-3);
 
     color: var(--sc-button-color);
     background-color: var(--sc-button-bg);
-    border: var(--border-ws) var(--sc-button-border);
+    border: var(--sc-border-ws) var(--sc-button-border);
 }
     button:hover {
         --sc-button-color: var(--sc-color-on-neutral-hover);
         --sc-button-bg: var(--sc-color-neutral-hover);
-        --sc-button-border: var(--border-ws) var(--sc-color-neutral-hover);
+        --sc-button-border: var(--sc-border-ws) var(--sc-color-neutral-hover);
     }
 
 button.mouse-pointer {
@@ -29,43 +29,109 @@ button.mouse-pointer {
 button.danger {
     --sc-button-color: var(--sc-color-on-danger);
     --sc-button-bg: var(--sc-color-danger);
-    --sc-button-border: var(--border-ws) var(--sc-color-danger);
+    --sc-button-border: var(--sc-border-ws) var(--sc-color-danger);
 }
     button.danger:hover {
         --sc-button-color: var(--sc-color-on-danger-hover);
         --sc-button-bg: var(--sc-color-danger-hover);
-        --sc-button-border: var(--border-ws) var(--sc-color-danger-hover);
+        --sc-button-border: var(--sc-border-ws) var(--sc-color-danger-hover);
     }
+        button.danger.outline {
+            --sc-button-color: var(--sc-color-danger);
+            --sc-button-bg: transparent;
+            --sc-button-border: var(--sc-border-ws) var(--sc-color-danger);
+        }
+            button.danger.outline:hover {
+                --sc-button-color: var(--sc-color-on-danger-hover);
+                --sc-button-bg: var(--sc-color-danger-hover);
+                --sc-button-border: var(--sc-color-danger-hover);
+            }
 
 button.warning {
     --sc-button-color: var(--sc-color-on-warning);
     --sc-button-bg: var(--sc-color-warning);
-    --sc-button-border: var(--border-ws) var(--sc-color-warning);
+    --sc-button-border: var(--sc-border-ws) var(--sc-color-warning);
 }
     button.warning:hover {
         --sc-button-color: var(--sc-color-on-warning-hover);
         --sc-button-bg: var(--sc-color-warning-hover);
-        --sc-button-border: var(--border-ws) var(--sc-color-warning-hover);
+        --sc-button-border: var(--sc-border-ws) var(--sc-color-warning-hover);
     }
+        button.warning.outline {
+            --sc-button-color: var(--sc-color-warning);
+            --sc-button-bg: transparent;
+            --sc-button-border: var(--sc-border-ws) var(--sc-color-warning);
+        }
+            button.warning.outline:hover {
+                --sc-button-color: var(--sc-color-on-warning-hover);
+                --sc-button-bg: var(--sc-color-warning-hover);
+                --sc-button-border: var(--sc-color-warning-hover);
+            }
+
 
 button.success {
     --sc-button-color: var(--sc-color-on-success);
     --sc-button-bg: var(--sc-color-success);
-    --sc-button-border: var(--border-ws) var(--sc-color-success);
+    --sc-button-border: var(--sc-border-ws) var(--sc-color-success);
 }
     button.success:hover {
         --sc-button-color: var(--sc-color-on-success-hover);
         --sc-button-bg: var(--sc-color-success-hover);
-        --sc-button-border: var(--border-ws) var(--sc-color-success-hover);
+        --sc-button-border: var(--sc-border-ws) var(--sc-color-success-hover);
     }
+        button.success.outline {
+            --sc-button-color: var(--sc-color-success);
+            --sc-button-bg: transparent;
+            --sc-button-border: var(--sc-border-ws) var(--sc-color-success);
+        }
+            button.success.outline:hover {
+                --sc-button-color: var(--sc-color-on-success-hover);
+                --sc-button-bg: var(--sc-color-success-hover);
+                --sc-button-border: var(--sc-color-success-hover);
+            }
 
 button.info {
     --sc-button-color: var(--sc-color-on-info);
     --sc-button-bg: var(--sc-color-info);
-    --sc-button-border: var(--border-ws) var(--sc-color-info);
+    --sc-button-border: var(--sc-border-ws) var(--sc-color-info);
 }
     button.info:hover {
         --sc-button-color: var(--sc-color-on-info-hover);
         --sc-button-bg: var(--sc-color-info-hover);
-        --sc-button-border: var(--border-ws) var(--sc-color-info-hover);
+        --sc-button-border: var(--sc-border-ws) var(--sc-color-info-hover);
     }
+        button.info.outline {
+            --sc-button-color: var(--sc-color-info);
+            --sc-button-bg: transparent;
+            --sc-button-border: var(--sc-border-ws) var(--sc-color-info);
+        }
+            button.info.outline:hover {
+                --sc-button-color: var(--sc-color-on-info-hover);
+                --sc-button-bg: var(--sc-color-info-hover);
+                --sc-button-border: var(--sc-color-info-hover);
+            }
+
+button.brand {
+    --sc-button-color: var(--sc-color-on-brand);
+    --sc-button-bg: var(--sc-color-brand);
+    --sc-button-border: var(--sc-border-ws) var(--sc-color-brand);
+}
+    button.info:brand {
+        --sc-button-color: var(--sc-color-on-brand-hover);
+        --sc-button-bg: var(--sc-color-brand-hover);
+        --sc-button-border: var(--sc-border-ws) var(--sc-color-brand-hover);
+    }
+        button.brand.outline {
+            --sc-button-color: var(--sc-color-brand);
+            --sc-button-bg: transparent;
+            --sc-button-border: var(--sc-border-ws) var(--sc-color-brand);
+        }
+            button.brand.outline:hover {
+                --sc-button-color: var(--sc-color-on-brand-hover);
+                --sc-button-bg: var(--sc-color-brand-hover);
+                --sc-button-border: var(--sc-color-brand-hover);
+            }
+
+.button.link {
+    --sc-button-border: none;
+}

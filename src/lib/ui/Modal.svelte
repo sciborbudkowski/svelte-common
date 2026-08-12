@@ -222,7 +222,7 @@
 		color: var(--sc-color-info);
 	}
 	.modal-header .button-close {
-		color: var(--color-text);
+		color: var(--sc-color-text);
 		border: none;
 		background-color: transparent;
 		font-size: var(--size-5);
@@ -240,7 +240,7 @@
 		flex: 1 1 auto;
 		min-height: 0;
 		overflow-y: auto;
-		font-family: var(--font-body);
+		font-family: var(--sc-font-body);
 	}
 	.modal-footer {
 		display: flex;

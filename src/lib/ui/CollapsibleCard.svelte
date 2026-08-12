@@ -14,6 +14,7 @@
 		isVisibleContentClickable = false,
 		showMoreLabel = 'Pokaż więcej',
 		showLessLabel = 'Pokaż mniej',
+		showMoreLessLabelClass = null,
 		...rest
 	}: {
 		visibleContent: import('svelte').Snippet;
@@ -26,6 +27,7 @@
 		isVisibleContentClickable?: boolean;
 		showMoreLabel?: string;
 		showLessLabel?: string;
+		showMoreLessLabelClass?: string | null;
 		class?: string | null;
 	} = $props();
 
@@ -44,57 +46,58 @@
 			<div class="text-end">
 				<button
 					type="button"
+					class={showMoreLessLabelClass}
 					aria-expanded={isOpen}
 					aria-label={buttonAriaLabel}
-					onclick={() => (isOpen = !isOpen)}
-				>
-					<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-					{showMoreLabel}
+					onclick={() => (isOpen = !isOpen)}>
+						<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
+						{showMoreLabel}
 				</button>
 			</div>
 		{:else if chevronPosition === 'right'}
-			<div class="d-flex flex-row justify-content-between w-100">
+			<div class="flex-r j-content-between w-100">
 				{#if isVisibleContentClickable}
 					<button
 						type="button"
-						class="btn-link"
+						class={showMoreLessLabelClass}
 						aria-expanded={isOpen}
-						onclick={() => (isOpen = !isOpen)}>{@render visibleContent?.()}</button
-					>
+						onclick={() => (isOpen = !isOpen)}>
+							{@render visibleContent?.()}
+					</button>
 				{:else}
 					{@render visibleContent?.()}
 				{/if}
 				<button
 					type="button"
-					class="btn-link"
+					class={showMoreLessLabelClass}
 					aria-expanded={isOpen}
 					aria-label={buttonAriaLabel}
-					onclick={() => (isOpen = !isOpen)}
-				>
-					<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-					{showMoreLabel}
+					onclick={() => (isOpen = !isOpen)}>
+						<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
+						{showMoreLabel}
 				</button>
 			</div>
 		{:else if chevronPosition === 'left'}
-			<div class="d-flex flex-row adjust-content-between">
+			<div class="flex-r j-content-between">
 				<div class="text-end">
 					<button
 						type="button"
+						class={showMoreLessLabelClass}
 						aria-expanded={isOpen}
 						aria-label={buttonAriaLabel}
 						style="padding: 0;"
-						onclick={() => (isOpen = !isOpen)}
-					>
-						<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-						{showMoreLabel}
+						onclick={() => (isOpen = !isOpen)}>
+							<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
+							{showMoreLabel}
 					</button>
 					{#if isVisibleContentClickable}
 						<button
 							type="button"
-							class="btn-link"
+							class={showMoreLessLabelClass}
 							aria-expanded={isOpen}
-							onclick={() => (isOpen = !isOpen)}>{@render visibleContent?.()}</button
-						>
+							onclick={() => (isOpen = !isOpen)}>
+								{@render visibleContent?.()}
+						</button>
 					{:else}
 						{@render visibleContent?.()}
 					{/if}
@@ -132,7 +135,7 @@
 		font-size: 1rem;
 		border-bottom: 1px solid var(--clr-primary-a40);
 		border-radius: 0;
-		transition: all var(--transition-duration) var(--transition-type);
+		transition: all var(--sc-transition-duration) var(--sc-transition-type);
 	}
 
 	.btn-link:hover {

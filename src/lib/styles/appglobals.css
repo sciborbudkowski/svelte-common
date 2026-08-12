@@ -3,33 +3,38 @@
 	--sc-top-bar-height: 0; /* optional */
 	--sc-bottom-bar-height: 0; /* optional */
 
-	--color-brand: oklch(52.989% 0.06748 112.689); /* should change */
-	--color-text: var(--clr-neutral-a0); /* should change */
-	--color-text-muted: var(--clr-neutral-a4); /* should change */
-	--color-background: var(--clr-bg-a9); /* should change */
-	--color-surface: var(--clr-bg-a4); /* should change */
-	--color-surface-light: var(--clr-bg-a4); /* should change */
-	--color-surface-semitransparent: oklch(from var(--clr-bg-a5) l c h / .5);
-	--color-outline: oklch(39.093% 0.01634 107.182); /* should change */
-	--color-accent: var(--clr-amber-a6); /* should change */
-	--color-progress-bar: var(--clr-neutral-a9); /* can change */
-	--color-spinner: var(--clr-neutral-a8); /* can change */
-	--color-spinner-indicator: var(--color-brand);
+	--sc-color-brand: oklch(52.989% 0.06748 112.689); /* should change */
+	--sc-color-text: var(--clr-neutral-a0); /* should change */
+	--sc-color-text-muted: var(--clr-neutral-a4); /* should change */
+	--sc-color-background: var(--clr-bg-a1); /* should change */
+	--sc-color-surface: var(--clr-bg-a4); /* should change */
+	--sc-color-surface-light: var(--clr-bg-a4); /* should change */
+	--sc-color-surface-semitransparent: oklch(from var(--clr-bg-a5) l c h / .5);
+	--sc-color-outline: oklch(39.093% 0.01634 107.182); /* should change */
+	--sc-color-accent: var(--clr-amber-a6); /* should change */
+	--sc-color-progress-bar: var(--clr-neutral-a9); /* can change */
+	--sc-color-spinner: var(--clr-neutral-a8); /* can change */
+	--sc-color-spinner-indicator: var(--sc-color-brand);
 
-	--font-body: sans-serif; /* should change */
-	--font-header: serif; /* should change */
-	--font-code: monospace; /* should change */
+	--sc-font-body: sans-serif; /* should change */
+	--sc-font-header: serif; /* should change */
+	--sc-font-code: monospace; /* should change */
 
-	--border-width: 2px; /* should change */
-	--border-style: solid; /* should change */
-	--border-ws: var(--border-width) var(--border-style);
-	--border-radius: var(--radius-2); /* should change */
+	--sc-border-width: 2px; /* should change */
+	--sc-border-style: solid; /* should change */
+	--sc-border-ws: var(--sc-border-width) var(--sc-border-style);
+	--sc-border-radius: var(--radius-2); /* should change */
 
-	--transition-duration: 0.25s; /* can change */
-	--transition-type: ease-in-out; /* can change */
-	--transition-all: all var(--transition-duration) var(--transition-type);
+	--sc-transition-duration: 0.25s; /* can change */
+	--sc-transition-type: ease-in-out; /* can change */
+	--sc-transition-all: all var(--sc-transition-duration) var(--sc-transition-type);
 
-	--backdrop-filter: blur(20px);
+	--sc-backdrop-filter: blur(20px);
+
+	--sc-color-brand: var(--sc-color-brand);
+	--sc-color-on-brand: var(--clr-neutral-a8);
+	--sc-color-brand-hover: oklch(58.324% 0.08851 113.513);
+	--sc-color-on-brand-hover: var(--clr-neutral-a9);
 
     --sc-color-danger: var(--clr-red-a4);
     --sc-color-danger-hover: var(--clr-red-a3);
@@ -58,9 +63,10 @@
 }
 
 body {
-	font-family: var(--font-body);
+	font-family: var(--sc-font-body);
+	background-color: var(--sc-color-background);
 }
 
 h1, h2, h3, h4, h5, h6 {
-	font-family: var(--font-header);
+	font-family: var(--sc-font-header);
 }

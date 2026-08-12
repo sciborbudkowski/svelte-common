@@ -65,3 +65,5 @@
 - minor fixes in css colors
 - Modal.svelte got optional prop for ConfirmModal and AlertModal
 - alert colors
+- fixed CSS classes in CollapsibleCard
+- all CSS variables has the same --sc prefix

@@ -67,6 +67,6 @@
 	}
 
 	:global(.accrd-item + .accrd-item) {
-		border-top: var(--border-ws) var(--sc-accordion-item-border-top-color);
+		border-top: var(--sc-border-ws) var(--sc-accordion-item-border-top-color);
 	}
 </style>

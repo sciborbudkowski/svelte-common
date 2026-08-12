@@ -386,13 +386,13 @@
 		letter-spacing: var(--font-ls-5);
 		text-transform: uppercase;
 		background-color: var(--sc-carousel-header-bg);
-		border: var(--border-ws) var(--sc-carousel-header-border);
-		border-radius: var(--border-radius);
+		border: var(--sc-border-ws) var(--sc-carousel-header-border);
+		border-radius: var(--sc-border-radius);
 		color: var(--brand-color);
 	}
 
 	h1 {
-		font-family: var(--font-header) !important;
+		font-family: var(--sc-font-header) !important;
 		font-size: clamp(2.3rem, 9vw, 5.35rem);
 		font-weight: 700;
 		letter-spacing: calc(var(--font-ls-0) * 0.5);
@@ -449,7 +449,7 @@
 	}
 
 	.mc-slide-content {
-		font-family: var(--font-code);
+		font-family: var(--sc-font-code);
 		position: relative;
 		z-index: var(--zi-2);
 		text-align: center;
@@ -483,7 +483,7 @@
 		margin-bottom: var(--size-3);
 		text-indent: 0;
 		text-align: center;
-		border-radius: var(--border-radius);
+		border-radius: var(--sc-border-radius);
 		padding: var(--size-3);
 		background-color: var(--sc-carousel-slide-subtitle-bg);
 	}
@@ -500,11 +500,11 @@
 		width: calc(var(--size-2) * 1.5);
 		height: calc(var(--size-2) * 1.5);
 		aspect-ratio: 1 / 1;
-		border: var(--border-ws) var(--sc-carousel-nav-item-border);
+		border: var(--sc-border-ws) var(--sc-carousel-nav-item-border);
 		border-radius: var(--border-round);
 		margin: var(--size-3) 0;
 		cursor: pointer;
-		transition: all var(--transition-duration) var(--transition-type);
+		transition: all var(--sc-transition-duration) var(--sc-transition-type);
 		position: relative;
 		display: block;
 		background: transparent;

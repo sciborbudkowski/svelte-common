@@ -332,6 +332,9 @@
 .uc {
 	text-transform: uppercase;
 }
+.cap {
+	text-transform: capitalize;
+}
 .b {
 	font-weight: 800;
 }
