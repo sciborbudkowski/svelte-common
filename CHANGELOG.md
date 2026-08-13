@@ -26,7 +26,7 @@
 
 
 
-## 1.02 - 2026-08-10
+## 1.0.2 - 2026-08-10
 
 ### Added
 
@@ -37,13 +37,13 @@
 - package.json exports styles.css properly
 
 
-## 1.03 - 2026-08-10
+## 1.0.3 - 2026-08-10
 
 ### Fixed
 
 - CSS color variables fixed for loader (colors)
 
-# 1.04 - 2026-08-10
+# 1.0.4 - 2026-08-10
 
 ## Fixed
 
@@ -51,7 +51,7 @@
 - Modal has no more isOpen props and takes care of everything inside
 - Removed export of closeAlertModal function and modalsState store
 
-# 1.05 - 2026-08-10
+# 1.0.5 - 2026-08-10
 
 ## Added
 
@@ -67,3 +67,14 @@
 - alert and button colors
 - fixed CSS classes and layout in CollapsibleCard
 - all CSS variables have the same --sc prefix
+
+# 1.0.6
+
+## Changed
+
+- upgrade to Vite 8
+- libraries upgraded
+
+## Fixed
+
+- gps.svelte.ts uses esm-env instead of $app/env (deprecated)

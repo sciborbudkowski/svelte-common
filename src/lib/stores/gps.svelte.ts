@@ -1,6 +1,6 @@
 // src/lib/stores/gps.svelte.ts
 
-import { browser } from '$app/env';
+import { BROWSER as browser } from 'esm-env';
 
 export type GpsPosition = {
 	lat: number;
