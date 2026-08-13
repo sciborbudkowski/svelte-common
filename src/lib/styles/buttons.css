@@ -24,6 +24,14 @@ button {
 	transition: var(--sc-transition-all);
 }
 
+button.xs {
+    padding: var(--size-1) var(--size-2);
+    border-width: 1px;
+    font-weight: 300;
+    font-size: 90%;
+    letter-spacing: var(--font-ls-3);
+}
+
 button.danger {
 	--sc-button-accent: var(--sc-button-danger-accent);
 	--sc-button-on-accent: var(--sc-button-danger-on-accent);
@@ -100,4 +108,22 @@ button.link {
 
 button.link:not(:disabled):hover {
 	--sc-button-color: var(--sc-button-accent-hover) !important;
+}
+
+.button-group {
+    display: inline-flex;
+}
+.button-group > * {
+    border-radius: 0;
+}
+.button-group > :first-child {
+    border-top-left-radius: var(--sc-border-radius);
+    border-bottom-left-radius: var(--sc-border-radius);
+}
+.button-group > :last-child {
+    border-top-right-radius: var(--sc-border-radius);
+    border-bottom-right-radius: var(--sc-border-radius);
+}
+.button-group > * + * {
+    margin-inline-start: -1px;
 }

@@ -70,6 +70,10 @@
 
 # 1.0.6
 
+## Added
+
+- button-group css class
+
 ## Changed
 
 - upgrade to Vite 8

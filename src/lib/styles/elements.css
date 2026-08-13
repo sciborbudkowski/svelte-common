@@ -13,6 +13,20 @@
     font-weight: 400;
     padding: var(--size-1) var(--size-3);
     border-radius: var(--radius-5);
+    gap: var(--size-1);
 }
 
 .text-muted { color: var(--sc-color-text-muted); }
+.text-danger { color: var(--sc-color-danger); }
+.text-warning { color: var(--sc-color-warning); }
+.text-info { color: var(--sc-color-info); }
+.text-success { color: var(--sc-color-success); }
+
+.no-indent { text-indent: none; }
+
+.br-1 { border-radius: var(--radius-1); }
+.br-2 { border-radius: var(--radius-2); }
+.br-3 { border-radius: var(--radius-3); }
+.br-4 { border-radius: var(--radius-4); }
+.br-5 { border-radius: var(--radius-5); }
+.br-round { border-radius: var(--radius-round); }
