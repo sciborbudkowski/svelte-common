@@ -1,22 +1,22 @@
 /* src/lib/styles/theme.css */
 
 :root {
-    --sc-shadow-color: var(--clr-neutral-a0);
-    --sc-shadow-1:
-        oklch(from var(--sc-shadow-color) l c h / 0.18) -1px -1px 1px 0px,
-        oklch(from var(--sc-shadow-color) l c h / 0.18) 2px 2px 4px 2px;
-    --sc-shadow-2:
-        oklch(from var(--sc-shadow-color) l c h / 0.22) -1px -1px 2px 0px,
-        oklch(from var(--sc-shadow-color) l c h / 0.22) 3px 3px 6px 4px;
+	--sc-shadow-color: var(--clr-neutral-a0);
+	--sc-shadow-1:
+		oklch(from var(--sc-shadow-color) l c h / 0.18) -1px -1px 1px 0px,
+		oklch(from var(--sc-shadow-color) l c h / 0.18) 2px 2px 4px 2px;
+	--sc-shadow-2:
+		oklch(from var(--sc-shadow-color) l c h / 0.22) -1px -1px 2px 0px,
+		oklch(from var(--sc-shadow-color) l c h / 0.22) 3px 3px 6px 4px;
 	--sc-shadow-3:
 		oklch(from var(--sc-shadow-color) l c h / 0.26) -2px -2px 2px 0px,
 		oklch(from var(--sc-shadow-color) l c h / 0.26) 4px 4px 8px 6px;
-    --sc-shadow-4:
-        oklch(from var(--sc-shadow-color) l c h / 0.26) -2px -2px 3px 0px,
-        oklch(from var(--sc-shadow-color) l c h / 0.26) 6px 6px 12px 8px;
-    --sc-shadow-5:
-        oklch(from var(--sc-shadow-color) l c h / 0.26) -3px -3px 4px 0px,
-        oklch(from var(--sc-shadow-color) l c h / 0.26) 8px 8px 16px 10px;
+	--sc-shadow-4:
+		oklch(from var(--sc-shadow-color) l c h / 0.26) -2px -2px 3px 0px,
+		oklch(from var(--sc-shadow-color) l c h / 0.26) 6px 6px 12px 8px;
+	--sc-shadow-5:
+		oklch(from var(--sc-shadow-color) l c h / 0.26) -3px -3px 4px 0px,
+		oklch(from var(--sc-shadow-color) l c h / 0.26) 8px 8px 16px 10px;
 }
 
 :root {
@@ -49,10 +49,42 @@
 	--sc-toast-neutral-bg: var(--clr-neutral-a4);
 	--sc-toast-shadow: var(--sc-shadow-4);
 
+	--sc-button-neutral-accent: var(--clr-neutral-a4);
+	--sc-button-neutral-on-accent: var(--clr-neutral-a9);
+	--sc-button-neutral-accent-hover: var(--clr-neutral-a3);
+	--sc-button-neutral-on-accent-hover: var(--clr-neutral-a9);
+	--sc-button-danger-accent: var(--sc-color-danger);
+	--sc-button-danger-on-accent: var(--sc-color-on-danger);
+	--sc-button-danger-accent-hover: var(--sc-color-danger-hover);
+	--sc-button-danger-on-accent-hover: var(--sc-color-on-danger-hover);
+	--sc-button-warning-accent: var(--sc-color-warning);
+	--sc-button-warning-on-accent: var(--sc-color-on-warning);
+	--sc-button-warning-accent-hover: var(--sc-color-warning-hover);
+	--sc-button-warning-on-accent-hover: var(--sc-color-on-warning-hover);
+	--sc-button-success-accent: var(--sc-color-success);
+	--sc-button-success-on-accent: var(--sc-color-on-success);
+	--sc-button-success-accent-hover: var(--sc-color-success-hover);
+	--sc-button-success-on-accent-hover: var(--sc-color-on-success-hover);
+	--sc-button-info-accent: var(--sc-color-info);
+	--sc-button-info-on-accent: var(--sc-color-on-info);
+	--sc-button-info-accent-hover: var(--sc-color-info-hover);
+	--sc-button-info-on-accent-hover: var(--sc-color-on-info-hover);
+	--sc-button-brand-accent: var(--sc-color-brand);
+	--sc-button-brand-on-accent: var(--sc-color-on-brand);
+	--sc-button-brand-accent-hover: var(--sc-color-brand-hover);
+	--sc-button-brand-on-accent-hover: var(--sc-color-on-brand-hover);
+	--sc-button-padding: calc(var(--size-1) * 1.25) calc(var(--size-2) * 1.5);
+	--sc-button-shadow: var(--sc-shadow-1);
+	--sc-button-focus-visible-outline: var(--sc-border-ws) var(--sc-color-outline);
+	--sc-button-focus-visible-outline-offset: 2px;
+	--sc-button-disabled-opacity: 0.5;
+	--sc-button-disabled-shadow: none;
+
 	--sc-floating-button-bg: oklch(from var(--brand-color) l c h / 0.75);
 	--sc-floating-button-hover-bg: var(--brand-color);
 	--sc-floating-button-text: var(--clr-neutral-a9);
-	--sc-floating-button-transition: transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
+	--sc-floating-button-transition:
+		transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
 	--sc-floating-button-focus-outline: var(--clr-neutral-a9);
 
 	--sc-carousel-font: var(--sc-font-body);

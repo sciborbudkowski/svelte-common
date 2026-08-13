@@ -6,6 +6,7 @@
 	--sc-color-brand: oklch(52.989% 0.06748 112.689); /* should change */
 	--sc-color-text: var(--clr-neutral-a0); /* should change */
 	--sc-color-text-muted: var(--clr-neutral-a4); /* should change */
+	--sc-color-text-inverted: var(--clr-neutral-a9);
 	--sc-color-background: var(--clr-bg-a1); /* should change */
 	--sc-color-surface: var(--clr-bg-a4); /* should change */
 	--sc-color-surface-light: var(--clr-bg-a4); /* should change */
@@ -69,4 +70,9 @@ body {
 
 h1, h2, h3, h4, h5, h6 {
 	font-family: var(--sc-font-header);
+}
+
+hr {
+    background-color: oklch(from var(--sc-color-text-inverted) l c h / .25);
+    height: var(--sc-border-width);
 }

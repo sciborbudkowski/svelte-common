@@ -255,6 +255,7 @@
 	font-weight: 800 !important;
 }
 
+.flex { display: flex !important; }
 .flex-r {
 	display: flex !important;
 	flex-direction: row !important;
@@ -349,3 +350,15 @@
 	border-bottom-style: solid !important;
 	color: inherit;
 }
+
+.bg-brand { background-color: var(--sc-color-brand); color: var(--sc-color-on-brand); }
+.bg-danger { background-color: var(--sc-color-danger); color: var(--sc-color-on-danger); }
+.bg-warning { background-color: var(--sc-color-warning); color: var(--sc-color-on-warning); }
+.bg-success { background-color: var(--sc-color-success); color: var(--sc-color-on-success); }
+.bg-info { background-color: var(--sc-color-info); color: var(--sc-color-on-info); }
+
+.fs-xxs { font-size: 70%; }
+.fs-xs { font-size: 85%; }
+.fs-normal { font-size: 100%; } /* just for reference */
+.fs-xl { font-size: 115%; }
+.fs-xxl { font-size: 130%; }
