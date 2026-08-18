@@ -22,7 +22,8 @@
 .text-info { color: var(--sc-color-info); }
 .text-success { color: var(--sc-color-success); }
 
-.no-indent { text-indent: none; }
+.no-indent { text-indent: 0; }
+.indent { text-indent: var(--size-2); }
 
 .br-1 { border-radius: var(--radius-1); }
 .br-2 { border-radius: var(--radius-2); }

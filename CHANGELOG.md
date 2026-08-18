@@ -74,6 +74,8 @@
 
 - button-group css class
 - modalStack to control the topmost opened modal
+- indent CSS class
+- CSS classes for sizing buttons
 
 ## Changed
 
@@ -83,6 +85,7 @@
 ## Fixed
 
 - gps.svelte.ts uses esm-env instead of $app/env (deprecated)
+- no-indent CSS class
 
 ## Removed
 

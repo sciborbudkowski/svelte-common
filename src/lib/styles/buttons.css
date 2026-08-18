@@ -24,12 +24,25 @@ button {
 	transition: var(--sc-transition-all);
 }
 
-button.xs {
+button.xs, button.xxs, button.xl, button.xxl {
     padding: var(--size-1) var(--size-2);
     border-width: 1px;
     font-weight: 300;
-    font-size: 90%;
     letter-spacing: var(--font-ls-3);
+}
+button.xs {
+	font-size: 85%;
+}
+button.xxs {
+	font-size: 70%
+}
+button.xl {
+	font-size: 115%;
+	font-weight: 400;
+}
+button.xxl {
+	font-size: 130%;
+	font-weight: 600;
 }
 
 button.danger {
@@ -100,10 +113,14 @@ button:disabled {
 button.link {
 	--sc-button-color: var(--sc-button-accent) !important;
 	--sc-button-bg: transparent !important;
-	--sc-button-border: transparent !important;
+	--sc-button-border: none !important;
 	--sc-button-shadow: none !important;
+	padding: 0;
 
 	text-decoration: underline;
+}
+button.no-decoration {
+	text-decoration: none !important;
 }
 
 button.link:not(:disabled):hover {
