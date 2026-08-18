@@ -1,7 +1,7 @@
 <!-- src/lib/ui/Modal.svelte -->
 <script lang="ts">
-	import { closeModal, modalsState } from '$lib/stores/modal.svelte';
-	import type { Snippet } from 'svelte';
+	import { closeModal, modalsState, modalStack, registerModal, unregisterModal } from '$lib/stores/modal.svelte';
+	import { untrack, type Snippet } from 'svelte';
 
 	let {
 		id,
@@ -36,14 +36,18 @@
 	const modal = $derived(modalsState.customModal[id]);
 	const controlled = $derived(open !== undefined);
 	const isOpen = $derived(open ?? modal?.isOpen ?? false);
+	const stackIndex = $derived(modalStack.indexOf(id));
+	const isTopMost = $derived(stackIndex !== -1 && stackIndex === modalStack.length - 1);
 
 	function close() {
 		cancel();
 	}
 
 	function closeFromBackdrop(e: PointerEvent) {
+		if (!isTopMost) return;
 		if (e.target !== e.currentTarget) return;
 		if (e.pointerType === 'touch') return;
+
 		close();
 	}
 
@@ -53,12 +57,15 @@
 	}
 
 	function handleKeyDown(e: KeyboardEvent) {
-		if (!isOpen) return;
-		if (e.key === 'Escape') close();
+		if (!isOpen || !isTopMost) return;
+		if (e.key === 'Escape') {
+			e.preventDefault();
+			close();
+		}
 	}
 
 	function handleBackdropKeyDown(e: KeyboardEvent) {
-		if (e.target !== e.currentTarget) return;
+		if (e.target !== e.currentTarget || !isTopMost) return;
 		if (e.key == 'Enter' || e.key === ' ') {
 			e.preventDefault();
 			close();
@@ -76,13 +83,25 @@
 		callback?.(modal?.context);
 		if(!controlled) closeModal(id);
 	}
+
+	$effect(() => {
+		const modalId = id;
+		if (!isOpen) return;
+
+		untrack(() => registerModal(modalId));
+
+		return () => {
+			untrack(() => unregisterModal(modalId));
+		};
+	});
 </script>
 
 <svelte:window onkeydown={handleKeyDown} />
 
 {#if isOpen}
 	<div
-		class="modal-backdrop mp-{position} {fullHeight ? 'full-height' : ''}"
+		class="modal-backdrop mp-{position} {isTopMost ? 'is-topmost' : ''}"
+		style={`--modal-depth: ${Math.max(stackIndex, 0)}`}
 		onpointerdown={closeFromBackdrop}
 		onkeydown={handleBackdropKeyDown}
 		tabindex="-1"
@@ -112,17 +131,22 @@
 <style>
 	.modal-backdrop {
 		position: fixed;
-		inset: 0;
+		inset:
+			var(--sc-top-bar-height, 0px)
+			0
+			var(--sc-bottom-bar-height, 0px);
+		box-sizing: border-box;
+		padding: var(--size-3);
+		overflow: hidden;
 		background-color: var(--sc-modal-backdrop);
 		backdrop-filter: blur(3px);
 		display: flex;
 		justify-content: center;
 		align-items: center;
-		z-index: 1000;
+		z-index: calc(var(--zi-modal-base) + var(--modal-depth, 0));
 		pointer-events: auto;
 		opacity: 1;
 	}
-
 	.modal-backdrop.mp-center {
 		justify-content: center;
 		align-items: center;
@@ -143,41 +167,41 @@
 		justify-content: flex-end;
 		align-items: center;
 	}
+	.modal-backdrop:not(.is-topmost) {
+		backdrop-filter: none;
+	}
 
 	.modal-content {
+		--modal-width: clamp(18rem, 55vw, 55rem);
 		display: flex;
 		flex-direction: column;
+		box-sizing: border-box;
+		width: min(100%, var(--modal-width));
+		max-height: 100%;
 		padding: 0;
 		box-shadow: var(--sc-modal-content-shadow);
-		width: 100%;
-		min-width: 300px;
-		max-width: 55vw;
-		max-height: 80vh;
-		max-height: 80dvh;
 		pointer-events: auto;
 		border-radius: var(--radius-2);
 		overflow: hidden;
 	}
-
 	.modal-content.wide {
-		max-width: 90vw;
+		--modal-width: clamp(18rem, 90vw, 90rem);
 	}
-
 	.modal-content.narrow {
-		max-width: 30vw;
+		--modal-width: clamp(18rem, 30vw, 32rem);
 	}
-
 	.modal-content.full {
-		max-width: 90vw;
-		max-height: 90vh;
+		--modal-width: 100%;
+		height: 100%;
+	}
+	.modal-content.full-height {
 		height: 100%;
 	}
 
 	@media (max-width: 768px) {
-		.modal-content {
-			max-height: 95vh;
-			max-width: 85vw;
-		}
+		 .modal-backdrop {
+			padding: var(--size-2);
+		 }
 	}
 
 	.modal-header,
@@ -186,10 +210,6 @@
 	}
 	.modal-header {
 		display: flex;
-		flex: 1 1 auto;
-		min-height: 0;
-		overflow-y: auto;
-		overscroll-behavior: contain;
 		justify-content: space-between;
 		align-items: center;
 		padding: var(--size-2) var(--size-3);
@@ -197,6 +217,7 @@
 		background-color: var(--sc-modal-header-bg);
 		font-size: var(--size-4);
 		font-weight: 400;
+		gap: var(--size-2);
 	}
 	.modal-header.alert-error {
 		background-color: var(--sc-color-danger);
@@ -235,17 +256,18 @@
 		box-shadow: none;
 		cursor: pointer;
 	}
-	@media (width > 768px) {
-		.modal-content { width: auto; }
-	}
 
 	.modal-body {
-		padding: var(--size-3);
-		background-color: var(--sc-modal-body-bg);
 		flex: 1 1 auto;
 		min-height: 0;
 		overflow-y: auto;
+		overflow-x: hidden;
+		overscroll-behavior: contain;
+		scrollbar-gutter: stable;
+		padding: var(--size-3);
+		background-color: var(--sc-modal-body-bg);
 		font-family: var(--sc-font-body);
+		overflow-wrap: anywhere;
 	}
 	.modal-footer {
 		display: flex;
@@ -256,9 +278,6 @@
 	}
 	.modal-footer button {
 		min-width: 100px;
-	}
-	.modal-footer.full-height {
-		height: 100vh;
 	}
 
 	@media (max-width: 768px) {

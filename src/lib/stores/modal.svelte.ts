@@ -34,6 +34,15 @@ interface ModalOptions {
 	context?: unknown;
 }
 
+export function registerModal(id: string) {
+	if (!modalStack.includes(id)) modalStack.push(id);
+}
+
+export function unregisterModal(id: string) {
+	const index = modalStack.indexOf(id);
+	if (index !== -1) modalStack.splice(index, 1);
+}
+
 export const modalsState = $state<ModalState>({
 	confirmModal: {
 		isOpen: false,
@@ -46,6 +55,8 @@ export const modalsState = $state<ModalState>({
 	alertModal: { isOpen: false, id: '__alert_modal_id', message: '', type: 'info' },
 	customModal: {}
 });
+
+export const modalStack = $state<string[]>([]);
 
 const ensureCustomModal = (modalId?: string) => {
 	if (!modalId) return;
@@ -85,7 +96,6 @@ export const openAlertModal = (message: string, type: AlertModalType = 'info') =
 
 export const openModal = (modalId: string, options?: ModalOptions) => {
 	ensureCustomModal(modalId);
-
 	modalsState.customModal[modalId] = {
 		isOpen: true,
 		id: modalId,

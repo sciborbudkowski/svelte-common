@@ -73,6 +73,7 @@
 ## Added
 
 - button-group css class
+- modalStack to control the topmost opened modal
 
 ## Changed
 
