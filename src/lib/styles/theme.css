@@ -126,4 +126,7 @@
 	--sc-accordion-trigger-focus-visible-outline: var(--sc-color-text-muted);
 	--sc-accordion-panel-bg: var(--sc-color-background);
 	--sc-accordion-panel-color: var(--sc-color-text);
+
+	--sc-card-header-bg: var(--clr-neutral-3);
+	--sc-card-body-bg: var(--sc-color-surface);
 }

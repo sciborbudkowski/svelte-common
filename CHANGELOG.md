@@ -82,3 +82,7 @@
 ## Fixed
 
 - gps.svelte.ts uses esm-env instead of $app/env (deprecated)
+
+## Removed
+
+- Lenis

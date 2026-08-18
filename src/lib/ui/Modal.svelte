@@ -153,6 +153,7 @@
 		min-width: 300px;
 		max-width: 55vw;
 		max-height: 80vh;
+		max-height: 80dvh;
 		pointer-events: auto;
 		border-radius: var(--radius-2);
 		overflow: hidden;
@@ -185,6 +186,10 @@
 	}
 	.modal-header {
 		display: flex;
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow-y: auto;
+		overscroll-behavior: contain;
 		justify-content: space-between;
 		align-items: center;
 		padding: var(--size-2) var(--size-3);
