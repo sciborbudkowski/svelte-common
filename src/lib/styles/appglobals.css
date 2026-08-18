@@ -61,6 +61,9 @@
     --sc-color-neutral-hover: var(--clr-neutral-a6);
     --sc-color-on-neutral: var(--clr-neutral-a1);
     --sc-color-on-neutral-hover: var(--clr-neutral-a2);
+
+    --sc-switch-width: 44px;
+    --sc-switch-height: 24px;
 }
 
 body {

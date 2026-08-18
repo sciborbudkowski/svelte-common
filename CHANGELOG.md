@@ -76,6 +76,7 @@
 - modalStack to control the topmost opened modal
 - indent CSS class
 - CSS classes for sizing buttons
+- switchable checkbox
 
 ## Changed
 

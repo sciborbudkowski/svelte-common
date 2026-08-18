@@ -22,6 +22,15 @@
 .text-info { color: var(--sc-color-info); }
 .text-success { color: var(--sc-color-success); }
 
+.fw-1 { font-weight: 100; }
+.fw-2 { font-weight: 200; }
+.fw-3 { font-weight: 300; }
+.fw-4 { font-weight: 400; }
+.fw-5 { font-weight: 500; }
+.fw-6 { font-weight: 600; }
+.fw-7 { font-weight: 700; }
+.fw-8 { font-weight: 800; }
+
 .no-indent { text-indent: 0; }
 .indent { text-indent: var(--size-2); }
 
