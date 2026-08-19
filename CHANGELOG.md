@@ -70,6 +70,7 @@
 - hr reset
 - AccordionItem CSS classes
 - button groups CSS classes
+- ConfirmModal internal id
 
 # 1.0.6
 
@@ -83,6 +84,7 @@
 - forms styling
 - font weight CSS classes
 - section margin value
+- CSS class for aplying default border radius, for global center in the view
 
 ## Changed
 

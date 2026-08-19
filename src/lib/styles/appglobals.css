@@ -72,7 +72,11 @@ body {
 }
 
 section {
-    margin: var(--size-2);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+	margin: var(--size-2);
 }
 
 h1, h2, h3, h4, h5, h6 {

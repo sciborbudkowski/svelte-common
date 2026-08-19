@@ -5,7 +5,7 @@
     import { textToHtml } from '../../utils/text.ts';
     import Modal from '../Modal.svelte';
 
-    const modalId = 'defaultConfirmModalId';
+    const modalId = '__confirm_modal_id';
 
     let {
         id = modalId,

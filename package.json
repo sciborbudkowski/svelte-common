@@ -1,6 +1,6 @@
 {
 	"name": "svelte-common",
-	"version": "1.0.6+7",
+	"version": "1.0.6+8",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
