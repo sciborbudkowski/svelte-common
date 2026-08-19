@@ -62,13 +62,14 @@
 
 ## Fixed
 
-- minor fixes in css colors
+- minor fixes in CSS colors
 - Modal.svelte got optional prop for ConfirmModal and AlertModal
 - alert and button colors
 - fixed CSS classes and layout in CollapsibleCard
 - all CSS variables have the same --sc prefix
 - hr reset
-- AccordionItem css classes
+- AccordionItem CSS classes
+- button groups CSS classes
 
 # 1.0.6
 
@@ -79,6 +80,9 @@
 - indent CSS class
 - CSS classes for sizing buttons
 - switchable checkbox
+- forms styling
+- font weight CSS classes
+- section margin value
 
 ## Changed
 

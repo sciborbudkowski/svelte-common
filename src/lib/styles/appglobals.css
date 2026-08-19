@@ -71,6 +71,10 @@ body {
 	background-color: var(--sc-color-background);
 }
 
+section {
+    margin: var(--size-2);
+}
+
 h1, h2, h3, h4, h5, h6 {
 	font-family: var(--sc-font-header);
 }
@@ -81,5 +85,5 @@ hr {
 	margin-inline: 0;
 	flex-shrink: 0;
 	height: var(--sc-border-width);
-    background-color: oklch(from var(--sc-color-text-inverted) l c h / .25);
+    background-color: oklch(from var(--sc-color-outline) l c h / .25);
 }

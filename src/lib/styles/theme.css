@@ -127,13 +127,19 @@
 	--sc-accordion-panel-bg: var(--sc-color-background);
 	--sc-accordion-panel-color: var(--sc-color-text);
 
-	--sc-card-header-bg: var(--clr-neutral-a7);
-	--sc-card-body-bg: var(--sc-color-surface);
-	--sc-card-footer-bg: var(--clr-neutral-a9);
+    --sc-card-header-bg: var(--clr-neutral-a7);
+    --sc-card-body-bg: var(--sc-color-surface);
+    --sc-card-footer-bg: var(--clr-neutral-a9);
 
 	--sc-color-row-loop-odd: var(--sc-color-bg);
 	--sc-color-row-loop-even: var(--clr-neutral-a9);
 
     --sc-switch-bg: var(--clr-neutral-a8);
     --sc-switch-color: var(--sc-color-brand);
+
+    --sc-form-input-bg: var(--clr-bg-a1);
+    --sc-form-input-color: inherit;
+    --sc-form-input-border-color: oklch(from var(--sc-color-outline) l c h / .5);
+    --sc-form-input-font-style: inherit;
+    --sc-form-input-focus-border-color: oklch(from var(--sc-color-outline) l c h / .85);
 }

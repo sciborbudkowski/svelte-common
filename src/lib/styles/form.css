@@ -1,0 +1,26 @@
+/* src/lib/styles/form.css */
+
+input:not(.switch > input), select, textarea {
+    font: var(--sc-form-input-font-style);
+    color: var(--sc-form-input-color);
+    background-color: var(--sc-form-input-bg);
+    border: 1px solid var(--sc-form-input-border-color);
+    padding: 0 var(--size-1);
+    outline: none;
+    font-size: var(--font-size-1);
+    margin: 0;
+    box-shadow: var(--sc-shadow-1);
+}
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--sc-form-input-focus-border-color);
+}
+
+form .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+}
+form .field label {
+    font-size: var(--font-size-0);
+}
