@@ -67,6 +67,8 @@
 - alert and button colors
 - fixed CSS classes and layout in CollapsibleCard
 - all CSS variables have the same --sc prefix
+- hr reset
+- AccordionItem css classes
 
 # 1.0.6
 

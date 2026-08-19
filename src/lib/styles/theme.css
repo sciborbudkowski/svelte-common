@@ -127,8 +127,9 @@
 	--sc-accordion-panel-bg: var(--sc-color-background);
 	--sc-accordion-panel-color: var(--sc-color-text);
 
-	--sc-card-header-bg: var(--clr-neutral-a3);
+	--sc-card-header-bg: var(--clr-neutral-a7);
 	--sc-card-body-bg: var(--sc-color-surface);
+	--sc-card-footer-bg: var(--clr-neutral-a9);
 
 	--sc-color-row-loop-odd: var(--sc-color-bg);
 	--sc-color-row-loop-even: var(--clr-neutral-a9);

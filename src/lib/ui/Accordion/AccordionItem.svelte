@@ -44,7 +44,7 @@
 			aria-controls={`acc-panel-${id}`}
 			id={`acc-header-${id}`}
 		>
-			<span class="w-100 d-flex flex-row justify-content-between">
+			<span class="flex-r j-content-between w-100">
 				<span class="accrd-title">
 					{#if icon}
 						<i class="{icon} me-1"></i>
@@ -84,7 +84,6 @@
 		font-size: var(--font-size-2);
 		margin: 0;
 	}
-
 	.accrd-trigger {
 		display: flex;
 		flex-direction: column;

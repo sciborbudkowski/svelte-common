@@ -76,6 +76,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 hr {
+	border: 0;
+	inline-size: 100%;
+	margin-inline: 0;
+	flex-shrink: 0;
+	height: var(--sc-border-width);
     background-color: oklch(from var(--sc-color-text-inverted) l c h / .25);
-    height: var(--sc-border-width);
 }
