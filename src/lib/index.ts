@@ -12,6 +12,7 @@ export { default as ToastStack } from './ui/ToastStack.svelte';
 export { default as CollapsibleCard } from './ui/CollapsibleCard.svelte';
 export { default as Accordion } from './ui/Accordion/Accordion.svelte';
 export { default as AccordionItem } from './ui/Accordion/AccordionItem.svelte';
+export { default as Spinner } from './ui/Spinner.svelte';
 
 // Services
 export * from './services/api.ts';
