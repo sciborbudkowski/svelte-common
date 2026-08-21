@@ -26,14 +26,16 @@ const timeouts = new Map<string, ReturnType<typeof setTimeout>>();
 const visibleToasts = $derived(toasts.slice(0, TOAST_QUEUE_LENGTH));
 
 function requireBrowser(operation: string): void {
-	if(!BROWSER) throw new Error(`${operation} can only be used in the browser.`);
+	if (!BROWSER) throw new Error(`${operation} can only be used in the browser.`);
 }
 
 export const getVisibleToasts = () => visibleToasts;
 
-export function showToast(input: Omit<UIToast, 'id' | 'timestamp'> & Partial<Pick<UIToast, 'id' | 'timestamp'>>) {
+export function showToast(
+	input: Omit<UIToast, 'id' | 'timestamp'> & Partial<Pick<UIToast, 'id' | 'timestamp'>>
+) {
 	requireBrowser('showToast');
-	
+
 	const t: UIToast = {
 		id: input.id || crypto.randomUUID(),
 		timestamp: input.timestamp || Date.now(),
@@ -42,19 +44,19 @@ export function showToast(input: Omit<UIToast, 'id' | 'timestamp'> & Partial<Pic
 	};
 
 	const existingTimeout = timeouts.get(t.id);
-	if(existingTimeout !== undefined) {
+	if (existingTimeout !== undefined) {
 		clearTimeout(existingTimeout);
 		timeouts.delete(t.id);
 	}
 
 	const existingIndex = toasts.findIndex((toast) => toast.id === t.id);
-	if(existingIndex !== -1) toasts.splice(existingIndex, 1);
+	if (existingIndex !== -1) toasts.splice(existingIndex, 1);
 
 	const next = [t, ...toasts];
 	const removed = next.slice(TOAST_QUEUE_LENGTH);
-	for(const toast of removed) {
+	for (const toast of removed) {
 		const timeout = timeouts.get(toast.id);
-		if(timeout !== undefined) clearTimeout(timeout);
+		if (timeout !== undefined) clearTimeout(timeout);
 		timeouts.delete(toast.id);
 	}
 

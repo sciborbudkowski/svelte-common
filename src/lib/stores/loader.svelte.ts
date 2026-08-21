@@ -27,7 +27,7 @@ export const loaderState: LoaderState = $state({
 let currentRunId = 0;
 
 function requireBrowser(operation: string): void {
-	if(!BROWSER) throw new Error(`${operation} can only be used in the browser.`);
+	if (!BROWSER) throw new Error(`${operation} can only be used in the browser.`);
 }
 
 export const showLoader = (m: string = 'Ładowanie...') => {
@@ -47,7 +47,10 @@ export const hideLoader = () => {
 	loaderState.isVisible = false;
 };
 
-export const updateLoaderProgress = (percentage: number, status: string = 'Proszę czekać.'): void => {
+export const updateLoaderProgress = (
+	percentage: number,
+	status: string = 'Proszę czekać.'
+): void => {
 	loaderState.progress = percentage;
 	loaderState.status = status;
 };

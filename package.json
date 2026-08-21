@@ -1,6 +1,6 @@
 {
 	"name": "svelte-common",
-	"version": "1.0.9",
+	"version": "1.0.9+1",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
@@ -13,7 +13,9 @@
 		"package": "svelte-kit sync && svelte-package",
 		"lint:format": "prettier --check .",
 		"lint:code": "eslint .",
-		"lint": "npm run lint:format && npm run lint:code"
+		"lint": "npm run lint:format && npm run lint:code",
+		"test:unit": "vitest",
+		"test": "npm run test:unit -- --run"
 	},
 	"files": [
 		"dist",
@@ -47,6 +49,7 @@
 		"eslint-config-prettier": "^10.1.8",
 		"eslint-plugin-svelte": "^3.19.0",
 		"globals": "^17.6.0",
+		"jsdom": "^30.0.1",
 		"prettier": "^3.8.3",
 		"prettier-plugin-svelte": "^4.1.0",
 		"publint": "^0.3.21",
@@ -54,7 +57,8 @@
 		"svelte-check": "^4.6.0",
 		"typescript": "^6.0.3",
 		"typescript-eslint": "^8.60.1",
-		"vite": "^8.2.1"
+		"vite": "^8.2.1",
+		"vitest": "^4.1.8"
 	},
 	"keywords": [
 		"svelte"

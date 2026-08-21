@@ -53,7 +53,7 @@
 
 	$effect(() => {
 		const total = normalizedDuration;
-		if(total === 0) {
+		if (total === 0) {
 			remainingTime = 0;
 			progress = 1;
 			return;
@@ -68,9 +68,9 @@
 			remainingTime = Math.max(0, total - elapsed);
 			progress = Math.min(1, elapsed / total);
 
-			if(remainingTime > 0) {
+			if (remainingTime > 0) {
 				frame = requestAnimationFrame(tick);
-			} else if(!finished) {
+			} else if (!finished) {
 				finished = true;
 				void Promise.resolve(onTimeout?.()).catch((error) => {
 					console.error('CircularTimer onTimeout failed: ', error);

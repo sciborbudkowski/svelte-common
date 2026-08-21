@@ -19,7 +19,7 @@
 		showMoreLessLabelClass = 'link',
 		...rest
 	}: {
-		id?: string,
+		id?: string;
 		visibleContent: import('svelte').Snippet;
 		hiddenContent: import('svelte').Snippet;
 		defaultOpen?: boolean;
@@ -52,8 +52,9 @@
 						class={showMoreLessLabelClass}
 						aria-expanded={isOpen}
 						aria-controls={id}
-						onclick={() => (isOpen = !isOpen)}>
-							{@render visibleContent?.()}
+						onclick={() => (isOpen = !isOpen)}
+					>
+						{@render visibleContent?.()}
 					</button>
 				{:else}
 					{@render visibleContent?.()}
@@ -64,9 +65,10 @@
 					aria-expanded={isOpen}
 					aria-label={toggleLabel}
 					aria-controls={id}
-					onclick={() => (isOpen = !isOpen)}>
-						<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-						{toggleLabel}
+					onclick={() => (isOpen = !isOpen)}
+				>
+					<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
+					{toggleLabel}
 				</button>
 			</div>
 		{:else if chevronPosition === 'left'}
@@ -78,9 +80,10 @@
 					aria-label={toggleLabel}
 					aria-controls={id}
 					style="padding: 0;"
-					onclick={() => (isOpen = !isOpen)}>
-						<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-						{showMoreLabel}
+					onclick={() => (isOpen = !isOpen)}
+				>
+					<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
+					{showMoreLabel}
 				</button>
 				{#if isVisibleContentClickable}
 					<button
@@ -88,8 +91,9 @@
 						class={showMoreLessLabelClass}
 						aria-expanded={isOpen}
 						aria-controls={id}
-						onclick={() => (isOpen = !isOpen)}>
-							{@render visibleContent?.()}
+						onclick={() => (isOpen = !isOpen)}
+					>
+						{@render visibleContent?.()}
 					</button>
 				{:else}
 					{@render visibleContent?.()}

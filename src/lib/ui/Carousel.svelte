@@ -243,7 +243,7 @@
 		updateProgressBar();
 
 		const animating = animateTransition(fromIndex, index, direction);
-		if(!animating) {
+		if (!animating) {
 			isAnimating = false;
 			currentSlide = 0;
 		}
@@ -276,7 +276,7 @@
 
 		void (async () => {
 			const { gsap } = await import('gsap');
-			if(disposed || !carouselEl) return;
+			if (disposed || !carouselEl) return;
 
 			gsapRef = gsap;
 			gsapContext = gsap.context(() => {

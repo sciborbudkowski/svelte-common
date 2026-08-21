@@ -1,74 +1,75 @@
 /* src/lib/styles/switch.css */
 
 .switch {
-    --switch-inset: calc(var(--sc-switch-height) / 8);
-    --switch-thumb-size: calc(var(--sc-switch-height) - 2 * var(--switch-inset));
-    --switch-travel: max(0px, calc(var(--sc-switch-width) - var(--sc-switch-height)));
-    --switch-label-gap: calc(var(--sc-switch-height) / 3);
+	--switch-inset: calc(var(--sc-switch-height) / 8);
+	--switch-thumb-size: calc(var(--sc-switch-height) - 2 * var(--switch-inset));
+	--switch-travel: max(0px, calc(var(--sc-switch-width) - var(--sc-switch-height)));
+	--switch-label-gap: calc(var(--sc-switch-height) / 3);
 
-    display: inline-flex;
-    align-items: center;
-    gap: var(--switch-label-gap);
-    cursor: pointer;
-    user-select: none;
-    min-height: max(44px, var(--sc-switch-height));
-    min-width: max(44px, var(--sc-switch-width));
-    justify-content: center;
+	display: inline-flex;
+	align-items: center;
+	gap: var(--switch-label-gap);
+	cursor: pointer;
+	user-select: none;
+	min-height: max(44px, var(--sc-switch-height));
+	min-width: max(44px, var(--sc-switch-width));
+	justify-content: center;
 }
 
 .switch input {
-    appearance: none;
-    flex: 0 0 auto;
-    box-sizing: border-box;
-    width: var(--sc-switch-width);
-    height: var(--sc-switch-height);
-    margin: 0;
-    border-radius: var(--radius-round);
-    background-color: var(--sc-switch-bg);
-    position: relative;
-    cursor: pointer;
-    transition: background-color var(--sc-transition-duration) var(--sc-transition-type);
+	appearance: none;
+	flex: 0 0 auto;
+	box-sizing: border-box;
+	width: var(--sc-switch-width);
+	height: var(--sc-switch-height);
+	margin: 0;
+	border-radius: var(--radius-round);
+	background-color: var(--sc-switch-bg);
+	position: relative;
+	cursor: pointer;
+	transition: background-color var(--sc-transition-duration) var(--sc-transition-type);
 }
 
 .switch input::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: var(--switch-inset);
-    width: var(--switch-thumb-size);
-    height: var(--switch-thumb-size);
-    border-radius: 50%;
-    background-color: var(--sc-switch-color);
-    box-shadow: var(--sc-shadow-1);
-    transform: translate(0, -50%);
-    transition: transform var(--sc-transition-duration) var(--sc-transition-type);
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: var(--switch-inset);
+	width: var(--switch-thumb-size);
+	height: var(--switch-thumb-size);
+	border-radius: 50%;
+	background-color: var(--sc-switch-color);
+	box-shadow: var(--sc-shadow-1);
+	transform: translate(0, -50%);
+	transition: transform var(--sc-transition-duration) var(--sc-transition-type);
 }
 
 .switch input:checked {
-    background-color: var(--sc-switch-color);
+	background-color: var(--sc-switch-color);
 }
 
 .switch input:checked::before {
-    transform: translate(var(--switch-travel), -50%);
-    background-color: var(--sc-switch-bg);
+	transform: translate(var(--switch-travel), -50%);
+	background-color: var(--sc-switch-bg);
 }
 
 .switch input:focus-visible {
-    outline: var(--sc-border-ws) var(--sc-color-outline);
-    outline-offset: var(--switch-inset);
+	outline: var(--sc-border-ws) var(--sc-color-outline);
+	outline-offset: var(--switch-inset);
 }
 
 .switch input:disabled {
-    opacity: .5;
-    cursor: not-allowed;
+	opacity: 0.5;
+	cursor: not-allowed;
 }
 
 .switch:has(input:disabled) {
-    cursor: not-allowed;
+	cursor: not-allowed;
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .switch input, .switch input::before {
-        transition: none;
-    }
+	.switch input,
+	.switch input::before {
+		transition: none;
+	}
 }

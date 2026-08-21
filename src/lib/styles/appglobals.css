@@ -10,7 +10,7 @@
 	--sc-color-background: var(--clr-bg-a1); /* should change */
 	--sc-color-surface: var(--clr-bg-a4); /* should change */
 	--sc-color-surface-light: var(--clr-bg-a4); /* should change */
-	--sc-color-surface-semitransparent: oklch(from var(--clr-bg-a5) l c h / .5);
+	--sc-color-surface-semitransparent: oklch(from var(--clr-bg-a5) l c h / 0.5);
 	--sc-color-outline: oklch(39.093% 0.01634 107.182); /* should change */
 	--sc-color-accent: var(--clr-amber-a6); /* should change */
 	--sc-color-progress-bar: var(--clr-neutral-a9); /* can change */
@@ -36,33 +36,33 @@
 	--sc-color-brand-hover: oklch(58.324% 0.08851 113.513);
 	--sc-color-on-brand-hover: var(--clr-neutral-a9);
 
-    --sc-color-danger: var(--clr-red-a4);
-    --sc-color-danger-hover: var(--clr-red-a3);
-    --sc-color-on-danger: var(--clr-neutral-a8);
-    --sc-color-on-danger-hover: var(--clr-neutral-a9);
+	--sc-color-danger: var(--clr-red-a4);
+	--sc-color-danger-hover: var(--clr-red-a3);
+	--sc-color-on-danger: var(--clr-neutral-a8);
+	--sc-color-on-danger-hover: var(--clr-neutral-a9);
 
-    --sc-color-warning: var(--clr-yellow-a6);
-    --sc-color-warning-hover: var(--clr-yellow-a5);
-    --sc-color-on-warning: var(--clr-neutral-a2);
-    --sc-color-on-warning-hover: var(--clr-neutral-a1);
+	--sc-color-warning: var(--clr-yellow-a6);
+	--sc-color-warning-hover: var(--clr-yellow-a5);
+	--sc-color-on-warning: var(--clr-neutral-a2);
+	--sc-color-on-warning-hover: var(--clr-neutral-a1);
 
-    --sc-color-success: var(--clr-green-a2);
-    --sc-color-success-hover: var(--clr-green-a3);
-    --sc-color-on-success: var(--clr-neutral-a8);
-    --sc-color-on-success-hover: var(--clr-neutral-a9);
+	--sc-color-success: var(--clr-green-a2);
+	--sc-color-success-hover: var(--clr-green-a3);
+	--sc-color-on-success: var(--clr-neutral-a8);
+	--sc-color-on-success-hover: var(--clr-neutral-a9);
 
-    --sc-color-info: var(--clr-blue-a2);
-    --sc-color-info-hover: var(--clr-blue-a3);
-    --sc-color-on-info: var(--clr-neutral-a8);
-    --sc-color-on-info-hover: var(--clr-neutral-a9);
+	--sc-color-info: var(--clr-blue-a2);
+	--sc-color-info-hover: var(--clr-blue-a3);
+	--sc-color-on-info: var(--clr-neutral-a8);
+	--sc-color-on-info-hover: var(--clr-neutral-a9);
 
-    --sc-color-neutral: var(--clr-neutral-a7);
-    --sc-color-neutral-hover: var(--clr-neutral-a6);
-    --sc-color-on-neutral: var(--clr-neutral-a1);
-    --sc-color-on-neutral-hover: var(--clr-neutral-a2);
+	--sc-color-neutral: var(--clr-neutral-a7);
+	--sc-color-neutral-hover: var(--clr-neutral-a6);
+	--sc-color-on-neutral: var(--clr-neutral-a1);
+	--sc-color-on-neutral-hover: var(--clr-neutral-a2);
 
-    --sc-switch-width: 44px;
-    --sc-switch-height: 24px;
+	--sc-switch-width: 44px;
+	--sc-switch-height: 24px;
 }
 
 body {
@@ -71,14 +71,19 @@ body {
 }
 
 section {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    min-height: 0;
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	min-height: 0;
 	margin: var(--size-2);
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
 	font-family: var(--sc-font-header);
 }
 
@@ -88,5 +93,5 @@ hr {
 	margin-inline: 0;
 	flex-shrink: 0;
 	height: var(--sc-border-width);
-    background-color: oklch(from var(--sc-color-outline) l c h / .25);
+	background-color: oklch(from var(--sc-color-outline) l c h / 0.25);
 }

@@ -1,6 +1,12 @@
 <!-- src/lib/ui/Modal.svelte -->
 <script lang="ts">
-	import { closeModal, modalsState, modalStack, registerModal, unregisterModal } from '$lib/stores/modal.svelte';
+	import {
+		closeModal,
+		modalsState,
+		modalStack,
+		registerModal,
+		unregisterModal
+	} from '$lib/stores/modal.svelte';
 	import { untrack, type Snippet } from 'svelte';
 
 	let {
@@ -74,13 +80,13 @@
 	async function confirm() {
 		const callback = onConfirm ?? modal?.onConfirm;
 		await callback?.(modal?.context);
-		if(!controlled) closeModal(id);
+		if (!controlled) closeModal(id);
 	}
 
 	function cancel() {
 		const callback = onCancel ?? modal?.onCancel;
 		callback?.(modal?.context);
-		if(!controlled) closeModal(id);
+		if (!controlled) closeModal(id);
 	}
 
 	$effect(() => {
@@ -119,8 +125,15 @@
 				{#if footer}
 					{@render footer()}
 				{:else}
-					<span><button type="button" class="outline neutral" onclick={cancel}>{cancelButtonLabel}</button></span>
-					<span><button type="button" class="brand" onclick={confirm}>{confirmButtonLabel}</button></span>
+					<span
+						><button type="button" class="outline neutral" onclick={cancel}
+							>{cancelButtonLabel}</button
+						></span
+					>
+					<span
+						><button type="button" class="brand" onclick={confirm}>{confirmButtonLabel}</button
+						></span
+					>
 				{/if}
 			</div>
 		</div>
@@ -130,10 +143,7 @@
 <style>
 	.modal-backdrop {
 		position: fixed;
-		inset:
-			var(--sc-top-bar-height, 0px)
-			0
-			var(--sc-bottom-bar-height, 0px);
+		inset: var(--sc-top-bar-height, 0px) 0 var(--sc-bottom-bar-height, 0px);
 		box-sizing: border-box;
 		padding: var(--size-3);
 		overflow: hidden;
@@ -198,9 +208,9 @@
 	}
 
 	@media (max-width: 768px) {
-		 .modal-backdrop {
+		.modal-backdrop {
 			padding: var(--size-2);
-		 }
+		}
 	}
 
 	.modal-header,

@@ -17,14 +17,11 @@
 - Fixed GPS high-accuracy option.
 - Fixed carousel edge cases and CSS typos.
 
-
 ## 1.0.1 - 2026-08-10
 
 ### Added
 
 - CHANGELOG.md added to avoid long commit messages.
-
-
 
 ## 1.0.2 - 2026-08-10
 
@@ -35,7 +32,6 @@
 ### Changed
 
 - package.json exports styles.css properly
-
 
 ## 1.0.3 - 2026-08-10
 
@@ -135,4 +131,5 @@
 - api client download file method fallback fixed, filename cleans unwanted characters
 
 ## Changed
+
 - .gitignore updated

@@ -15,8 +15,7 @@ export type ApiResponseError<TCode extends string = string> = {
 };
 
 export type ApiHttpResponse<T, TCode extends string = string> =
-	| ApiResponseOk<T>
-	| ApiResponseError<TCode>;
+	ApiResponseOk<T> | ApiResponseError<TCode>;
 
 export type ApiQueuedResponse = {
 	error: false;
@@ -24,27 +23,27 @@ export type ApiQueuedResponse = {
 };
 
 export type ApiResponse<T, TCode extends string = string> =
-	| (ApiResponseOk<T> & { queued?: false })
-	| ApiResponseError<TCode>
-	| ApiQueuedResponse;
+	(ApiResponseOk<T> & { queued?: false }) | ApiResponseError<TCode> | ApiQueuedResponse;
 
 export type ApiDownloadResponse =
 	| {
-		error: false;
-		status?: number;
-	}
+			error: false;
+			status?: number;
+	  }
 	| {
-		error: true;
-		message: string;
-		status?: number;
-	};
+			error: true;
+			message: string;
+			status?: number;
+	  };
 
 export interface DownloadOptions {
 	suggestedName?: string;
 	fallbackBaseName?: string;
 }
 
-export type ApiResponseParser<TCode extends string = string> = <T>(response: Response) => Promise<ApiHttpResponse<T, TCode>>;
+export type ApiResponseParser<TCode extends string = string> = <T>(
+	response: Response
+) => Promise<ApiHttpResponse<T, TCode>>;
 
 export interface ApiCacheOptions {
 	adapter: CacheAdapter;
@@ -74,21 +73,20 @@ export interface ApiClientOptions<TCode extends string = string> {
 	credentials?: RequestCredentials;
 	fetch?: typeof fetch;
 	parseResponse?: ApiResponseParser<TCode>;
-	
+
 	cache?: ApiCacheOptions;
 
 	offlineQueue?: {
 		adapter: OfflineQueueAdapter;
-		shouldQueue?: (
-			endpoint: string, method: OfflineAction['method']
-		) => boolean;
+		shouldQueue?: (endpoint: string, method: OfflineAction['method']) => boolean;
 	};
 }
 
-
-async function parseEnvelopeResponse<T, TCode extends string = string>(response: Response): Promise<ApiHttpResponse<T, TCode>> {
+async function parseEnvelopeResponse<T, TCode extends string = string>(
+	response: Response
+): Promise<ApiHttpResponse<T, TCode>> {
 	const contentType = response.headers.get('Content-Type') ?? '';
-	if(!contentType.toLowerCase().includes('json')) {
+	if (!contentType.toLowerCase().includes('json')) {
 		return {
 			error: true,
 			message: 'Invalid server response.',
@@ -108,12 +106,9 @@ async function parseEnvelopeResponse<T, TCode extends string = string>(response:
 		};
 	}
 
-	const value =
-		body && typeof body === 'object'
-			? body as Record<string, unknown>
-			: undefined;
+	const value = body && typeof body === 'object' ? (body as Record<string, unknown>) : undefined;
 
-	if(!response.ok) {
+	if (!response.ok) {
 		return {
 			error: true,
 			message:
@@ -122,16 +117,13 @@ async function parseEnvelopeResponse<T, TCode extends string = string>(response:
 					: typeof value?.error === 'string'
 						? value.error
 						: 'Request failed.',
-			code:
-				typeof value?.code === 'string'
-					? value.code as TCode
-					: undefined,
+			code: typeof value?.code === 'string' ? (value.code as TCode) : undefined,
 			data: value?.data,
 			status: response.status
 		};
 	}
 
-	if(!value || typeof value.error !== 'boolean') {
+	if (!value || typeof value.error !== 'boolean') {
 		return {
 			error: true,
 			message: 'Unexpected response format',
@@ -139,22 +131,13 @@ async function parseEnvelopeResponse<T, TCode extends string = string>(response:
 		};
 	}
 
-	if(value.error) {
+	if (value.error) {
 		return {
 			error: true,
-			message:
-				typeof value.message === 'string'
-					? value.message
-					: 'Request failed.',
-			code:
-				typeof value.code === 'string'
-					? value.code as TCode
-					: undefined,
+			message: typeof value.message === 'string' ? value.message : 'Request failed.',
+			code: typeof value.code === 'string' ? (value.code as TCode) : undefined,
 			data: value.data,
-			status:
-				typeof value.status === 'number'
-					? value.status
-					: undefined
+			status: typeof value.status === 'number' ? value.status : undefined
 		};
 	}
 
@@ -163,7 +146,6 @@ async function parseEnvelopeResponse<T, TCode extends string = string>(response:
 		data: value.data as T
 	};
 }
-
 
 export class ApiClient<TCode extends string = string> {
 	private readonly baseUrl: string;
@@ -211,8 +193,12 @@ export class ApiClient<TCode extends string = string> {
 		});
 	}
 
-	async downloadAndSave(path: string, init: RequestInit = {}, options: DownloadOptions = {}): Promise<ApiDownloadResponse> {
-		if(typeof window === 'undefined' || typeof document === 'undefined') {
+	async downloadAndSave(
+		path: string,
+		init: RequestInit = {},
+		options: DownloadOptions = {}
+	): Promise<ApiDownloadResponse> {
+		if (typeof window === 'undefined' || typeof document === 'undefined') {
 			return {
 				error: true,
 				message: 'Downloading is available only in the browser.'
@@ -235,10 +221,10 @@ export class ApiClient<TCode extends string = string> {
 			};
 		}
 
-		if(!response.ok) {
+		if (!response.ok) {
 			try {
 				const result = await this.parser<never>(response);
-				if(result.error) {
+				if (result.error) {
 					return {
 						error: true,
 						message: result.message,
@@ -286,9 +272,7 @@ export class ApiClient<TCode extends string = string> {
 		const url = this.makeUrl(path);
 
 		const cacheEnabled =
-			method === 'GET' &&
-			this.cache !== undefined &&
-			(this.cache.shouldCache?.(url) ?? true);
+			method === 'GET' && this.cache !== undefined && (this.cache.shouldCache?.(url) ?? true);
 
 		let response: Response;
 
@@ -298,7 +282,7 @@ export class ApiClient<TCode extends string = string> {
 				credentials: init.credentials ?? this.credentials
 			});
 		} catch (error) {
-			if(this.isAbortError(error, init.signal)) {
+			if (this.isAbortError(error, init.signal)) {
 				return {
 					error: true,
 					message: 'Request aborted.'
@@ -320,7 +304,7 @@ export class ApiClient<TCode extends string = string> {
 			};
 		}
 
-		if(cacheEnabled && !result.error) {
+		if (cacheEnabled && !result.error) {
 			try {
 				await this.cache!.adapter.set(url, result, this.cache!.getTtl?.(url));
 			} catch (error) {
@@ -332,7 +316,7 @@ export class ApiClient<TCode extends string = string> {
 	}
 
 	private isAbortError(error: unknown, signal?: AbortSignal | null): boolean {
-		if(signal?.aborted) return true;
+		if (signal?.aborted) return true;
 
 		return (
 			typeof DOMException !== 'undefined' &&
@@ -342,7 +326,7 @@ export class ApiClient<TCode extends string = string> {
 	}
 
 	private makeUrl(path: string): string {
-		if(!this.baseUrl) return path;
+		if (!this.baseUrl) return path;
 
 		return `${this.baseUrl}/${path.replace(/^\//, '')}`;
 	}
@@ -356,7 +340,7 @@ export class ApiClient<TCode extends string = string> {
 		const headers = new Headers(init.headers);
 
 		let requestBody = init.body;
-		if(body !== undefined) {
+		if (body !== undefined) {
 			try {
 				requestBody = JSON.stringify(body);
 			} catch {
@@ -366,7 +350,7 @@ export class ApiClient<TCode extends string = string> {
 				});
 			}
 
-			if(!headers.has('Content-Type')) {
+			if (!headers.has('Content-Type')) {
 				headers.set('Content-Type', 'application/json');
 			}
 		}
@@ -386,18 +370,18 @@ export class ApiClient<TCode extends string = string> {
 		init: RequestInit,
 		cacheEnabled: boolean
 	): Promise<ApiResponse<T, TCode>> {
-		if(cacheEnabled) {
+		if (cacheEnabled) {
 			try {
 				const cached = await this.cache!.adapter.get<ApiHttpResponse<T, TCode>>(url);
-				if(cached) return cached;
-			} catch(error) {
+				if (cached) return cached;
+			} catch (error) {
 				this.reportCacheError(error, 'get', url);
 			}
 		}
 
-		if(this.isQueueableMethod(method) && this.offlineQueue) {
+		if (this.isQueueableMethod(method) && this.offlineQueue) {
 			const shouldQueue = this.offlineQueue.shouldQueue?.(path, method) ?? true;
-			if(shouldQueue) {
+			if (shouldQueue) {
 				try {
 					await this.offlineQueue.adapter.enqueue({
 						method,
@@ -434,7 +418,7 @@ export class ApiClient<TCode extends string = string> {
 	}
 
 	private parseQueuedBody(body: BodyInit | null | undefined): unknown {
-		if(typeof body !== 'string') return body ?? undefined;
+		if (typeof body !== 'string') return body ?? undefined;
 
 		try {
 			return JSON.parse(body);
@@ -444,11 +428,12 @@ export class ApiClient<TCode extends string = string> {
 	}
 
 	private parseFilename(cd: string | null): string | undefined {
-		if(!cd) return;
+		if (!cd) return;
 
-		const m = cd.match(/filename\*\s*=\s*UTF-8''([^;]+)/i) ?? cd.match(/filename\s*=\s*"?([^";]+)"?/i);
+		const m =
+			cd.match(/filename\*\s*=\s*UTF-8''([^;]+)/i) ?? cd.match(/filename\s*=\s*"?([^";]+)"?/i);
 
-		if(!m) return;
+		if (!m) return;
 
 		try {
 			return decodeURIComponent(m[1]);
@@ -459,26 +444,40 @@ export class ApiClient<TCode extends string = string> {
 
 	private guessExtFromMime(mime: string): string {
 		const m = mime.toLowerCase().split(';')[0].trim();
-		switch(m) {
-			case 'application/pdf': return 'pdf';
-			case 'image/png': return 'png';
-			case 'image/jpeg': return 'jpg';
-			case 'text/plain': return 'txt';
-			case 'text/html': return 'html';
-			case 'application/zip': return 'zip';
-			case 'application/vnd.rar': return 'rar';
-			case 'video/mp4': return 'mp4';
-			case 'video/x-msvideo': return 'avi';
-			case 'application/msword': return 'doc';
-			case 'application/vnd.ms-excel': return 'xls';
-			case 'application/vnd.ms-powerpoint': return 'ppt';
-			case 'application/rtf': return 'rtf';
-			default: return '';
+		switch (m) {
+			case 'application/pdf':
+				return 'pdf';
+			case 'image/png':
+				return 'png';
+			case 'image/jpeg':
+				return 'jpg';
+			case 'text/plain':
+				return 'txt';
+			case 'text/html':
+				return 'html';
+			case 'application/zip':
+				return 'zip';
+			case 'application/vnd.rar':
+				return 'rar';
+			case 'video/mp4':
+				return 'mp4';
+			case 'video/x-msvideo':
+				return 'avi';
+			case 'application/msword':
+				return 'doc';
+			case 'application/vnd.ms-excel':
+				return 'xls';
+			case 'application/vnd.ms-powerpoint':
+				return 'ppt';
+			case 'application/rtf':
+				return 'rtf';
+			default:
+				return '';
 		}
 	}
 
 	private ensureFilename(name?: string, contentType?: string, fallbackBase = 'download'): string {
-		if(name && name.trim()) return name;
+		if (name && name.trim()) return name;
 
 		const ext = contentType ? this.guessExtFromMime(contentType) : '';
 		return ext ? `${fallbackBase}.${ext}` : fallbackBase;
@@ -498,7 +497,7 @@ export class ApiClient<TCode extends string = string> {
 			};
 
 			const picker = (window as WindowWithSavePicker).showSaveFilePicker;
-			if(typeof picker !== 'function') break ConsiderSavePicker;
+			if (typeof picker !== 'function') break ConsiderSavePicker;
 
 			const handle = await picker({ suggestedName: filename });
 
@@ -510,9 +509,9 @@ export class ApiClient<TCode extends string = string> {
 
 		// iOS/Android
 		ConsiderShare: {
-			if(!navigator.canShare || !navigator.share) break ConsiderShare;
+			if (!navigator.canShare || !navigator.share) break ConsiderShare;
 			const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
-			if(!navigator.canShare({ files: [file] })) break ConsiderShare;
+			if (!navigator.canShare({ files: [file] })) break ConsiderShare;
 			await navigator.share({ files: [file], title: filename });
 			return;
 		}

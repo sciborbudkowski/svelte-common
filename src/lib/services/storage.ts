@@ -8,7 +8,7 @@ type Box<T> = {
 };
 
 function getLocalStorage(): Storage | null {
-	if(!BROWSER) return null;
+	if (!BROWSER) return null;
 
 	try {
 		return window.localStorage;
@@ -20,7 +20,7 @@ function getLocalStorage(): Storage | null {
 export class EphemeralStorage {
 	static async set<T>(key: string, value: T, ttlMs = 1000 * 60 * 60) {
 		const storage = getLocalStorage();
-		if(!storage) return;
+		if (!storage) return;
 
 		const payload: Box<T> = {
 			value,
@@ -32,7 +32,7 @@ export class EphemeralStorage {
 
 	static async get<T>(key: string): Promise<T | null> {
 		const storage = getLocalStorage();
-		if(!storage) return null;
+		if (!storage) return null;
 
 		const raw = storage.getItem(key);
 		if (!raw) return null;
@@ -58,7 +58,7 @@ export class EphemeralStorage {
 
 	static async delete(key: string): Promise<void> {
 		const storage = getLocalStorage();
-		if(!storage) return;
+		if (!storage) return;
 
 		storage.removeItem(key);
 	}

@@ -25,7 +25,6 @@ export class WebSocketClient<T = unknown> {
 	private visibilityHandler: (() => void) | null = null;
 	private token: string | null = null;
 	private uuid: string | null = null;
-	private intentionalClose = false;
 
 	private readonly url: string;
 	private readonly maxRecconectAttempts: number;
@@ -63,11 +62,12 @@ export class WebSocketClient<T = unknown> {
 			return;
 		}
 
-		if (this.ws?.readyState === WebSocket.OPEN || this.ws?.readyState === WebSocket.CONNECTING) return;
+		if (this.ws?.readyState === WebSocket.OPEN || this.ws?.readyState === WebSocket.CONNECTING)
+			return;
 
 		const url = new SvelteURL(this.url, window.location.href);
-		if(url.protocol === 'http:') url.protocol = 'ws:';
-		if(url.protocol === 'https:') url.protocol = 'wss:';
+		if (url.protocol === 'http:') url.protocol = 'ws:';
+		if (url.protocol === 'https:') url.protocol = 'wss:';
 		url.searchParams.set('token', this.token);
 		url.searchParams.set('uuid', this.uuid);
 
@@ -107,9 +107,8 @@ export class WebSocketClient<T = unknown> {
 			this.setStatus('disconnected');
 
 			const intentional =
-				this.intentionalClose ||
+				this.intentionallyClosed.has(ws) ||
 				(event.code === 1000 && (event.reason === 'DISCONNECT' || event.reason === 'RECONNECT'));
-			this.intentionalClose = false;
 
 			this.intentionallyClosed.delete(ws);
 
@@ -131,16 +130,16 @@ export class WebSocketClient<T = unknown> {
 	}
 
 	disconnect() {
+		this.clearReconnectTimeout();
+
 		const ws = this.ws;
 		if (!ws) {
 			this.setStatus('disconnected');
 			return;
 		}
 
-		this.clearReconnectTimeout();
-		this.intentionalClose = true;
-
 		this.intentionallyClosed.add(ws);
+
 		this.setStatus('closing');
 		ws.close(1000, 'DISCONNECT');
 	}

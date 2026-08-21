@@ -1,38 +1,64 @@
 /* src/lib/styles/elements.css */
 
 .badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 auto;
-    align-self: center;
-    width: fit-content;
-    height: fit-content;
-    white-space: nowrap;
-    font-size: calc(var(--font-size-00) * 1.375);
-    font-weight: 400;
-    padding: var(--size-1) var(--size-3);
-    border-radius: var(--radius-5);
-    gap: var(--size-1);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	flex: 0 0 auto;
+	align-self: center;
+	width: fit-content;
+	height: fit-content;
+	white-space: nowrap;
+	font-size: calc(var(--font-size-00) * 1.375);
+	font-weight: 400;
+	padding: var(--size-1) var(--size-3);
+	border-radius: var(--radius-5);
+	gap: var(--size-1);
 }
 
-.text-muted { color: var(--sc-color-text-muted); }
-.text-danger { color: var(--sc-color-danger); }
-.text-warning { color: var(--sc-color-warning); }
-.text-info { color: var(--sc-color-info); }
-.text-success { color: var(--sc-color-success); }
+.text-muted {
+	color: var(--sc-color-text-muted);
+}
+.text-danger {
+	color: var(--sc-color-danger);
+}
+.text-warning {
+	color: var(--sc-color-warning);
+}
+.text-info {
+	color: var(--sc-color-info);
+}
+.text-success {
+	color: var(--sc-color-success);
+}
 
-.no-indent { text-indent: 0; }
-.indent { text-indent: var(--size-2); }
+.no-indent {
+	text-indent: 0;
+}
+.indent {
+	text-indent: var(--size-2);
+}
 
-.br-1 { border-radius: var(--radius-1); }
-.br-2 { border-radius: var(--radius-2); }
-.br-3 { border-radius: var(--radius-3); }
-.br-4 { border-radius: var(--radius-4); }
-.br-5 { border-radius: var(--radius-5); }
-.br-round { border-radius: var(--radius-round); }
+.br-1 {
+	border-radius: var(--radius-1);
+}
+.br-2 {
+	border-radius: var(--radius-2);
+}
+.br-3 {
+	border-radius: var(--radius-3);
+}
+.br-4 {
+	border-radius: var(--radius-4);
+}
+.br-5 {
+	border-radius: var(--radius-5);
+}
+.br-round {
+	border-radius: var(--radius-round);
+}
 .rounded {
-    flex: 0;
-    aspect-ratio: 1;
-    border-radius: 50% !important;
+	flex: 0;
+	aspect-ratio: 1;
+	border-radius: 50% !important;
 }

@@ -138,7 +138,7 @@ export class Gps {
 	}
 
 	setInterval(ms: number): void {
-		if(Number.isNaN(ms) || !Number.isFinite(ms)) return;
+		if (Number.isNaN(ms) || !Number.isFinite(ms)) return;
 
 		this.state.intervalMs = Math.max(1000, Math.floor(ms));
 	}
@@ -156,7 +156,7 @@ export class Gps {
 		this.restart();
 
 		return () => {
-			if(disposed) return;
+			if (disposed) return;
 			disposed = true;
 
 			if (mode === 'precise') {

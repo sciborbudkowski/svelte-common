@@ -38,7 +38,7 @@ interface ModalOptions {
 }
 
 function requireBrowser(operation: string): void {
-	if(!BROWSER) throw new Error(`${operation} can only be used in the browser.`);
+	if (!BROWSER) throw new Error(`${operation} can only be used in the browser.`);
 }
 
 export function registerModal(id: string) {
@@ -118,7 +118,7 @@ export const openAlertModal = (message: string, type: AlertModalType = 'info') =
 
 export const openModal = (modalId: string, options?: ModalOptions) => {
 	requireBrowser('openModal');
-	
+
 	ensureCustomModal(modalId);
 	modalsState.customModal[modalId] = {
 		isOpen: true,

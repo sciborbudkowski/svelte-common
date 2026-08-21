@@ -24,17 +24,20 @@ button {
 	transition: var(--sc-transition-all);
 }
 
-button.xs, button.xxs, button.xl, button.xxl {
-    padding: var(--size-1) var(--size-2);
-    border-width: 1px;
-    font-weight: 300;
-    letter-spacing: var(--font-ls-3);
+button.xs,
+button.xxs,
+button.xl,
+button.xxl {
+	padding: var(--size-1) var(--size-2);
+	border-width: 1px;
+	font-weight: 300;
+	letter-spacing: var(--font-ls-3);
 }
 button.xs {
 	font-size: 85%;
 }
 button.xxs {
-	font-size: 70%
+	font-size: 70%;
 }
 button.xl {
 	font-size: 115%;
@@ -128,19 +131,19 @@ button.link:not(:disabled):hover {
 }
 
 .btn-group {
-    display: inline-flex;
+	display: inline-flex;
 }
 .btn-group > * {
-    border-radius: 0;
+	border-radius: 0;
 }
 .btn-group > :first-child {
-    border-top-left-radius: var(--sc-border-radius);
-    border-bottom-left-radius: var(--sc-border-radius);
+	border-top-left-radius: var(--sc-border-radius);
+	border-bottom-left-radius: var(--sc-border-radius);
 }
 .btn-group > :last-child {
-    border-top-right-radius: var(--sc-border-radius);
-    border-bottom-right-radius: var(--sc-border-radius);
+	border-top-right-radius: var(--sc-border-radius);
+	border-bottom-right-radius: var(--sc-border-radius);
 }
 .btn > * + * {
-    margin-inline-start: -1px;
+	margin-inline-start: -1px;
 }
