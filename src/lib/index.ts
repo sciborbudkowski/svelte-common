@@ -16,7 +16,6 @@ export { default as Spinner } from './ui/Spinner.svelte';
 
 // Services
 export * from './services/api.ts';
-export * from './services/download.ts';
 export * from './services/websockets.svelte.ts';
 export * from './services/storage.ts';
 

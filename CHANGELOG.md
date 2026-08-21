@@ -99,3 +99,19 @@
 ## Removed
 
 - Lenis
+
+# 1.0.7
+
+## Added
+
+- Spinner component (very simple for now)
+
+# 1.0.8
+
+## Changed
+
+- api client changed from functions into class
+
+## Fixed
+
+- api client file download fixed and integrated into ApiClient class
