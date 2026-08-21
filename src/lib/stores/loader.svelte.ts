@@ -39,7 +39,7 @@ export const hideLoader = () => {
 	loaderState.isVisible = false;
 };
 
-export const updateLoaderProgress = (percentage: number, status: string = 'Proszę czekać.') => {
+export const updateLoaderProgress = (percentage: number, status: string = 'Proszę czekać.'): void => {
 	loaderState.progress = percentage;
 	loaderState.status = status;
 };

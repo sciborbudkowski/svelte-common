@@ -115,3 +115,4 @@
 ## Fixed
 
 - api client file download fixed and integrated into ApiClient class
+- some arrow functions at modal and loader do not return any value anymore

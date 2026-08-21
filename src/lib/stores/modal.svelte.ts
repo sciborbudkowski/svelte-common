@@ -105,18 +105,20 @@ export const openModal = (modalId: string, options?: ModalOptions) => {
 	};
 };
 
-export const closeConfirmModal = () =>
-	(modalsState.confirmModal = {
+export const closeConfirmModal = (): void => {
+	modalsState.confirmModal = {
 		isOpen: false,
 		id: '__confirm_modal_id',
 		message: '',
 		onConfirm: null,
 		onCancel: null,
 		context: null
-	});
+	};
+};
 
-export const closeAlertModal = () =>
-	(modalsState.alertModal = { isOpen: false, id: '__alert_modal_id', message: '', type: 'info' });
+export const closeAlertModal = (): void => {
+	modalsState.alertModal = { isOpen: false, id: '__alert_modal_id', message: '', type: 'info' };
+};
 
 export const closeModal = (modalId: string) => {
 	ensureCustomModal(modalId);
