@@ -9,7 +9,6 @@ set -e
 
 npm install --package-lock-only
 npm run build
-npm run prepare
 
 git add .
 git commit -m "$1"

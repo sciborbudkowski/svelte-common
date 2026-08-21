@@ -32,7 +32,6 @@
 
 	--sc-backdrop-filter: blur(20px);
 
-	--sc-color-brand: var(--sc-color-brand);
 	--sc-color-on-brand: var(--clr-neutral-a8);
 	--sc-color-brand-hover: oklch(58.324% 0.08851 113.513);
 	--sc-color-on-brand-hover: var(--clr-neutral-a9);

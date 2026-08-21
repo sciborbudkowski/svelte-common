@@ -1,7 +1,6 @@
 <!-- src/lib/ui/CircularTimer.svelte -->
-<script lang="ts">
-	import { onMount } from 'svelte';
 
+<script lang="ts">
 	export type UISize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 	let {
@@ -15,15 +14,6 @@
 		onTimeout?: () => void | Promise<void>;
 		withNumericTimer?: boolean;
 	} = $props();
-
-	const getDuration = () => duration;
-	const getSize = () => size;
-
-	let startTime: number | null = $state(null);
-	let remainingTime = $state(getDuration());
-	let progress = $state(0);
-	let animationFrame: number | null = $state(null);
-	let intervalId: ReturnType<typeof setInterval> | null = $state(null);
 
 	const sizes: Record<UISize, number> = {
 		xs: 20,
@@ -42,59 +32,54 @@
 	};
 
 	const timeLeft: Record<UISize, string> = {
-		xs: '.325rem;',
+		xs: '.325rem',
 		sm: '.5rem',
 		md: '1rem',
 		lg: '2rem',
 		xl: '4rem'
 	};
 
-	const center = sizes[getSize()] / 2;
-	const radius = center - strokes[getSize()] / 2;
-	const circumference = 2 * Math.PI * radius;
+	const normalizedDuration = $derived(Number.isFinite(duration) && duration > 0 ? duration : 0);
+	const pixelSize = $derived(sizes[size]);
+	const strokeWidth = $derived(strokes[size]);
+	const center = $derived(pixelSize / 2);
+	const radius = $derived(center - strokeWidth / 2);
+	const circumference = $derived(2 * Math.PI * radius);
+
+	let remainingTime = $derived(normalizedDuration);
+	let progress = $state(0);
+
 	const strokeDshOffset = $derived(circumference - progress * circumference);
 
-	function startTimer() {
-		if (animationFrame) return;
-		startTime = Date.now();
-		tick();
-	}
-
-	function stopTimer() {
-		if (animationFrame) {
-			cancelAnimationFrame(animationFrame);
-			animationFrame = null;
+	$effect(() => {
+		const total = normalizedDuration;
+		if(total === 0) {
+			remainingTime = 0;
+			progress = 1;
+			return;
 		}
-		if (intervalId) {
-			clearInterval(intervalId);
-			intervalId = null;
-		}
-	}
 
-	function tick() {
-		if (!startTime) return;
+		const startedAt = performance.now();
+		let frame: number;
+		let finished = false;
 
-		const elapsed = Date.now() - startTime;
-		remainingTime = Math.max(0, duration - elapsed);
-		progress = Math.min(1, elapsed / duration);
+		function tick(now: number) {
+			const elapsed = now - startedAt;
+			remainingTime = Math.max(0, total - elapsed);
+			progress = Math.min(1, elapsed / total);
 
-		if (remainingTime > 0) {
-			animationFrame = requestAnimationFrame(tick);
-		} else {
-			stopTimer();
-			onTimeout?.();
-		}
-	}
-
-	onMount(() => {
-		startTimer();
-		intervalId = setInterval(() => {
-			if (startTime && remainingTime > 0) {
-				remainingTime = Math.max(0, duration - (Date.now() - startTime));
+			if(remainingTime > 0) {
+				frame = requestAnimationFrame(tick);
+			} else if(!finished) {
+				finished = true;
+				void Promise.resolve(onTimeout?.()).catch((error) => {
+					console.error('CircularTimer onTimeout failed: ', error);
+				});
 			}
-		}, 100);
+		}
 
-		return () => stopTimer();
+		frame = requestAnimationFrame(tick);
+		return () => cancelAnimationFrame(frame);
 	});
 </script>
 

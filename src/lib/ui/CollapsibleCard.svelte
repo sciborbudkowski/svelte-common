@@ -1,9 +1,11 @@
 <!-- src/lib/ui/CollapsibleCard.svelte -->
 
 <script lang="ts">
+	import { randomUUID } from 'crypto';
 	import { slide } from 'svelte/transition';
 
 	let {
+		id = randomUUID(),
 		visibleContent,
 		hiddenContent,
 		defaultOpen = false,
@@ -17,13 +19,14 @@
 		showMoreLessLabelClass = 'link',
 		...rest
 	}: {
+		id?: string,
 		visibleContent: import('svelte').Snippet;
 		hiddenContent: import('svelte').Snippet;
 		defaultOpen?: boolean;
 		header?: import('svelte').Snippet | null;
 		footer?: import('svelte').Snippet | null;
 		padding?: string | null;
-		chevronPosition?: 'bottom' | 'left' | 'right';
+		chevronPosition?: 'left' | 'right';
 		isVisibleContentClickable?: boolean;
 		showMoreLabel?: string;
 		showLessLabel?: string;
@@ -33,7 +36,7 @@
 
 	let isOpen = $state((() => defaultOpen)());
 
-	const buttonAriaLabel = $derived(isOpen ? showLessLabel : showMoreLabel);
+	const toggleLabel = $derived(isOpen ? showLessLabel : showMoreLabel);
 </script>
 
 <div class={'card ' + (rest.class ?? '')}>
@@ -41,25 +44,14 @@
 		<div class="card-header">{@render header?.()}</div>
 	{/if}
 	<div class="card-body" style={padding ? `--cbp: ${padding}` : ''}>
-		{#if chevronPosition === 'bottom'}
-			<div class="text-end">
-				<button
-					type="button"
-					class={showMoreLessLabelClass}
-					aria-expanded={isOpen}
-					aria-label={buttonAriaLabel}
-					onclick={() => (isOpen = !isOpen)}>
-						<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-						{showMoreLabel}
-				</button>
-			</div>
-		{:else if chevronPosition === 'right'}
+		{#if chevronPosition === 'right'}
 			<div class="flex-r j-content-between a-center w-100">
 				{#if isVisibleContentClickable}
 					<button
 						type="button"
 						class={showMoreLessLabelClass}
 						aria-expanded={isOpen}
+						aria-controls={id}
 						onclick={() => (isOpen = !isOpen)}>
 							{@render visibleContent?.()}
 					</button>
@@ -70,10 +62,11 @@
 					type="button"
 					class={showMoreLessLabelClass}
 					aria-expanded={isOpen}
-					aria-label={buttonAriaLabel}
+					aria-label={toggleLabel}
+					aria-controls={id}
 					onclick={() => (isOpen = !isOpen)}>
 						<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-						{showMoreLabel}
+						{toggleLabel}
 				</button>
 			</div>
 		{:else if chevronPosition === 'left'}
@@ -82,7 +75,8 @@
 					type="button"
 					class={showMoreLessLabelClass}
 					aria-expanded={isOpen}
-					aria-label={buttonAriaLabel}
+					aria-label={toggleLabel}
+					aria-controls={id}
 					style="padding: 0;"
 					onclick={() => (isOpen = !isOpen)}>
 						<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
@@ -93,6 +87,7 @@
 						type="button"
 						class={showMoreLessLabelClass}
 						aria-expanded={isOpen}
+						aria-controls={id}
 						onclick={() => (isOpen = !isOpen)}>
 							{@render visibleContent?.()}
 					</button>
@@ -108,7 +103,7 @@
 		{/if}
 	</div>
 	{#if footer}
-		<div class="card-header">{@render footer?.()}</div>
+		<div class="card-footer">{@render footer?.()}</div>
 	{/if}
 </div>
 
@@ -116,6 +111,9 @@
 	.card-header {
 		font-weight: bold;
 		background-color: var(--sc-collapsible-card-header-bg);
+	}
+	.card-footer {
+		background-color: var(--sc-collapsible-card-footer-bg);
 	}
 
 	.card-body {

@@ -14,6 +14,9 @@ export { default as Accordion } from './ui/Accordion/Accordion.svelte';
 export { default as AccordionItem } from './ui/Accordion/AccordionItem.svelte';
 export { default as Spinner } from './ui/Spinner.svelte';
 
+// Types
+export type { CacheAdapter } from './services/cache.ts';
+
 // Services
 export * from './services/api.ts';
 export * from './services/websockets.svelte.ts';
@@ -33,6 +36,7 @@ export * from './utils/text.ts';
 export * from './utils/token.ts';
 export * from './utils/files.ts';
 export * from './utils/lang.ts';
+export * from './utils/scroll.ts';
 
 // Debug
 export { default as SizeView } from './debug/SizeView.svelte';

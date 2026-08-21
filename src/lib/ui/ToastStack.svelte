@@ -116,7 +116,7 @@
 	}
 
 	.toast {
-		border-radius: var(--br);
+		border-radius: var(--sc-border-radius);
 		pointer-events: auto;
 		display: flex;
 		flex-direction: row;

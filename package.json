@@ -1,6 +1,6 @@
 {
 	"name": "svelte-common",
-	"version": "1.0.8+1",
+	"version": "1.0.9",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
@@ -9,9 +9,11 @@
 		"prepack": "npm run package && publint",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"lint": "prettier --check . && eslint .",
 		"format": "prettier --write .",
-		"package": "svelte-kit sync && svelte-package"
+		"package": "svelte-kit sync && svelte-package",
+		"lint:format": "prettier --check .",
+		"lint:code": "eslint .",
+		"lint": "npm run lint:format && npm run lint:code"
 	},
 	"files": [
 		"dist",

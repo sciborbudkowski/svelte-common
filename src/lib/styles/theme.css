@@ -80,21 +80,21 @@
 	--sc-button-disabled-opacity: 0.5;
 	--sc-button-disabled-shadow: none;
 
-	--sc-floating-button-bg: oklch(from var(--brand-color) l c h / 0.75);
-	--sc-floating-button-hover-bg: var(--brand-color);
+	--sc-floating-button-bg: oklch(from var(--sc-color-brand) l c h / 0.75);
+	--sc-floating-button-hover-bg: var(--sc-color-brand);
 	--sc-floating-button-text: var(--clr-neutral-a9);
 	--sc-floating-button-transition:
 		transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
 	--sc-floating-button-focus-outline: var(--clr-neutral-a9);
 
 	--sc-carousel-font: var(--sc-font-body);
-	--sc-carousel-header-bg: oklch(from var(--outline-color) / 0.4);
-	--sc-carousel-header-border: oklch(from var(--outline-color) / 0.2);
+	--sc-carousel-header-bg: oklch(from var(--sc-color-outline) / 0.4);
+	--sc-carousel-header-border: oklch(from var(--sc-color-outline) / 0.2);
 	--sc-carousel-title-bg: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
 	--sc-carousel-title-filter: drop-shadow(0 6px 6px oklch(from var(--clr-bg-a9) / 0.75));
 	--sc-carousel-bg: transparent;
 	--sc-carousel-slide-content-bg: var(--sc-color-background);
-	--sc-corousel-slide-content-text: var(--sc-color-text);
+	--sc-carousel-slide-content-text: var(--sc-color-text);
 	--sc-carousel-slide-subtitle-bg: oklch(from var(--sc-color-text-muted) / 0.2);
 	--sc-carousel-nav-item-border: var(--clr-neutral-a5);
 	--sc-carousel-nav-item-active-bg: var(--clr-neutral-a9);
@@ -113,8 +113,9 @@
 	--sc-circular-timer-remaining-time-color: oklch(from var(--clr-neutral-a0) / 0.75);
 
 	--sc-collapsible-card-header-bg: var(--clr-neutral-a2);
+	--sc-collapsible-card-footer-bg: var(--clr-neutral-a3);
 	--sc-collapsible-card-button-link-color: var(--clr-neutral-a2);
-	--sc-collapsible-card-button-link-hover-color: var(--sc-color-neutral-a3);
+	--sc-collapsible-card-button-link-hover-color: var(--clr-neutral-a3);
 
 	--sc-accordion-header-bg: transparent;
 	--sc-accorion-header-color: var(--clr-neutral-a2);
@@ -131,7 +132,7 @@
     --sc-card-body-bg: var(--sc-color-surface);
     --sc-card-footer-bg: var(--clr-neutral-a9);
 
-	--sc-color-row-loop-odd: var(--sc-color-bg);
+	--sc-color-row-loop-odd: var(--sc-color-background);
 	--sc-color-row-loop-even: var(--clr-neutral-a9);
 
     --sc-switch-bg: var(--clr-neutral-a8);

@@ -37,7 +37,7 @@
     font-variant-numeric: proportional-nums;
 }
 
-:where(img svg, video, canvas) {
+:where(img, svg, video, canvas) {
     display: block;
     max-inline-size: 100%;
     block-size: auto;

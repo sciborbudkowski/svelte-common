@@ -1,5 +1,7 @@
 // src/lib/services/websockets.svelte.ts
 
+import { SvelteURL } from 'svelte/reactivity';
+
 export type SocketStatus = 'disconnected' | 'connecting' | 'open' | 'closing';
 
 interface WebSocketClientOptions<T> {
@@ -31,6 +33,7 @@ export class WebSocketClient<T = unknown> {
 	private readonly onMessage?: (message: T) => void;
 	private readonly onStatusChange?: (status: SocketStatus) => void;
 	private readonly debug: boolean;
+	private readonly intentionallyClosed = new WeakSet<WebSocket>();
 
 	constructor(options: WebSocketClientOptions<T>) {
 		this.url = options.url;
@@ -60,12 +63,15 @@ export class WebSocketClient<T = unknown> {
 			return;
 		}
 
-		if (this.ws?.readyState === WebSocket.OPEN || this.ws?.readyState === WebSocket.CONNECTING)
-			return;
+		if (this.ws?.readyState === WebSocket.OPEN || this.ws?.readyState === WebSocket.CONNECTING) return;
 
-		const ws = new WebSocket(
-			`${this.url}?token=${encodeURIComponent(this.token)}&uuid=${this.uuid}`
-		);
+		const url = new SvelteURL(this.url, window.location.href);
+		if(url.protocol === 'http:') url.protocol = 'ws:';
+		if(url.protocol === 'https:') url.protocol = 'wss:';
+		url.searchParams.set('token', this.token);
+		url.searchParams.set('uuid', this.uuid);
+
+		const ws = new WebSocket(url);
 		this.ws = ws;
 		this.setStatus('connecting');
 
@@ -73,6 +79,7 @@ export class WebSocketClient<T = unknown> {
 			if (this.ws !== ws) return;
 
 			this.state.attempts = 0;
+			this.state.error = null;
 			this.setStatus('open');
 		};
 
@@ -104,6 +111,8 @@ export class WebSocketClient<T = unknown> {
 				(event.code === 1000 && (event.reason === 'DISCONNECT' || event.reason === 'RECONNECT'));
 			this.intentionalClose = false;
 
+			this.intentionallyClosed.delete(ws);
+
 			if (!intentional && document.visibilityState === 'visible') this.scheduleReconnect();
 		};
 	}
@@ -122,17 +131,18 @@ export class WebSocketClient<T = unknown> {
 	}
 
 	disconnect() {
-		this.clearReconnectTimeout();
-		this.intentionalClose = true;
-
-		if (!this.ws) {
-			this.intentionalClose = false;
+		const ws = this.ws;
+		if (!ws) {
 			this.setStatus('disconnected');
 			return;
 		}
 
+		this.clearReconnectTimeout();
+		this.intentionalClose = true;
+
+		this.intentionallyClosed.add(ws);
 		this.setStatus('closing');
-		this.ws.close(1000, 'DISCONNECT');
+		ws.close(1000, 'DISCONNECT');
 	}
 
 	dispose() {

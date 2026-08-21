@@ -61,7 +61,7 @@
 		border-radius: var(--radius-round);
 		background-color: var(--sc-floating-button-bg);
 		color: var(--sc-floating-button-text);
-		box-shadow: var(--shadow-4);
+		box-shadow: var(--sc-shadow-4);
 		cursor: pointer;
 		text-decoration: none;
 		font-size: var(--font-size-5);
@@ -73,11 +73,11 @@
 	.floating-button:hover {
 		background-color: var(--sc-floating-button-hover-bg);
 		transform: translateY(-2px);
-		box-shadow: var(--shadow-5);
+		box-shadow: var(--sc-shadow-5);
 	}
 	.floating-button:active {
 		transform: translateY(0);
-		box-shadow: var(--shadow-3);
+		box-shadow: var(--sc-shadow-3);
 	}
 	.floating-button:focus-visible {
 		outline: var(--border-2) solid var(--sc-floating-button-focus-outline);
@@ -87,7 +87,7 @@
 		opacity: 0.5;
 		cursor: not-allowed;
 		transform: none;
-		box-shadow: var(--shadow-2);
+		box-shadow: var(--sc-shadow-2);
 	}
 
 	.bottom-right {

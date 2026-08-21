@@ -1,44 +1,65 @@
 // src/lib/services/storage.ts
 
+import { BROWSER } from 'esm-env';
+
 type Box<T> = {
 	value: T;
 	expiresAt: number;
 };
 
+function getLocalStorage(): Storage | null {
+	if(!BROWSER) return null;
+
+	try {
+		return window.localStorage;
+	} catch {
+		return null;
+	}
+}
+
 export class EphemeralStorage {
 	static async set<T>(key: string, value: T, ttlMs = 1000 * 60 * 60) {
+		const storage = getLocalStorage();
+		if(!storage) return;
+
 		const payload: Box<T> = {
 			value,
 			expiresAt: Date.now() + ttlMs
 		};
 
-		localStorage.setItem(key, JSON.stringify(payload));
+		storage.setItem(key, JSON.stringify(payload));
 	}
 
 	static async get<T>(key: string): Promise<T | null> {
-		const raw = localStorage.getItem(key);
+		const storage = getLocalStorage();
+		if(!storage) return null;
+
+		const raw = storage.getItem(key);
 		if (!raw) return null;
 
 		try {
 			const parsed = JSON.parse(raw) as Partial<Box<T>>;
 
 			if (typeof parsed.expiresAt !== 'number') {
-				localStorage.removeItem(key);
+				storage.removeItem(key);
 				return null;
 			}
 			if (Date.now() > parsed.expiresAt) {
-				localStorage.removeItem(key);
+				storage.removeItem(key);
 				return null;
 			}
 
 			return (parsed.value as T) ?? null;
 		} catch {
-			localStorage.removeItem(key);
+			storage.removeItem(key);
 			return null;
 		}
 	}
 
 	static async delete(key: string): Promise<void> {
-		localStorage.removeItem(key);
+		const storage = getLocalStorage();
+		if(!storage) return;
+
+		storage.removeItem(key);
 	}
 }

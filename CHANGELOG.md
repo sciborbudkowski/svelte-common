@@ -116,3 +116,23 @@
 
 - api client file download fixed and integrated into ApiClient class
 - some arrow functions at modal and loader do not return any value anymore
+- --sc-color-brand default set to transparent instead to itself
+- fixed undefined CSS variables
+- Carousel import gsap fixed, animateTransition returns boolean, slides and buttons have unique ids
+- CircularTimer uses only one timer based on requestAnimationFrame
+- toaststack toast ids and timers cleaning
+- CollapsibleCard chevron position 'bottom' removed, label fixed
+- removed double .fw-* CSS classes
+- gps dispose fixed
+- loader, modal and toaststack have require browser guard
+- api client differs abort from network error
+- Modal onpointerdown on backdrop replaced with onclick
+- ConfirmModal disables buttons while making operation
+- gps gets proper error descriptions at error callback
+- websocket url creating fixed
+- EphemeralStorage has guard for browser
+- app-id has guard for browser and returns new or existing appId
+- api client download file method fallback fixed, filename cleans unwanted characters
+
+## Changed
+- .gitignore updated

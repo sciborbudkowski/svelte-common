@@ -1,4 +1,7 @@
 // src/lib/stores/modal.svelte.ts
+
+import { BROWSER } from 'esm-env';
+
 type AlertModalType = 'info' | 'success' | 'warning' | 'error';
 type MaybePromise<T> = T | Promise<T>;
 
@@ -32,6 +35,10 @@ interface ModalOptions {
 	onConfirm?: (context?: unknown) => void;
 	onCancel?: (context?: unknown) => void;
 	context?: unknown;
+}
+
+function requireBrowser(operation: string): void {
+	if(!BROWSER) throw new Error(`${operation} can only be used in the browser.`);
 }
 
 export function registerModal(id: string) {
@@ -85,16 +92,33 @@ export const openConfirmModal = (
 	};
 };
 
-export const requestConfirmation = (message: string): Promise<boolean> =>
-	new Promise((resolve) => {
-		openConfirmModal(message, () => resolve(true), { onCancel: () => resolve(false) });
+let pendingConfirmation: ((result: boolean) => void) | null = null;
+
+function settleConfirmation(result: boolean): void {
+	const resolve = pendingConfirmation;
+	pendingConfirmation = null;
+	resolve?.(result);
+}
+
+export function requestConfirmation(message: string): Promise<boolean> {
+	requireBrowser('requestConfirmation');
+	settleConfirmation(false);
+
+	return new Promise((resolve) => {
+		pendingConfirmation = resolve;
+		openConfirmModal(message, () => settleConfirmation(true), {
+			onCancel: () => settleConfirmation(false)
+		});
 	});
+}
 
 export const openAlertModal = (message: string, type: AlertModalType = 'info') => {
 	modalsState.alertModal = { isOpen: true, id: '__alert_modal_id', message, type };
 };
 
 export const openModal = (modalId: string, options?: ModalOptions) => {
+	requireBrowser('openModal');
+	
 	ensureCustomModal(modalId);
 	modalsState.customModal[modalId] = {
 		isOpen: true,

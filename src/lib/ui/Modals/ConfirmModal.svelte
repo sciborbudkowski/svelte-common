@@ -17,9 +17,20 @@
 
     const modal = $derived(modalsState.confirmModal);
 
+    let confirming = $state(false);
+
     async function confirm() {
-        await modal.onConfirm?.(modal.context);
-        closeConfirmModal();
+        if(confirming) return;
+        confirming = true;
+
+        try {
+            await modal.onConfirm?.(modal.context);
+            closeConfirmModal();
+        } catch (error) {
+            console.error('Error in ConfirmModal::confirm() - ', error);
+        } finally {
+            confirming = false;
+        }
     }
 
     function cancel() {
@@ -45,6 +56,6 @@
 {/snippet}
 
 {#snippet footer()}
-    <button type="button" onclick={cancel}>Anuluj</button>
-    <button type="button" onclick={confirm}>Potwierdź</button>
+    <button type="button" onclick={cancel} disabled={confirming}>Anuluj</button>
+    <button type="button" onclick={confirm} disabled={confirming}>Potwierdź</button>
 {/snippet}

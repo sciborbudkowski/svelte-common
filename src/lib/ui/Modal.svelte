@@ -43,10 +43,9 @@
 		cancel();
 	}
 
-	function closeFromBackdrop(e: PointerEvent) {
+	function closeFromBackdrop(e: MouseEvent) {
 		if (!isTopMost) return;
 		if (e.target !== e.currentTarget) return;
-		if (e.pointerType === 'touch') return;
 
 		close();
 	}
@@ -102,7 +101,7 @@
 	<div
 		class="modal-backdrop mp-{position} {isTopMost ? 'is-topmost' : ''}"
 		style={`--modal-depth: ${Math.max(stackIndex, 0)}`}
-		onpointerdown={closeFromBackdrop}
+		onclick={closeFromBackdrop}
 		onkeydown={handleBackdropKeyDown}
 		tabindex="-1"
 		aria-modal="true"
@@ -120,8 +119,8 @@
 				{#if footer}
 					{@render footer()}
 				{:else}
-					<span><button type="button" onclick={cancel}>{cancelButtonLabel}</button></span>
-					<span><button type="button" onclick={confirm}>{confirmButtonLabel}</button></span>
+					<span><button type="button" class="outline neutral" onclick={cancel}>{cancelButtonLabel}</button></span>
+					<span><button type="button" class="brand" onclick={confirm}>{confirmButtonLabel}</button></span>
 				{/if}
 			</div>
 		</div>

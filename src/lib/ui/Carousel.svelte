@@ -5,6 +5,7 @@
 	import { textToHtml } from '../utils/text.ts';
 
 	export type Slide = {
+		id: string;
 		image: string;
 		filter?: string;
 		header: string;
@@ -12,6 +13,7 @@
 		descriptionHtml: string;
 		backgroundPosition?: 'left' | 'right' | 'center';
 		buttons: {
+			id: string;
 			title: string;
 			class: string;
 			target: string;
@@ -92,6 +94,7 @@
 
 	function updateProgressBar() {
 		if (!gsapRef || !progressBarEl) return;
+		if (totalSlides === 0) return;
 
 		gsapRef.to(progressBarEl, {
 			scaleX: (currentSlide + 1) / totalSlides,
@@ -123,8 +126,8 @@
 		});
 	}
 
-	function animateTransition(fromIndex: number, toIndex: number, direction: 1 | -1) {
-		if (!gsapRef) return;
+	function animateTransition(fromIndex: number, toIndex: number, direction: 1 | -1): boolean {
+		if (!gsapRef) return false;
 
 		const fromSlide = slideElements[fromIndex];
 		const toSlide = slideElements[toIndex];
@@ -133,7 +136,7 @@
 		const fromBg = bgElements[fromIndex];
 		const toBg = bgElements[toIndex];
 
-		if (!fromSlide || !toSlide || !fromContent || !toContent || !fromBg || !toBg) return;
+		if (!fromSlide || !toSlide || !fromContent || !toContent || !fromBg || !toBg) return false;
 		gsapRef.killTweensOf(fromBg);
 		gsapRef.killTweensOf(toBg);
 
@@ -207,6 +210,8 @@
 			duration: 2,
 			ease: 'power1.out'
 		});
+
+		return true;
 	}
 
 	function startBgZoom(index: number) {
@@ -225,6 +230,7 @@
 
 	function goToSlide(index: number, forcedDirection?: 1 | -1) {
 		if (index === currentSlide || isAnimating) return;
+		if (totalSlides === 0) return;
 
 		isAnimating = true;
 		stopCounterProgress();
@@ -235,7 +241,12 @@
 		currentSlide = index;
 		updateCounter();
 		updateProgressBar();
-		animateTransition(fromIndex, index, direction);
+
+		const animating = animateTransition(fromIndex, index, direction);
+		if(!animating) {
+			isAnimating = false;
+			currentSlide = 0;
+		}
 	}
 
 	function nextSlide() {
@@ -248,67 +259,75 @@
 		goToSlide((currentSlide - 1 + totalSlides) % totalSlides, -1);
 	}
 
-	onMount(() => {
-		let cleanup = () => {
-			clearAutoplay();
-			stopCounterProgress();
-		};
-
-		void (async () => {
-			const { gsap } = await import('gsap');
-			gsapRef = gsap;
-			slideElements = Array.from(carouselEl?.querySelectorAll<HTMLDivElement>('.mc-slide') ?? []);
-			bgElements = Array.from(carouselEl?.querySelectorAll<HTMLDivElement>('.mc-slide-bg') ?? []);
-			contentElements = Array.from(
-				carouselEl?.querySelectorAll<HTMLDivElement>('.mc-slide-content') ?? []
-			);
-
-			slideElements.forEach((slide, index) => {
-				const content = contentElements[index];
-				const bg = bgElements[index];
-
-				if (!slide || !content || !bg) return;
-
-				if (index === 0) {
-					gsap.set(slide, { y: '0vh', opacity: 1 });
-					gsap.set(content, { y: 0, opacity: 1 });
-					gsap.set(bg, { scale: 1.1, y: 0 });
-				} else {
-					gsap.set(slide, { y: '100vh', opacity: 0 });
-					gsap.set(content, { y: 100, opacity: 0 });
-					gsap.set(bg, { scale: 1.1, y: 0 });
-				}
-			});
-
-			if (progressBarEl) {
-				gsap.set(progressBarEl, {
-					scaleX: (currentSlide + 1) / totalSlides,
-					transformOrigin: 'left center'
-				});
-			}
-
-			startCounterProgress();
-			startBgZoom(currentSlide);
-		})();
-
-		return () => cleanup();
-	});
-
 	function cssUrl(value: string): string {
 		return value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
 	}
 
 	function createSlideStyle(image: string, filter?: string, bgPosition?: string): string {
 		return `
-			background-image: url("${cssUrl(image)}"");
+			background-image: url("${cssUrl(image)}");
 			${filter ? `filter: ${filter};` : ''}
 			--bp: ${bgPosition ?? 'center'};`;
 	}
+
+	onMount(() => {
+		let disposed = false;
+		let gsapContext: { revert: () => void } | undefined;
+
+		void (async () => {
+			const { gsap } = await import('gsap');
+			if(disposed || !carouselEl) return;
+
+			gsapRef = gsap;
+			gsapContext = gsap.context(() => {
+				slideElements = Array.from(carouselEl?.querySelectorAll<HTMLDivElement>('.mc-slide') ?? []);
+				bgElements = Array.from(carouselEl?.querySelectorAll<HTMLDivElement>('.mc-slide-bg') ?? []);
+				contentElements = Array.from(
+					carouselEl?.querySelectorAll<HTMLDivElement>('.mc-slide-content') ?? []
+				);
+
+				slideElements.forEach((slide, index) => {
+					const content = contentElements[index];
+					const bg = bgElements[index];
+
+					if (!slide || !content || !bg) return;
+
+					if (index === 0) {
+						gsap.set(slide, { y: '0vh', opacity: 1 });
+						gsap.set(content, { y: 0, opacity: 1 });
+						gsap.set(bg, { scale: 1.1, y: 0 });
+					} else {
+						gsap.set(slide, { y: '100vh', opacity: 0 });
+						gsap.set(content, { y: 100, opacity: 0 });
+						gsap.set(bg, { scale: 1.1, y: 0 });
+					}
+				});
+
+				if (progressBarEl) {
+					gsap.set(progressBarEl, {
+						scaleX: (currentSlide + 1) / totalSlides,
+						transformOrigin: 'left center'
+					});
+				}
+
+				startCounterProgress();
+				startBgZoom(currentSlide);
+			}, carouselEl);
+		})();
+
+		return () => {
+			disposed = true;
+			clearAutoplay();
+			stopCounterProgress();
+			gsapContext?.revert();
+			gsapRef = null;
+		};
+	});
 </script>
 
 <div class="mc-progress-bar" bind:this={progressBarEl}></div>
 <div class="modern-carousel" bind:this={carouselEl}>
-	{#each slides as slide, index (slide.image)}
+	{#each slides as slide, index (slide.id)}
 		<div class="mc-slide" class:is-active={index === currentSlide}>
 			<div
 				class="mc-slide-bg"
@@ -320,7 +339,7 @@
 				<!-- eslint-disable-next-line svelte/no-at-html-tags -- slide.description is sanitized before it reaches Carousel -->
 				<p>{@html textToHtml(slide.descriptionHtml)}</p>
 				<div class="buttons">
-					{#each slide.buttons as button (button.target)}
+					{#each slide.buttons as button (button.id)}
 						<button
 							type="button"
 							class={button.class}
@@ -388,7 +407,7 @@
 		background-color: var(--sc-carousel-header-bg);
 		border: var(--sc-border-ws) var(--sc-carousel-header-border);
 		border-radius: var(--sc-border-radius);
-		color: var(--brand-color);
+		color: var(--sc-color-brand);
 	}
 
 	h1 {
@@ -464,7 +483,7 @@
 		margin: 0 auto 2.25rem;
 		font-size: clamp(1rem, 1.5vw, 1.2rem);
 		font-weight: 400;
-		color: var(--sc-corousel-slide-content-text);
+		color: var(--sc-carousel-slide-content-text);
 		text-align: center;
 	}
 
@@ -501,7 +520,7 @@
 		height: calc(var(--size-2) * 1.5);
 		aspect-ratio: 1 / 1;
 		border: var(--sc-border-ws) var(--sc-carousel-nav-item-border);
-		border-radius: var(--border-round);
+		border-radius: var(--sc-border-radius);
 		margin: var(--size-3) 0;
 		cursor: pointer;
 		transition: all var(--sc-transition-duration) var(--sc-transition-type);
@@ -535,7 +554,6 @@
 		z-index: var(--zi-2);
 		transform-origin: left;
 		transform: scaleX(0);
-		visibility: hidden;
 	}
 
 	.mc-slide-counter {
@@ -543,7 +561,7 @@
 		bottom: 2.5rem;
 		right: 2.5rem;
 		color: var(--sc-carousel-slide-counter-color);
-		font-size: var(--font-ls-3);
+		font-size: var(--font-size-3);
 		font-weight: 300;
 		z-index: var(--zi-2);
 		display: grid;

@@ -98,7 +98,7 @@
 		left: 0;
 		right: 0;
 		bottom: 0;
-		background: linear-gradient(90deg, transparent, rgb(var(--clr-white-rgb) / 0.4), transparent);
+		background: linear-gradient(90deg, transparent, oklch(from var(--sc-color-surface) l c h / 0.4), transparent);
 		animation: shimmer 2s infinite;
 	}
 

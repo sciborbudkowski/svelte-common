@@ -1,4 +1,7 @@
 // src/lib/stores/loader.svelte.ts
+
+import { BROWSER } from 'esm-env';
+
 interface LoaderState {
 	isVisible: boolean;
 	message: string;
@@ -23,7 +26,12 @@ export const loaderState: LoaderState = $state({
 
 let currentRunId = 0;
 
+function requireBrowser(operation: string): void {
+	if(!BROWSER) throw new Error(`${operation} can only be used in the browser.`);
+}
+
 export const showLoader = (m: string = 'Ładowanie...') => {
+	requireBrowser('showLoader');
 	const runId = ++currentRunId;
 
 	loaderState.isVisible = true;

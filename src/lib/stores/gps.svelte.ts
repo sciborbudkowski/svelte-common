@@ -80,6 +80,7 @@ export class Gps {
 
 		this.watchId = null;
 		this.state.active = false;
+		this.lastEmitedAt = 0;
 	}
 
 	start(): void {
@@ -89,7 +90,7 @@ export class Gps {
 			return;
 		}
 
-		if (this.watchId) return;
+		if (this.watchId !== null) return;
 
 		this.state.supported = true;
 		this.state.mode = this.getEffectiveMode();
@@ -116,7 +117,9 @@ export class Gps {
 				this.lastEmitedAt = now;
 			},
 			(err) => {
-				this.state.error = `${err.code}: ${err.message}`;
+				this.state.error = this.getErrorDescriptionFor(err);
+				this.state.active = false;
+				this.stop();
 			},
 			this.getGpsOptions(this.state.mode)
 		);
@@ -135,10 +138,14 @@ export class Gps {
 	}
 
 	setInterval(ms: number): void {
+		if(Number.isNaN(ms) || !Number.isFinite(ms)) return;
+
 		this.state.intervalMs = Math.max(1000, Math.floor(ms));
 	}
 
 	init(mode: GpsMode = 'balanced'): () => void {
+		let disposed = false;
+
 		if (mode === 'precise') {
 			this.preciseConsumers++;
 		} else {
@@ -149,6 +156,9 @@ export class Gps {
 		this.restart();
 
 		return () => {
+			if(disposed) return;
+			disposed = true;
+
 			if (mode === 'precise') {
 				this.preciseConsumers = Math.max(0, this.preciseConsumers - 1);
 			} else {

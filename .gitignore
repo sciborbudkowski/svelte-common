@@ -12,6 +12,8 @@ node_modules
 # OS
 .DS_Store
 Thumbs.db
+deploy.sh
+FIXES.md
 
 # Env
 .env
