@@ -168,6 +168,9 @@
 
 ## 1.1.1
 
+### Added
+- isModalOpen reactive selector to determine modal is visible or closed
+
 ### Fixed
 
 - ApiClient get<T> method returns ApiHttpResponse to avoid queue

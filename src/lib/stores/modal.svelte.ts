@@ -195,3 +195,6 @@ export const closeModal = (modalId: string) => {
 
 export const getModalContext = <T = unknown>(modalId: string): T | undefined =>
 	modalsState.customModal[modalId]?.context as T | undefined;
+
+export const isModalOpen = (modalId: string): boolean =>
+	modalsState.customModal[modalId]?.isOpen ?? false;
