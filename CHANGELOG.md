@@ -165,3 +165,9 @@
 ### Removed
 
 - Removed unused Vitest example files and dead modal position selectors.
+
+## 1.1.1
+
+### Fixed
+
+- ApiClient get<T> method returns ApiHttpResponse to avoid queue

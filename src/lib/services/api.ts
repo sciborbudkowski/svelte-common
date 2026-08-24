@@ -197,7 +197,7 @@ export class ApiClient<TCode extends string = string> {
 			(async <T>(response: Response) => parseEnvelopeResponse<T, TCode>(response));
 	}
 
-	get<T>(path: string, init: RequestInit = {}): Promise<ApiResponse<T, TCode>> {
+	get<T>(path: string, init: RequestInit = {}): Promise<ApiHttpResponse<T, TCode>> {
 		return this.request<T>(path, {
 			...init,
 			method: 'GET'
@@ -312,6 +312,10 @@ export class ApiClient<TCode extends string = string> {
 			};
 		}
 	}
+
+	private request<T>(path: string, init: RequestInit & { method: 'GET' }): Promise<ApiHttpResponse<T, TCode>>;
+
+	private request<T>(path: string, init: RequestInit): Promise<ApiResponse<T, TCode>>;
 
 	private async request<T>(path: string, init: RequestInit): Promise<ApiResponse<T, TCode>> {
 		const method = (init.method ?? 'GET').toUpperCase();
