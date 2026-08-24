@@ -34,7 +34,8 @@ export {
 	closeConfirmModal,
 	closeModal,
 	getModalContext,
-	requestConfirmation
+	requestConfirmation,
+	isModalOpen
 } from './stores/modal.svelte.ts';
 
 // Utils
