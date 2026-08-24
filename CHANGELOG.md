@@ -171,3 +171,4 @@
 ### Fixed
 
 - ApiClient get<T> method returns ApiHttpResponse to avoid queue
+- ApiClient queue is optional and must be run locally for single request

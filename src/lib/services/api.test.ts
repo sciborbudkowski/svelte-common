@@ -204,7 +204,8 @@ describe('ApiClient', () => {
 				name: 'Test'
 			},
 			{
-				signal: controller.signal
+				signal: controller.signal,
+				queueIfOffline: true
 			}
 		);
 
@@ -345,7 +346,8 @@ describe('ApiClient', () => {
 		const client = new ApiClient({
 			fetch: fetcher,
 			offlineQueue: {
-				adapter: queue.adapter
+				adapter: queue.adapter,
+				shouldQueue: () => true
 			}
 		});
 
@@ -369,7 +371,6 @@ describe('ApiClient', () => {
 			fetch: fetcher,
 			offlineQueue: {
 				adapter: queue.adapter,
-				shouldQueue: () => true,
 				createActionId: () => 'action-123',
 				idempotency: {
 					createKey: () => 'request-456'
@@ -383,7 +384,8 @@ describe('ApiClient', () => {
 			{
 				headers: {
 					'X-Tenant': 'tenant-1'
-				}
+				},
+				queueIfOffline: true
 			}
 		);
 
@@ -498,7 +500,7 @@ describe('ApiClient', () => {
 
 		const client = new ApiClient({ fetch: fetcher });
 
-		const result = client.downloadAndSave('/file');
+		const result = await client.downloadAndSave('/file');
 
 		expect(result).toEqual({
 			error: true,

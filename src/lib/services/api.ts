@@ -47,6 +47,18 @@ export interface DownloadOptions {
 	fallbackBaseName?: string;
 }
 
+export interface ApiRequestInit extends RequestInit {
+	queueIfOffline?: boolean;
+}
+
+export interface DirectApiRequestInit extends ApiRequestInit {
+	queueIfOffline?: false;
+}
+
+export interface QueuedApiRequestInit extends ApiRequestInit {
+	queueIfOffline: true;
+}
+
 export type ApiResponseParser<TCode extends string = string> = <T>(
 	response: Response
 ) => Promise<ApiHttpResponse<T, TCode>>;
@@ -198,29 +210,67 @@ export class ApiClient<TCode extends string = string> {
 	}
 
 	get<T>(path: string, init: RequestInit = {}): Promise<ApiHttpResponse<T, TCode>> {
-		return this.request<T>(path, {
-			...init,
-			method: 'GET'
-		});
+		return this.request<T>(
+			path,
+			{
+				...init,
+				method: 'GET'
+			},
+			false
+		);
 	}
 
-	post<T>(path: string, body?: unknown, init: RequestInit = {}): Promise<ApiResponse<T, TCode>> {
+	post<T>(path: string, body: unknown, init: QueuedApiRequestInit): Promise<ApiResponse<T, TCode>>;
+	post<T>(
+		path: string,
+		body?: unknown,
+		init?: DirectApiRequestInit
+	): Promise<ApiHttpResponse<T, TCode>>;
+	post<T>(path: string, body: unknown, init: ApiRequestInit): Promise<ApiResponse<T, TCode>>;
+	post<T>(path: string, body?: unknown, init: ApiRequestInit = {}): Promise<ApiResponse<T, TCode>> {
 		return this.jsonRequest<T>('POST', path, body, init);
 	}
 
-	put<T>(path: string, body?: unknown, init: RequestInit = {}): Promise<ApiResponse<T, TCode>> {
+	put<T>(path: string, body: unknown, init: QueuedApiRequestInit): Promise<ApiResponse<T, TCode>>;
+	put<T>(
+		path: string,
+		body?: unknown,
+		init?: DirectApiRequestInit
+	): Promise<ApiHttpResponse<T, TCode>>;
+	put<T>(path: string, body: unknown, init: ApiRequestInit): Promise<ApiResponse<T, TCode>>;
+	put<T>(path: string, body?: unknown, init: ApiRequestInit = {}): Promise<ApiResponse<T, TCode>> {
 		return this.jsonRequest<T>('PUT', path, body, init);
 	}
 
-	patch<T>(path: string, body?: unknown, init: RequestInit = {}): Promise<ApiResponse<T, TCode>> {
+	patch<T>(path: string, body: unknown, init: QueuedApiRequestInit): Promise<ApiResponse<T, TCode>>;
+	patch<T>(
+		path: string,
+		body?: unknown,
+		init?: DirectApiRequestInit
+	): Promise<ApiHttpResponse<T, TCode>>;
+	patch<T>(path: string, body: unknown, init: ApiRequestInit): Promise<ApiResponse<T, TCode>>;
+	patch<T>(
+		path: string,
+		body?: unknown,
+		init: ApiRequestInit = {}
+	): Promise<ApiResponse<T, TCode>> {
 		return this.jsonRequest<T>('PATCH', path, body, init);
 	}
 
-	delete<T>(path: string, init: RequestInit = {}): Promise<ApiResponse<T, TCode>> {
-		return this.request<T>(path, {
-			...init,
-			method: 'DELETE'
-		});
+	delete<T>(path: string, init: QueuedApiRequestInit): Promise<ApiResponse<T, TCode>>;
+	delete<T>(path: string, init?: DirectApiRequestInit): Promise<ApiHttpResponse<T, TCode>>;
+	delete<T>(path: string, init: ApiRequestInit): Promise<ApiResponse<T, TCode>>;
+	delete<T>(path: string, init: ApiRequestInit = {}): Promise<ApiResponse<T, TCode>> {
+		const { queueIfOffline = false, ...requestInit } = init;
+
+		return this.request<T>(
+			path,
+			{
+				...requestInit,
+				method: 'DELETE'
+			},
+			queueIfOffline
+		);
 	}
 
 	async downloadAndSave(
@@ -313,15 +363,33 @@ export class ApiClient<TCode extends string = string> {
 		}
 	}
 
-	private request<T>(path: string, init: RequestInit & { method: 'GET' }): Promise<ApiHttpResponse<T, TCode>>;
+	private request<T>(
+		path: string,
+		init: RequestInit,
+		queueIfOffline: false
+	): Promise<ApiHttpResponse<T, TCode>>;
 
-	private request<T>(path: string, init: RequestInit): Promise<ApiResponse<T, TCode>>;
+	private request<T>(
+		path: string,
+		init: RequestInit,
+		queueIfOffline: true
+	): Promise<ApiResponse<T, TCode>>;
 
-	private async request<T>(path: string, init: RequestInit): Promise<ApiResponse<T, TCode>> {
+	private request<T>(
+		path: string,
+		init: RequestInit,
+		queueIfOffline: boolean
+	): Promise<ApiResponse<T, TCode>>;
+
+	private async request<T>(
+		path: string,
+		init: RequestInit,
+		queueIfOffline: boolean
+	): Promise<ApiResponse<T, TCode>> {
 		const method = (init.method ?? 'GET').toUpperCase();
 		const url = this.makeUrl(path);
 
-		const preparedOffline = this.prepareOfflineAction(path, method, init);
+		const preparedOffline = queueIfOffline ? this.prepareOfflineAction(path, method, init) : null;
 		const requestInit = preparedOffline?.init ?? init;
 
 		const effectiveInit: RequestInit = {
@@ -403,11 +471,12 @@ export class ApiClient<TCode extends string = string> {
 		method: 'POST' | 'PUT' | 'PATCH',
 		path: string,
 		body: unknown,
-		init: RequestInit
+		init: ApiRequestInit
 	): Promise<ApiResponse<T, TCode>> {
-		const headers = new Headers(init.headers);
+		const { queueIfOffline = false, ...requestInit } = init;
+		const headers = new Headers(requestInit.headers);
 
-		let requestBody = init.body;
+		let requestBody = requestInit.body;
 		if (body !== undefined) {
 			try {
 				requestBody = JSON.stringify(body);
@@ -423,12 +492,16 @@ export class ApiClient<TCode extends string = string> {
 			}
 		}
 
-		return this.request<T>(path, {
-			...init,
-			method,
-			headers,
-			body: requestBody
-		});
+		return this.request<T>(
+			path,
+			{
+				...requestInit,
+				method,
+				headers,
+				body: requestBody
+			},
+			queueIfOffline
+		);
 	}
 
 	private async handleNetworkError<T>(
@@ -604,7 +677,7 @@ export class ApiClient<TCode extends string = string> {
 	): { action: OfflineAction; init: RequestInit } | null {
 		if (!this.offlineQueue || !this.isQueueableMethod(method)) return null;
 
-		const shouldQueue = this.offlineQueue.shouldQueue?.(path, method) ?? false;
+		const shouldQueue = this.offlineQueue.shouldQueue?.(path, method) ?? true;
 		if (!shouldQueue) return null;
 		if (init.body != null && typeof init.body !== 'string') return null;
 
