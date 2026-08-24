@@ -2,7 +2,7 @@
 
 const IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/heic', 'image/heif', 'image/avif'];
 const VIDEO_TYPES = ['video/mp4', 'video/quicktime', 'video/webm'];
-const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.heic', '.heif'];
+const IMAGE_EXTS = ['.jpg', '.jpeg', '.png', '.heic', '.heif', '.avif'];
 const VIDEO_EXTS = ['.mp4', '.mov', '.webm'];
 
 const getFileExt = (name: string) => {

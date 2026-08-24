@@ -26,30 +26,39 @@ function createFetch() {
 
 function createCacheAdapter() {
 	const get = vi.fn<(key: string) => Promise<unknown | null>>();
+
 	const set = vi.fn<(key: string, value: unknown, ttl?: number) => Promise<void>>();
+
+	const remove = vi.fn<(key: string) => Promise<void>>();
 
 	get.mockResolvedValue(null);
 	set.mockResolvedValue(undefined);
+	remove.mockResolvedValue(undefined);
 
 	const adapter: CacheAdapter = {
 		async get<T>(key: string): Promise<T | null> {
-			return await get(key) as T | null;
+			return (await get(key)) as T | null;
 		},
 
 		async set<T>(key: string, value: T, ttl?: number): Promise<void> {
 			await set(key, value, ttl);
-		}
+		},
+
+		delete: remove
 	};
 
 	return {
 		adapter,
 		get,
-		set
+		set,
+		delete: remove
 	};
 }
 
 function createQueueAdapter() {
-	const enqueue = vi.fn(async () => undefined);
+	const enqueue = vi.fn<OfflineQueueAdapter['enqueue']>();
+
+	enqueue.mockResolvedValue(undefined);
 
 	const adapter: OfflineQueueAdapter = {
 		enqueue
@@ -184,7 +193,8 @@ describe('ApiClient', () => {
 			fetch: fetcher,
 
 			offlineQueue: {
-				adapter: queue.adapter
+				adapter: queue.adapter,
+				shouldQueue: () => true
 			}
 		});
 
@@ -278,7 +288,7 @@ describe('ApiClient', () => {
 
 		expect(onError).toHaveBeenCalledWith(cacheError, {
 			operation: 'set',
-			key: 'https://api.test/items'
+			target: 'https://api.test/items'
 		});
 	});
 
@@ -324,5 +334,177 @@ describe('ApiClient', () => {
 		const keys = cache.set.mock.calls.map(([key]) => key);
 
 		expect(keys).toEqual(['https://api-a.test/items', 'https://api-b.test/items']);
+	});
+
+	it('nie kolejkuje endpointu bez jawnej zgody', async () => {
+		const { mock, fetcher } = createFetch();
+		const queue = createQueueAdapter();
+
+		mock.mockRejectedValue(new Error('Offline'));
+
+		const client = new ApiClient({
+			fetch: fetcher,
+			offlineQueue: {
+				adapter: queue.adapter
+			}
+		});
+
+		const result = await client.post('/user', { name: 'Test' });
+
+		expect(result).toEqual({
+			error: true,
+			message: 'Network error.'
+		});
+
+		expect(queue.enqueue).not.toHaveBeenCalled();
+	});
+
+	it('zapisuje odtwarzalne body i nagłówki', async () => {
+		const { mock, fetcher } = createFetch();
+		const queue = createQueueAdapter();
+
+		mock.mockRejectedValue(new Error('Offline'));
+
+		const client = new ApiClient({
+			fetch: fetcher,
+			offlineQueue: {
+				adapter: queue.adapter,
+				shouldQueue: () => true,
+				createActionId: () => 'action-123',
+				idempotency: {
+					createKey: () => 'request-456'
+				}
+			}
+		});
+
+		const result = await client.post(
+			'/reports',
+			{ title: 'Raport' },
+			{
+				headers: {
+					'X-Tenant': 'tenant-1'
+				}
+			}
+		);
+
+		expect(result).toEqual({
+			error: false,
+			queued: true
+		});
+
+		const action = queue.enqueue.mock.calls[0][0];
+		const headers = Object.fromEntries(action.headers);
+
+		expect(action).toMatchObject({
+			id: 'action-123',
+			method: 'POST',
+			endpoint: '/reports',
+			body: JSON.stringify({ title: 'Raport' }),
+			idempotencyKey: 'request-456'
+		});
+
+		expect(action.createdAt).toEqual(expect.any(Number));
+		expect(headers['content-type']).toBe('application/json');
+		expect(headers['x-tenant']).toBe('tenant-1');
+		expect(headers['idempotency-key']).toBe('request-456');
+	});
+
+	it('rozdziela cache użytkowników dla tego samego URL', async () => {
+		const { mock, fetcher } = createFetch();
+		const cache = createCacheAdapter();
+
+		mock
+			.mockResolvedValueOnce(
+				jsonResponse({
+					error: false,
+					data: 'User A'
+				})
+			)
+			.mockResolvedValueOnce(
+				jsonResponse({
+					error: false,
+					data: 'User B'
+				})
+			);
+
+		const clientA = new ApiClient({
+			baseUrl: 'https://api.test',
+			fetch: fetcher,
+
+			cache: {
+				adapter: cache.adapter,
+				getKey: ({ url }) => `user-a:${url}`
+			}
+		});
+
+		const clientB = new ApiClient({
+			baseUrl: 'https://api.test',
+			fetch: fetcher,
+
+			cache: {
+				adapter: cache.adapter,
+				getKey: ({ url }) => `user-b:${url}`
+			}
+		});
+
+		await clientA.get('/profile');
+		await clientB.get('/profile');
+
+		const keys = cache.set.mock.calls.map(([key]) => key);
+
+		expect(keys).toEqual(['user-a:https://api.test/profile', 'user-b:https://api.test/profile']);
+	});
+
+	it('usuwa cache po udanej mutacji', async () => {
+		const { mock, fetcher } = createFetch();
+		const cache = createCacheAdapter();
+
+		mock.mockResolvedValue(
+			jsonResponse({
+				error: false,
+				data: {
+					id: 123
+				}
+			})
+		);
+
+		const makeKey = (url: string) => `user-1:${url}`;
+
+		const client = new ApiClient({
+			baseUrl: 'https://api.test',
+			fetch: fetcher,
+
+			cache: {
+				adapter: cache.adapter,
+				getKey: ({ url }) => makeKey(url),
+
+				invalidateAfterMutation: async ({ url }) => {
+					await cache.adapter.delete?.(makeKey(url));
+				}
+			}
+		});
+
+		const result = await client.post('/items', {
+			name: 'Nowy element'
+		});
+
+		expect(result.error).toBe(false);
+
+		expect(cache.delete).toHaveBeenCalledWith('user-1:https://api.test/items');
+	});
+
+	it('nie pobiera pliku podczas SSR', async () => {
+		const { mock, fetcher } = createFetch();
+
+		const client = new ApiClient({ fetch: fetcher });
+
+		const result = client.downloadAndSave('/file');
+
+		expect(result).toEqual({
+			error: true,
+			message: 'Downloading is available only in the browser.'
+		});
+
+		expect(mock).not.toHaveBeenCalled();
 	});
 });

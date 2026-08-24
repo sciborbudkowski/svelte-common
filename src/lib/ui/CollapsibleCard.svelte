@@ -1,11 +1,12 @@
 <!-- src/lib/ui/CollapsibleCard.svelte -->
 
 <script lang="ts">
-	import { randomUUID } from 'crypto';
 	import { slide } from 'svelte/transition';
 
+	const componentId = $props.id();
+
 	let {
-		id = randomUUID(),
+		id = componentId,
 		visibleContent,
 		hiddenContent,
 		defaultOpen = false,
@@ -37,6 +38,10 @@
 	let isOpen = $state((() => defaultOpen)());
 
 	const toggleLabel = $derived(isOpen ? showLessLabel : showMoreLabel);
+
+	function toggle(): void {
+		isOpen = !isOpen;
+	}
 </script>
 
 <div class={'card ' + (rest.class ?? '')}>
@@ -52,7 +57,7 @@
 						class={showMoreLessLabelClass}
 						aria-expanded={isOpen}
 						aria-controls={id}
-						onclick={() => (isOpen = !isOpen)}
+						onclick={toggle}
 					>
 						{@render visibleContent?.()}
 					</button>
@@ -65,7 +70,7 @@
 					aria-expanded={isOpen}
 					aria-label={toggleLabel}
 					aria-controls={id}
-					onclick={() => (isOpen = !isOpen)}
+					onclick={toggle}
 				>
 					<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
 					{toggleLabel}
@@ -80,10 +85,10 @@
 					aria-label={toggleLabel}
 					aria-controls={id}
 					style="padding: 0;"
-					onclick={() => (isOpen = !isOpen)}
+					onclick={toggle}
 				>
 					<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-					{showMoreLabel}
+					{toggleLabel}
 				</button>
 				{#if isVisibleContentClickable}
 					<button
@@ -91,7 +96,7 @@
 						class={showMoreLessLabelClass}
 						aria-expanded={isOpen}
 						aria-controls={id}
-						onclick={() => (isOpen = !isOpen)}
+						onclick={toggle}
 					>
 						{@render visibleContent?.()}
 					</button>
@@ -100,11 +105,13 @@
 				{/if}
 			</div>
 		{/if}
-		{#if isOpen}
-			<div transition:slide={{ duration: 300 }}>
-				{@render hiddenContent?.()}
-			</div>
-		{/if}
+		<div {id} aria-hidden={!isOpen}>
+			{#if isOpen}
+				<div transition:slide={{ duration: 300 }}>
+					{@render hiddenContent?.()}
+				</div>
+			{/if}
+		</div>
 	</div>
 	{#if footer}
 		<div class="card-footer">{@render footer?.()}</div>

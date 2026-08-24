@@ -70,7 +70,7 @@ body {
 	background-color: var(--sc-color-background);
 }
 
-section {
+:where(.sc-section) {
 	display: flex;
 	flex-direction: column;
 	height: 100%;

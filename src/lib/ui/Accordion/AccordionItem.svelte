@@ -116,6 +116,6 @@
 
 	.accrd-header2 {
 		font-size: var(--font-size-0);
-		color: var(--sc-accorion-header-color);
+		color: var(--sc-accordion-header-color);
 	}
 </style>

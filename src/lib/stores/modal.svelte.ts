@@ -37,17 +37,44 @@ interface ModalOptions {
 	context?: unknown;
 }
 
+let previousBodyOverflow: string | null = null;
+
+function lockBodyScroll(): void {
+	if (previousBodyOverflow !== null) return;
+
+	previousBodyOverflow = document.body.style.overflow;
+	document.body.style.overflow = 'hidden';
+}
+
+function unlockBodyScroll(): void {
+	if (previousBodyOverflow === null) return;
+
+	document.body.style.overflow = previousBodyOverflow;
+	previousBodyOverflow = null;
+}
+
 function requireBrowser(operation: string): void {
 	if (!BROWSER) throw new Error(`${operation} can only be used in the browser.`);
 }
 
 export function registerModal(id: string) {
-	if (!modalStack.includes(id)) modalStack.push(id);
+	requireBrowser('registerModal');
+
+	if (modalStack.includes(id)) return;
+	if (modalStack.length === 0) lockBodyScroll();
+
+	modalStack.push(id);
 }
 
 export function unregisterModal(id: string) {
+	requireBrowser('unregisterModal');
+
 	const index = modalStack.indexOf(id);
-	if (index !== -1) modalStack.splice(index, 1);
+	if (index === -1) return;
+
+	modalStack.splice(index, 1);
+
+	if (modalStack.length === 0) unlockBodyScroll();
 }
 
 export const modalsState = $state<ModalState>({
@@ -82,6 +109,8 @@ export const openConfirmModal = (
 	onConfirm: (context?: unknown) => MaybePromise<void>,
 	options?: { onCancel?: () => void; context?: unknown }
 ) => {
+	requireBrowser('openConfirmModal');
+
 	modalsState.confirmModal = {
 		isOpen: true,
 		id: '__confirm_modal_id',
@@ -113,6 +142,7 @@ export function requestConfirmation(message: string): Promise<boolean> {
 }
 
 export const openAlertModal = (message: string, type: AlertModalType = 'info') => {
+	requireBrowser('openAlertModal');
 	modalsState.alertModal = { isOpen: true, id: '__alert_modal_id', message, type };
 };
 
@@ -130,6 +160,10 @@ export const openModal = (modalId: string, options?: ModalOptions) => {
 };
 
 export const closeConfirmModal = (): void => {
+	requireBrowser('closeConfirmModal');
+
+	settleConfirmation(false);
+
 	modalsState.confirmModal = {
 		isOpen: false,
 		id: '__confirm_modal_id',
@@ -141,11 +175,15 @@ export const closeConfirmModal = (): void => {
 };
 
 export const closeAlertModal = (): void => {
+	requireBrowser('closeAlertModal');
+
 	modalsState.alertModal = { isOpen: false, id: '__alert_modal_id', message: '', type: 'info' };
 };
 
 export const closeModal = (modalId: string) => {
+	requireBrowser('closeModal');
 	ensureCustomModal(modalId);
+
 	modalsState.customModal[modalId] = {
 		isOpen: false,
 		id: modalId,

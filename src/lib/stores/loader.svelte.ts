@@ -43,6 +43,8 @@ export const showLoader = (m: string = 'Ładowanie...') => {
 };
 
 export const hideLoader = () => {
+	requireBrowser('hideLoader');
+
 	currentRunId += 1;
 	loaderState.isVisible = false;
 };
@@ -51,11 +53,17 @@ export const updateLoaderProgress = (
 	percentage: number,
 	status: string = 'Proszę czekać.'
 ): void => {
+	requireBrowser('updateLoaderProgress');
+
 	loaderState.progress = percentage;
 	loaderState.status = status;
 };
 
-export const updateLoaderMessage = (m: string) => (loaderState.message = m);
+export const updateLoaderMessage = (m: string): void => {
+	requireBrowser('updateLoaderMessage');
+
+	loaderState.message = m;
+};
 
 export const showLoaderSequence = async (
 	steps: LoaderStep[] = [],

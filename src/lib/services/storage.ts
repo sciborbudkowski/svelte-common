@@ -22,36 +22,40 @@ export class EphemeralStorage {
 		const storage = getLocalStorage();
 		if (!storage) return;
 
-		const payload: Box<T> = {
-			value,
-			expiresAt: Date.now() + ttlMs
-		};
+		try {
+			const payload: Box<T> = {
+				value,
+				expiresAt: Date.now() + ttlMs
+			};
 
-		storage.setItem(key, JSON.stringify(payload));
+			storage.setItem(key, JSON.stringify(payload));
+		} catch {
+			// storage is optional
+		}
 	}
 
 	static async get<T>(key: string): Promise<T | null> {
 		const storage = getLocalStorage();
 		if (!storage) return null;
 
-		const raw = storage.getItem(key);
-		if (!raw) return null;
-
 		try {
+			const raw = storage.getItem(key);
+			if (!raw) return null;
+
 			const parsed = JSON.parse(raw) as Partial<Box<T>>;
 
 			if (typeof parsed.expiresAt !== 'number') {
-				storage.removeItem(key);
+				await this.safeDelete(storage, key);
 				return null;
 			}
 			if (Date.now() > parsed.expiresAt) {
-				storage.removeItem(key);
+				await this.safeDelete(storage, key);
 				return null;
 			}
 
 			return (parsed.value as T) ?? null;
 		} catch {
-			storage.removeItem(key);
+			await this.safeDelete(storage, key);
 			return null;
 		}
 	}
@@ -60,6 +64,14 @@ export class EphemeralStorage {
 		const storage = getLocalStorage();
 		if (!storage) return;
 
-		storage.removeItem(key);
+		await this.safeDelete(storage, key);
+	}
+
+	private static async safeDelete(storage: Storage, key: string): Promise<void> {
+		try {
+			storage.removeItem(key);
+		} catch {
+			// storage is optional
+		}
 	}
 }

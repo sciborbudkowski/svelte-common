@@ -29,7 +29,9 @@ export * from './stores/gps.svelte.ts';
 export {
 	openModal,
 	openAlertModal,
+	closeAlertModal,
 	openConfirmModal,
+	closeConfirmModal,
 	closeModal,
 	getModalContext,
 	requestConfirmation

@@ -25,11 +25,17 @@
 		slides,
 		timeout = 5000
 	}: {
+		/**
+		 * Slides array must stay constant after component mount.
+		 */
 		slides: Slide[];
 		timeout?: number;
 	} = $props();
 
-	const slideTimeout = $derived(timeout);
+	const DEFAULT_SLIDE_TIMEOUT = 5000;
+	const slideTimeout = $derived(
+		Number.isFinite(timeout) && timeout > 0 ? timeout : DEFAULT_SLIDE_TIMEOUT
+	);
 
 	let currentSlide = $state(0);
 	let currentLabel = $state('01');
@@ -40,9 +46,9 @@
 	let autoplayTimeout: ReturnType<typeof setTimeout> | null = null;
 	let progressInterval: ReturnType<typeof setInterval> | null = null;
 
-	let progressBarEl: HTMLDivElement | null = null;
-	let currentCounterEl: HTMLSpanElement | null = null;
-	let carouselEl: HTMLDivElement | null = null;
+	let progressBarEl: HTMLDivElement | null = $state(null);
+	let currentCounterEl: HTMLSpanElement | null = $state(null);
+	let carouselEl: HTMLDivElement | null = $state(null);
 	let slideElements: HTMLDivElement[] = [];
 	let bgElements: HTMLDivElement[] = [];
 	let contentElements: HTMLDivElement[] = [];
@@ -229,24 +235,26 @@
 	}
 
 	function goToSlide(index: number, forcedDirection?: 1 | -1) {
+		if (totalSlides < 2) return;
+		if (index < 0 || index >= totalSlides) return;
 		if (index === currentSlide || isAnimating) return;
-		if (totalSlides === 0) return;
 
 		isAnimating = true;
 		stopCounterProgress();
 
-		const direction = forcedDirection ?? (index > currentSlide ? 1 : -1);
 		const fromIndex = currentSlide;
-
-		currentSlide = index;
-		updateCounter();
-		updateProgressBar();
+		const direction = forcedDirection ?? (index > currentSlide ? 1 : -1);
 
 		const animating = animateTransition(fromIndex, index, direction);
 		if (!animating) {
 			isAnimating = false;
-			currentSlide = 0;
+			startCounterProgress();
+			return;
 		}
+
+		currentSlide = index;
+		updateCounter();
+		updateProgressBar();
 	}
 
 	function nextSlide() {
@@ -277,6 +285,7 @@
 		void (async () => {
 			const { gsap } = await import('gsap');
 			if (disposed || !carouselEl) return;
+			if (totalSlides === 0) return;
 
 			gsapRef = gsap;
 			gsapContext = gsap.context(() => {
@@ -319,80 +328,103 @@
 			disposed = true;
 			clearAutoplay();
 			stopCounterProgress();
+
+			const targets = [
+				...slideElements,
+				...bgElements,
+				...contentElements,
+				progressBarEl,
+				currentCounterEl
+			].filter((element): element is HTMLElement => element !== null);
+
+			gsapRef?.killTweensOf(targets);
 			gsapContext?.revert();
+
 			gsapRef = null;
+			slideElements = [];
+			bgElements = [];
+			contentElements = [];
 		};
 	});
 </script>
 
-<div class="mc-progress-bar" bind:this={progressBarEl}></div>
-<div class="modern-carousel" bind:this={carouselEl}>
-	{#each slides as slide, index (slide.id)}
-		<div class="mc-slide" class:is-active={index === currentSlide}>
-			<div
-				class="mc-slide-bg"
-				style={createSlideStyle(slide.image, slide.filter, slide.backgroundPosition)}
-			></div>
-			<div class="mc-slide-content">
-				<h4>{slide.header}</h4>
-				<h1>{slide.title}</h1>
-				<!-- eslint-disable-next-line svelte/no-at-html-tags -- slide.description is sanitized before it reaches Carousel -->
-				<p>{@html textToHtml(slide.descriptionHtml)}</p>
-				<div class="buttons">
-					{#each slide.buttons as button (button.id)}
-						<button
-							type="button"
-							class={button.class}
-							style={button.customStyle}
-							onclick={() => scrollToTarget(button.target)}>{button.title}</button
-						>
-					{/each}
+{#if totalSlides > 0}
+	<div class="mc-progress-bar" bind:this={progressBarEl}></div>
+	<div class="modern-carousel" bind:this={carouselEl}>
+		{#each slides as slide, index (slide.id)}
+			<div class="mc-slide" class:is-active={index === currentSlide}>
+				<div
+					class="mc-slide-bg"
+					style={createSlideStyle(slide.image, slide.filter, slide.backgroundPosition)}
+				></div>
+				<div class="mc-slide-content">
+					<h4>{slide.header}</h4>
+					<h1>{slide.title}</h1>
+					<!-- eslint-disable-next-line svelte/no-at-html-tags -- slide.description is sanitized before it reaches Carousel -->
+					<p>{@html textToHtml(slide.descriptionHtml)}</p>
+					<div class="buttons">
+						{#each slide.buttons as button (button.id)}
+							<button
+								type="button"
+								class={button.class}
+								style={button.customStyle}
+								onclick={() => scrollToTarget(button.target)}>{button.title}</button
+							>
+						{/each}
+					</div>
 				</div>
 			</div>
-		</div>
-	{/each}
-
-	<div class="mc-navigation" aria-label="Nawigacja karuzeli">
-		{#each slides as _, index (_.image)}
-			<button
-				type="button"
-				class="mc-nav-item"
-				class:active={index === currentSlide}
-				aria-label={`Przejdź do slajdu ${index + 1}`}
-				aria-pressed={index === currentSlide}
-				onclick={() => goToSlide(index, index > currentSlide ? 1 : -1)}
-			></button>
 		{/each}
-	</div>
 
-	<div class="mc-slide-counter" aria-live="polite">
-		<button
-			class="counter-button"
-			type="button"
-			aria-label="Poprzedni slajd"
-			onclick={previousSlide}
-		>
-			<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
-				><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path
-					d="M169.4 297.4C156.9 309.9 156.9 330.2 169.4 342.7L361.4 534.7C373.9 547.2 394.2 547.2 406.7 534.7C419.2 522.2 419.2 501.9 406.7 489.4L237.3 320L406.6 150.6C419.1 138.1 419.1 117.8 406.6 105.3C394.1 92.8 373.8 92.8 361.3 105.3L169.3 297.3z"
-				/></svg
-			>
-		</button>
-		<span class="current" bind:this={currentCounterEl}>{currentLabel}</span>
-		<span class="separator">/</span>
-		<span class="total">{slideNumber(totalSlides - 1)}</span>
-		<button class="counter-button" type="button" aria-label="Następny slajd" onclick={nextSlide}>
-			<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
-				><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path
-					d="M471.1 297.4C483.6 309.9 483.6 330.2 471.1 342.7L279.1 534.7C266.6 547.2 246.3 547.2 233.8 534.7C221.3 522.2 221.3 501.9 233.8 489.4L403.2 320L233.9 150.6C221.4 138.1 221.4 117.8 233.9 105.3C246.4 92.8 266.7 92.8 279.2 105.3L471.2 297.3z"
-				/></svg
-			>
-		</button>
-		<div class="mc-counter-progress">
-			<span class="mc-counter-progress-fill" style={`width: ${progressFill}%;`}></span>
-		</div>
+		{#if totalSlides > 1}
+			<div class="mc-navigation" aria-label="Nawigacja karuzeli">
+				{#each slides as _, index (_.id)}
+					<button
+						type="button"
+						class="mc-nav-item"
+						class:active={index === currentSlide}
+						aria-label={`Przejdź do slajdu ${index + 1}`}
+						aria-pressed={index === currentSlide}
+						onclick={() => goToSlide(index, index > currentSlide ? 1 : -1)}
+					></button>
+				{/each}
+			</div>
+
+			<div class="mc-slide-counter" aria-live="polite">
+				<button
+					class="counter-button"
+					type="button"
+					aria-label="Poprzedni slajd"
+					onclick={previousSlide}
+				>
+					<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+						><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path
+							d="M169.4 297.4C156.9 309.9 156.9 330.2 169.4 342.7L361.4 534.7C373.9 547.2 394.2 547.2 406.7 534.7C419.2 522.2 419.2 501.9 406.7 489.4L237.3 320L406.6 150.6C419.1 138.1 419.1 117.8 406.6 105.3C394.1 92.8 373.8 92.8 361.3 105.3L169.3 297.3z"
+						/></svg
+					>
+				</button>
+				<span class="current" bind:this={currentCounterEl}>{currentLabel}</span>
+				<span class="separator">/</span>
+				<span class="total">{slideNumber(totalSlides - 1)}</span>
+				<button
+					class="counter-button"
+					type="button"
+					aria-label="Następny slajd"
+					onclick={nextSlide}
+				>
+					<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
+						><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path
+							d="M471.1 297.4C483.6 309.9 483.6 330.2 471.1 342.7L279.1 534.7C266.6 547.2 246.3 547.2 233.8 534.7C221.3 522.2 221.3 501.9 233.8 489.4L403.2 320L233.9 150.6C221.4 138.1 221.4 117.8 233.9 105.3C246.4 92.8 266.7 92.8 279.2 105.3L471.2 297.3z"
+						/></svg
+					>
+				</button>
+				<div class="mc-counter-progress">
+					<span class="mc-counter-progress-fill" style={`width: ${progressFill}%;`}></span>
+				</div>
+			</div>
+		{/if}
 	</div>
-</div>
+{/if}
 
 <style>
 	h4 {
@@ -472,7 +504,7 @@
 		position: relative;
 		z-index: var(--zi-2);
 		text-align: center;
-		color: var(--sc-carousel-slide-content-bg);
+		color: var(--sc-carousel-slide-content-text);
 		max-width: 900px;
 		padding: var(--size-7) var(--size-3);
 		border-radius: var(--size-3);

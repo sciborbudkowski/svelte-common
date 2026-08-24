@@ -53,33 +53,46 @@
 
 	$effect(() => {
 		const total = normalizedDuration;
-		if (total === 0) {
-			remainingTime = 0;
-			progress = 1;
-			return;
-		}
+
+		remainingTime = total;
+		progress = total > 0 ? 0 : 1;
+
+		if (total === 0) return;
 
 		const startedAt = performance.now();
-		let frame: number;
+
+		let frame: number = 0;
 		let finished = false;
+		let cancelled = false;
 
 		function tick(now: number) {
 			const elapsed = now - startedAt;
+
 			remainingTime = Math.max(0, total - elapsed);
 			progress = Math.min(1, elapsed / total);
 
 			if (remainingTime > 0) {
 				frame = requestAnimationFrame(tick);
-			} else if (!finished) {
-				finished = true;
-				void Promise.resolve(onTimeout?.()).catch((error) => {
+				return;
+			}
+
+			if (finished) return;
+			finished = true;
+			void Promise.resolve()
+				.then(() => {
+					if (cancelled) return;
+					return onTimeout?.();
+				})
+				.catch((error) => {
 					console.error('CircularTimer onTimeout failed: ', error);
 				});
-			}
 		}
 
 		frame = requestAnimationFrame(tick);
-		return () => cancelAnimationFrame(frame);
+		return () => {
+			cancelled = true;
+			cancelAnimationFrame(frame);
+		};
 	});
 </script>
 

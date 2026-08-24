@@ -16,11 +16,16 @@ export function setupAppIdentity(idKey: string): string | null {
 	const storage = getLocalStorage();
 	if (!storage) return null;
 
-	let appId = storage.getItem(idKey) ?? null;
-	if (!appId) {
-		appId = crypto.randomUUID();
-		storage.setItem(idKey, appId);
-	}
+	try {
+		let appId = storage.getItem(idKey) ?? null;
 
-	return appId;
+		if (!appId) {
+			appId = crypto.randomUUID();
+			storage.setItem(idKey, appId);
+		}
+
+		return appId;
+	} catch {
+		return null;
+	}
 }

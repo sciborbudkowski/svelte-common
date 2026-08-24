@@ -36,11 +36,21 @@ export function showToast(
 ) {
 	requireBrowser('showToast');
 
+	const defaultDuration = input.type === 'error' ? 8000 : TOAST_VIEW_DURATION_MS;
+	const requestedDuration = input.duration;
+
+	const duration =
+		typeof requestedDuration === 'number' &&
+		Number.isFinite(requestedDuration) &&
+		requestedDuration > 0
+			? requestedDuration
+			: defaultDuration;
+
 	const t: UIToast = {
+		...input,
 		id: input.id || crypto.randomUUID(),
 		timestamp: input.timestamp || Date.now(),
-		duration: input.duration ?? (input.type === 'error' ? 8000 : TOAST_VIEW_DURATION_MS),
-		...input
+		duration
 	};
 
 	const existingTimeout = timeouts.get(t.id);
@@ -62,9 +72,8 @@ export function showToast(
 
 	toasts = next.slice(0, TOAST_QUEUE_LENGTH);
 
-	if (t.autoClose && t.duration !== null) {
-		const ms = typeof t.duration === 'number' ? t.duration : TOAST_VIEW_DURATION_MS;
-		const timeout = setTimeout(() => dismissToast(t.id), ms);
+	if (t.autoClose) {
+		const timeout = setTimeout(() => dismissToast(t.id), duration);
 		timeouts.set(t.id, timeout);
 	}
 
@@ -102,8 +111,10 @@ export function showErrorToast(
 }
 
 export function dismissToast(id: string) {
+	requireBrowser('dismissToast');
+
 	const timeout = timeouts.get(id);
-	if (timeout) {
+	if (timeout !== undefined) {
 		clearTimeout(timeout);
 		timeouts.delete(id);
 	}
@@ -113,6 +124,8 @@ export function dismissToast(id: string) {
 }
 
 export function clearToasts() {
+	requireBrowser('clearToasts');
+
 	for (const t of timeouts.values()) clearTimeout(t);
 	timeouts.clear();
 	toasts = [];

@@ -89,7 +89,7 @@
 			<div class="x">
 				{#if t.autoClose}
 					<div class="timer-ring">
-						<CircularTimer onTimeout={() => dismissToast(t.id)} duration={t.duration} size="sm" />
+						<CircularTimer duration={t.duration} size="sm" />
 					</div>
 				{/if}
 				<button type="button" class="close" aria-label="Zamknij" onclick={() => dismissToast(t.id)}>

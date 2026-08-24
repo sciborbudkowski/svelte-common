@@ -118,7 +118,7 @@
 	--sc-collapsible-card-button-link-hover-color: var(--clr-neutral-a3);
 
 	--sc-accordion-header-bg: transparent;
-	--sc-accorion-header-color: var(--clr-neutral-a2);
+	--sc-accordion-header-color: var(--clr-neutral-a2);
 	--sc-accordion-trigger-bg: var(--sc-color-surface);
 	--sc-accordion-trigger-color: var(--sc-color-text);
 	--sc-accordion-trigger-hover-bg: var(--sc-color-surface-light);

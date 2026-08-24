@@ -144,6 +144,6 @@ button.link:not(:disabled):hover {
 	border-top-right-radius: var(--sc-border-radius);
 	border-bottom-right-radius: var(--sc-border-radius);
 }
-.btn > * + * {
+.btn-group > * + * {
 	margin-inline-start: -1px;
 }

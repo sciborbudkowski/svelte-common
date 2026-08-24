@@ -28,6 +28,12 @@ export type ApiResponse<T, TCode extends string = string> =
 export type ApiDownloadResponse =
 	| {
 			error: false;
+			cancelled?: false;
+			status?: number;
+	  }
+	| {
+			error: false;
+			cancelled: true;
 			status?: number;
 	  }
 	| {
@@ -47,21 +53,40 @@ export type ApiResponseParser<TCode extends string = string> = <T>(
 
 export interface ApiCacheOptions {
 	adapter: CacheAdapter;
+	getKey?: (context: ApiCacheKeyContext) => string;
 	shouldCache?: (url: string) => boolean;
 	getTtl?: (url: string) => number;
+	invalidateAfterMutation?: (context: ApiCacheMutationContext) => Promise<void> | void;
 	onError?: (
 		error: unknown,
 		context: {
-			operation: 'get' | 'set';
-			key: string;
+			operation: 'get' | 'set' | 'invalidate';
+			target: string;
 		}
 	) => void;
 }
 
+export type OfflineMethod = 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+export interface ApiCacheKeyContext {
+	url: string;
+	init: RequestInit;
+}
+
+export interface ApiCacheMutationContext {
+	method: OfflineMethod;
+	url: string;
+	init: RequestInit;
+}
+
 export interface OfflineAction {
-	method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+	id: string;
+	method: OfflineMethod;
 	endpoint: string;
-	data?: unknown;
+	headers: Array<[string, string]>;
+	body?: string;
+	createdAt: number;
+	idempotencyKey?: string;
 }
 
 export interface OfflineQueueAdapter {
@@ -79,6 +104,11 @@ export interface ApiClientOptions<TCode extends string = string> {
 	offlineQueue?: {
 		adapter: OfflineQueueAdapter;
 		shouldQueue?: (endpoint: string, method: OfflineAction['method']) => boolean;
+		createActionId?: () => string;
+		idempotency?: {
+			headerName?: string;
+			createKey?: () => string;
+		};
 	};
 }
 
@@ -214,7 +244,14 @@ export class ApiClient<TCode extends string = string> {
 				method: init.method ?? 'GET',
 				credentials: init.credentials ?? this.credentials
 			});
-		} catch {
+		} catch (error) {
+			if (this.isAbortError(error, init.signal)) {
+				return {
+					error: false,
+					cancelled: true
+				};
+			}
+
 			return {
 				error: true,
 				message: 'Network error.'
@@ -245,11 +282,12 @@ export class ApiClient<TCode extends string = string> {
 		try {
 			const contentType = response.headers.get('Content-Type') ?? 'application/octet-stream';
 			const headerFilename = this.parseFilename(response.headers.get('Content-Disposition'));
-			const filename = this.ensureFilename(
+			const rawFilename = this.ensureFilename(
 				headerFilename ?? options.suggestedName,
 				contentType,
 				options.fallbackBaseName ?? 'download'
 			);
+			const filename = this.sanitizeFilename(rawFilename);
 
 			const blob = await response.blob();
 			await this.saveBlobToDevice(blob, filename);
@@ -259,6 +297,14 @@ export class ApiClient<TCode extends string = string> {
 				status: response.status
 			};
 		} catch (error) {
+			if (this.isAbortError(error)) {
+				return {
+					error: false,
+					cancelled: true,
+					status: response.status
+				};
+			}
+
 			return {
 				error: true,
 				message: error instanceof Error ? error.message : 'Could not save downloaded file.',
@@ -271,16 +317,24 @@ export class ApiClient<TCode extends string = string> {
 		const method = (init.method ?? 'GET').toUpperCase();
 		const url = this.makeUrl(path);
 
+		const preparedOffline = this.prepareOfflineAction(path, method, init);
+		const requestInit = preparedOffline?.init ?? init;
+
+		const effectiveInit: RequestInit = {
+			...requestInit,
+			credentials: requestInit.credentials ?? this.credentials
+		};
+
 		const cacheEnabled =
 			method === 'GET' && this.cache !== undefined && (this.cache.shouldCache?.(url) ?? true);
+		const cacheKey = cacheEnabled
+			? (this.cache!.getKey?.({ url, init: effectiveInit }) ?? url)
+			: url;
 
 		let response: Response;
 
 		try {
-			response = await this.fetcher(url, {
-				...init,
-				credentials: init.credentials ?? this.credentials
-			});
+			response = await this.fetcher(url, effectiveInit);
 		} catch (error) {
 			if (this.isAbortError(error, init.signal)) {
 				return {
@@ -289,7 +343,7 @@ export class ApiClient<TCode extends string = string> {
 				};
 			}
 
-			return this.handleNetworkError<T>(path, url, method, init, cacheEnabled);
+			return this.handleNetworkError<T>(cacheKey, cacheEnabled, preparedOffline?.action);
 		}
 
 		let result: ApiHttpResponse<T, TCode>;
@@ -306,9 +360,21 @@ export class ApiClient<TCode extends string = string> {
 
 		if (cacheEnabled && !result.error) {
 			try {
-				await this.cache!.adapter.set(url, result, this.cache!.getTtl?.(url));
+				await this.cache!.adapter.set(cacheKey, result, this.cache!.getTtl?.(url));
 			} catch (error) {
-				this.reportCacheError(error, 'set', url);
+				this.reportCacheError(error, 'set', cacheKey);
+			}
+		}
+
+		if (!result.error && this.cache && this.isQueueableMethod(method)) {
+			try {
+				await this.cache.invalidateAfterMutation?.({
+					method,
+					url,
+					init: effectiveInit
+				});
+			} catch (error) {
+				this.reportCacheError(error, 'invalidate', url);
 			}
 		}
 
@@ -319,9 +385,7 @@ export class ApiClient<TCode extends string = string> {
 		if (signal?.aborted) return true;
 
 		return (
-			typeof DOMException !== 'undefined' &&
-			error instanceof DOMException &&
-			error.name === 'AbortError'
+			typeof error === 'object' && error !== null && 'name' in error && error.name === 'AbortError'
 		);
 	}
 
@@ -364,38 +428,29 @@ export class ApiClient<TCode extends string = string> {
 	}
 
 	private async handleNetworkError<T>(
-		path: string,
-		url: string,
-		method: string,
-		init: RequestInit,
-		cacheEnabled: boolean
+		cacheKey: string,
+		cacheEnabled: boolean,
+		offlineAction?: OfflineAction
 	): Promise<ApiResponse<T, TCode>> {
 		if (cacheEnabled) {
 			try {
-				const cached = await this.cache!.adapter.get<ApiHttpResponse<T, TCode>>(url);
+				const cached = await this.cache!.adapter.get<ApiHttpResponse<T, TCode>>(cacheKey);
 				if (cached) return cached;
 			} catch (error) {
-				this.reportCacheError(error, 'get', url);
+				this.reportCacheError(error, 'get', cacheKey);
 			}
 		}
 
-		if (this.isQueueableMethod(method) && this.offlineQueue) {
-			const shouldQueue = this.offlineQueue.shouldQueue?.(path, method) ?? true;
-			if (shouldQueue) {
-				try {
-					await this.offlineQueue.adapter.enqueue({
-						method,
-						endpoint: path,
-						data: this.parseQueuedBody(init.body)
-					});
+		if (offlineAction && this.offlineQueue) {
+			try {
+				await this.offlineQueue.adapter.enqueue(offlineAction);
 
-					return {
-						error: false,
-						queued: true
-					};
-				} catch {
-					// Will return standard network error
-				}
+				return {
+					error: false,
+					queued: true
+				};
+			} catch {
+				// Return standard network error below.
 			}
 		}
 
@@ -409,21 +464,15 @@ export class ApiClient<TCode extends string = string> {
 		return ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
 	}
 
-	private reportCacheError(error: unknown, operation: 'get' | 'set', key: string): void {
+	private reportCacheError(
+		error: unknown,
+		operation: 'get' | 'set' | 'invalidate',
+		target: string
+	): void {
 		try {
-			this.cache?.onError?.(error, { operation, key });
+			this.cache?.onError?.(error, { operation, target });
 		} catch {
 			// Diagnostic callback can not break the request
-		}
-	}
-
-	private parseQueuedBody(body: BodyInit | null | undefined): unknown {
-		if (typeof body !== 'string') return body ?? undefined;
-
-		try {
-			return JSON.parse(body);
-		} catch {
-			return body;
 		}
 	}
 
@@ -483,6 +532,16 @@ export class ApiClient<TCode extends string = string> {
 		return ext ? `${fallbackBase}.${ext}` : fallbackBase;
 	}
 
+	private sanitizeFilename(filename: string): string {
+		const sanitized = filename
+			.normalize('NFC')
+			.replace(/[<>:"/\\|?*\p{Cc}]/gu, '_')
+			.replace(/[. ]+$/g, '')
+			.trim();
+
+		return sanitized || 'download';
+	}
+
 	private async saveBlobToDevice(blob: Blob, filename: string): Promise<void> {
 		// Android
 		ConsiderSavePicker: {
@@ -520,14 +579,54 @@ export class ApiClient<TCode extends string = string> {
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 
-		a.href = url;
-		a.download = filename;
-		a.hidden = true;
-		document.body.append(a);
-		a.click();
-		a.remove();
-		URL.revokeObjectURL(url);
+		try {
+			a.href = url;
+			a.download = filename;
+			a.hidden = true;
 
-		setTimeout(() => URL.revokeObjectURL(url), 0);
+			document.body.append(a);
+			a.click();
+		} finally {
+			a.remove();
+
+			setTimeout(() => URL.revokeObjectURL(url), 0);
+		}
+	}
+
+	private prepareOfflineAction(
+		path: string,
+		method: string,
+		init: RequestInit
+	): { action: OfflineAction; init: RequestInit } | null {
+		if (!this.offlineQueue || !this.isQueueableMethod(method)) return null;
+
+		const shouldQueue = this.offlineQueue.shouldQueue?.(path, method) ?? false;
+		if (!shouldQueue) return null;
+		if (init.body != null && typeof init.body !== 'string') return null;
+
+		const id = this.offlineQueue.createActionId?.() ?? globalThis.crypto.randomUUID();
+		const idempotency = this.offlineQueue.idempotency;
+		const idempotencyKey = idempotency ? (idempotency.createKey?.() ?? id) : undefined;
+		const headers = new Headers(init.headers);
+
+		if (idempotencyKey) {
+			headers.set(idempotency?.headerName ?? 'Idempotency-Key', idempotencyKey);
+		}
+
+		return {
+			init: {
+				...init,
+				headers
+			},
+			action: {
+				id,
+				method,
+				endpoint: path,
+				headers: Array.from(headers.entries()),
+				body: typeof init.body === 'string' ? init.body : undefined,
+				createdAt: Date.now(),
+				idempotencyKey
+			}
+		};
 	}
 }

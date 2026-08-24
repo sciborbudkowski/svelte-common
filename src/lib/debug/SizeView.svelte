@@ -3,7 +3,7 @@
 	let {
 		color = '#fff',
 		backgroundColor = 'transparent',
-		borderColor = 'fff',
+		borderColor = '#fff',
 		left = '10px',
 		bottom = '10px',
 		right = '',
