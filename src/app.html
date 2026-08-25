@@ -6,6 +6,23 @@
 		<link rel="icon" href="%sveltekit.assets%/favicon.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<meta name="text-scale" content="scale" />
+		<script>
+			(() => {
+				let preference = 'system';
+
+				try {
+					const stored = localStorage.getItem('sc-theme');
+					if (stored === 'light' || stored === 'dark' || stored === 'system') preference = stored;
+				} catch {
+					// Storage is optional.
+				}
+
+				const systemDark =
+					typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
+				document.documentElement.dataset.theme =
+					preference === 'dark' || (preference === 'system' && systemDark) ? 'dark' : 'light';
+			})();
+		</script>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">

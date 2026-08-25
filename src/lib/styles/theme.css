@@ -1,7 +1,7 @@
 /* src/lib/styles/theme.css */
 
 :root {
-	--sc-shadow-color: var(--clr-neutral-a0);
+	--sc-shadow-color: var(--sc-color-shadow);
 	--sc-shadow-1:
 		oklch(from var(--sc-shadow-color) l c h / 0.18) -1px -1px 1px 0px,
 		oklch(from var(--sc-shadow-color) l c h / 0.18) 2px 2px 4px 2px;
@@ -22,7 +22,7 @@
 :root {
 	--sc-loader-overlay: var(--sc-color-surface-semitransparent);
 	--sc-loader-content: var(--sc-color-surface);
-	--sc-loader-content-border: var(--clr-neutral-a5);
+	--sc-loader-content-border: var(--sc-color-border);
 	--sc-loader-spinner: var(--sc-color-spinner);
 	--sc-loader-spinner-accent: var(--sc-color-spinner-indicator);
 	--sc-loader-title: var(--sc-color-text);
@@ -31,28 +31,28 @@
 
 	--sc-modal-backdrop: var(--sc-color-surface-semitransparent);
 	--sc-modal-content-shadow: var(--sc-shadow-4);
-	--sc-modal-header-text: var(--clr-neutral-a1);
-	--sc-modal-header-bg: var(--clr-neutral-a8);
-	--sc-modal-header-button-text: var(--clr-neutral-a1);
-	--sc-modal-body-bg: var(--clr-neutral-a7);
-	--sc-modal-footer-bg: var(--clr-neutral-a8);
+	--sc-modal-header-text: var(--sc-color-text);
+	--sc-modal-header-bg: var(--sc-color-surface-muted);
+	--sc-modal-header-button-text: var(--sc-color-text);
+	--sc-modal-body-bg: var(--sc-color-surface-emphasis);
+	--sc-modal-footer-bg: var(--sc-color-surface-muted);
 
-	--sc-toast-error-text: var(--clr-red-a2);
-	--sc-toast-error-bg: var(--clr-red-a9);
-	--sc-toast-warning-text: var(--clr-neutral-a0);
-	--sc-toast-warning-bg: var(--clr-yellow-a6);
-	--sc-toast-success-text: var(--clr-neutral-a0);
-	--sc-toast-success-bg: var(--clr-green-a6);
-	--sc-toast-info-text: var(--clr-neutral-a9);
-	--sc-toast-info-bg: var(--clr-blue-a3);
-	--sc-toast-neutral-text: var(--clr-neutral-a9);
-	--sc-toast-neutral-bg: var(--clr-neutral-a4);
+	--sc-toast-error-text: var(--sc-color-on-danger);
+	--sc-toast-error-bg: var(--sc-color-danger);
+	--sc-toast-warning-text: var(--sc-color-on-warning);
+	--sc-toast-warning-bg: var(--sc-color-warning);
+	--sc-toast-success-text: var(--sc-color-on-success);
+	--sc-toast-success-bg: var(--sc-color-success);
+	--sc-toast-info-text: var(--sc-color-on-info);
+	--sc-toast-info-bg: var(--sc-color-info);
+	--sc-toast-neutral-text: var(--sc-color-on-neutral);
+	--sc-toast-neutral-bg: var(--sc-color-neutral);
 	--sc-toast-shadow: var(--sc-shadow-4);
 
-	--sc-button-neutral-accent: var(--clr-neutral-a4);
-	--sc-button-neutral-on-accent: var(--clr-neutral-a9);
-	--sc-button-neutral-accent-hover: var(--clr-neutral-a3);
-	--sc-button-neutral-on-accent-hover: var(--clr-neutral-a9);
+	--sc-button-neutral-accent: var(--sc-color-neutral);
+	--sc-button-neutral-on-accent: var(--sc-color-on-neutral);
+	--sc-button-neutral-accent-hover: var(--sc-color-neutral-hover);
+	--sc-button-neutral-on-accent-hover: var(--sc-color-on-neutral-hover);
 	--sc-button-danger-accent: var(--sc-color-danger);
 	--sc-button-danger-on-accent: var(--sc-color-on-danger);
 	--sc-button-danger-accent-hover: var(--sc-color-danger-hover);
@@ -82,43 +82,45 @@
 
 	--sc-floating-button-bg: oklch(from var(--sc-color-brand) l c h / 0.75);
 	--sc-floating-button-hover-bg: var(--sc-color-brand);
-	--sc-floating-button-text: var(--clr-neutral-a9);
+	--sc-floating-button-text: var(--sc-color-on-brand);
 	--sc-floating-button-transition:
 		transform 120ms ease, box-shadow 120ms ease, background-color 120ms ease;
-	--sc-floating-button-focus-outline: var(--clr-neutral-a9);
+	--sc-floating-button-focus-outline: var(--sc-color-on-brand);
 
 	--sc-carousel-font: var(--sc-font-body);
-	--sc-carousel-header-bg: oklch(from var(--sc-color-outline) / 0.4);
-	--sc-carousel-header-border: oklch(from var(--sc-color-outline) / 0.2);
+	--sc-carousel-header-bg: oklch(from var(--sc-color-outline) l c h / 0.4);
+	--sc-carousel-header-border: oklch(from var(--sc-color-outline) l c h / 0.2);
 	--sc-carousel-title-bg: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4);
-	--sc-carousel-title-filter: drop-shadow(0 6px 6px oklch(from var(--clr-bg-a9) / 0.75));
+	--sc-carousel-title-filter: drop-shadow(
+		0 6px 6px oklch(from var(--sc-color-on-media-shadow) l c h / 0.75)
+	);
 	--sc-carousel-bg: transparent;
 	--sc-carousel-slide-content-bg: var(--sc-color-background);
 	--sc-carousel-slide-content-text: var(--sc-color-text);
-	--sc-carousel-slide-subtitle-bg: oklch(from var(--sc-color-text-muted) / 0.2);
-	--sc-carousel-nav-item-border: var(--clr-neutral-a5);
-	--sc-carousel-nav-item-active-bg: var(--clr-neutral-a9);
-	--sc-carousel-nav-item-active-border-color: var(--clr-neutral-a9);
-	--sc-carousel-nav-item-hover-border-color: var(--clr-neutral-a9);
+	--sc-carousel-slide-subtitle-bg: oklch(from var(--sc-color-text-muted) l c h / 0.2);
+	--sc-carousel-nav-item-border: oklch(from var(--sc-color-on-media) l c h / 0.55);
+	--sc-carousel-nav-item-active-bg: var(--sc-color-on-media);
+	--sc-carousel-nav-item-active-border-color: var(--sc-color-on-media);
+	--sc-carousel-nav-item-hover-border-color: var(--sc-color-on-media);
 	--sc-carousel-progress-bar-background: linear-gradient(90deg, #ff6b6b, #4ecdc4);
-	--sc-carousel-slide-counter-color: var(--clr-neutral-a9);
+	--sc-carousel-slide-counter-color: var(--sc-color-on-media);
 	--sc-carousel-counter-button-bg: transparent;
-	--sc-carousel-counter-button-color: var(--clr-neutral-a9);
-	--sc-carousel-counter-progress-bg: var(--clr-neutral-a5);
-	--sc-carousel-counter-progress-fill-bg: var(--clr-neutral-a4);
-	--sc-carousel-main-description-color: var(--clr-neutral-a8);
-	--sc-carousel-main-description-shadow-color: var(--clr-neutral-a6);
+	--sc-carousel-counter-button-color: var(--sc-color-on-media);
+	--sc-carousel-counter-progress-bg: oklch(from var(--sc-color-on-media) l c h / 0.5);
+	--sc-carousel-counter-progress-fill-bg: oklch(from var(--sc-color-on-media) l c h / 0.75);
+	--sc-carousel-main-description-color: var(--sc-color-on-media-muted);
+	--sc-carousel-main-description-shadow-color: var(--sc-color-on-media-shadow);
 
-	--sc-circular-timer-color: oklch(from var(--clr-neutral-a0) / 0.5);
-	--sc-circular-timer-remaining-time-color: oklch(from var(--clr-neutral-a0) / 0.75);
+	--sc-circular-timer-color: oklch(from var(--sc-color-text-muted) l c h / 0.5);
+	--sc-circular-timer-remaining-time-color: oklch(from var(--sc-color-text) l c h / 0.75);
 
-	--sc-collapsible-card-header-bg: var(--clr-neutral-a2);
-	--sc-collapsible-card-footer-bg: var(--clr-neutral-a3);
-	--sc-collapsible-card-button-link-color: var(--clr-neutral-a2);
-	--sc-collapsible-card-button-link-hover-color: var(--clr-neutral-a3);
+	--sc-collapsible-card-header-bg: var(--sc-color-surface-emphasis);
+	--sc-collapsible-card-footer-bg: var(--sc-color-surface-muted);
+	--sc-collapsible-card-button-link-color: var(--sc-color-text-muted);
+	--sc-collapsible-card-button-link-hover-color: var(--sc-color-text);
 
 	--sc-accordion-header-bg: transparent;
-	--sc-accordion-header-color: var(--clr-neutral-a2);
+	--sc-accordion-header-color: var(--sc-color-text-muted);
 	--sc-accordion-trigger-bg: var(--sc-color-surface);
 	--sc-accordion-trigger-color: var(--sc-color-text);
 	--sc-accordion-trigger-hover-bg: var(--sc-color-surface-light);
@@ -128,17 +130,17 @@
 	--sc-accordion-panel-bg: var(--sc-color-background);
 	--sc-accordion-panel-color: var(--sc-color-text);
 
-	--sc-card-header-bg: var(--clr-neutral-a7);
+	--sc-card-header-bg: var(--sc-color-surface-emphasis);
 	--sc-card-body-bg: var(--sc-color-surface);
-	--sc-card-footer-bg: var(--clr-neutral-a9);
+	--sc-card-footer-bg: var(--sc-color-surface-muted);
 
 	--sc-color-row-loop-odd: var(--sc-color-background);
-	--sc-color-row-loop-even: var(--clr-neutral-a9);
+	--sc-color-row-loop-even: var(--sc-color-surface);
 
-	--sc-switch-bg: var(--clr-neutral-a8);
+	--sc-switch-bg: var(--sc-color-control-track);
 	--sc-switch-color: var(--sc-color-brand);
 
-	--sc-form-input-bg: var(--clr-bg-a1);
+	--sc-form-input-bg: var(--sc-color-control-bg);
 	--sc-form-input-color: inherit;
 	--sc-form-input-border-color: oklch(from var(--sc-color-outline) l c h / 0.5);
 	--sc-form-input-font-style: inherit;

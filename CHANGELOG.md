@@ -169,9 +169,20 @@
 ## 1.1.1
 
 ### Added
+
 - isModalOpen reactive selector to determine modal is visible or closed
 
 ### Fixed
 
 - ApiClient get<T> method returns ApiHttpResponse to avoid queue
 - ApiClient queue is optional and must be run locally for single request
+
+## 1.1.2
+
+### Added
+
+- dark mode token definitions
+
+### Fixed
+
+- dark mode init and switch support

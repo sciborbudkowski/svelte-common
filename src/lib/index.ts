@@ -26,6 +26,7 @@ export * from './services/storage.ts';
 export * from './stores/loader.svelte.ts';
 export * from './stores/toaststack.svelte.ts';
 export * from './stores/gps.svelte.ts';
+export * from './stores/theme.svelte.ts';
 export {
 	openModal,
 	openAlertModal,
