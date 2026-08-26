@@ -1,6 +1,6 @@
 # Changelog
 
-# 1.0.0 - 2026-08-10
+## 1.0.0 - 2026-08-10
 
 ### Changed
 
@@ -182,7 +182,9 @@
 ### Added
 
 - dark mode token definitions
+- missing CSS bg-neutral class
 
 ### Fixed
 
 - dark mode init and switch support
+- light mode colors for: modal

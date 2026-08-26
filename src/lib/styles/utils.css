@@ -373,6 +373,10 @@
 	background-color: var(--sc-color-info);
 	color: var(--sc-color-on-info);
 }
+.bg-neutral {
+	background-color: var(--sc-color-neutral);
+	color: var(--sc-color-on-neutral);
+}
 
 .fs-xxs {
 	font-size: 70%;

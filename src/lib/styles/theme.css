@@ -31,10 +31,10 @@
 
 	--sc-modal-backdrop: var(--sc-color-surface-semitransparent);
 	--sc-modal-content-shadow: var(--sc-shadow-4);
-	--sc-modal-header-text: var(--sc-color-text);
-	--sc-modal-header-bg: var(--sc-color-surface-muted);
-	--sc-modal-header-button-text: var(--sc-color-text);
-	--sc-modal-body-bg: var(--sc-color-surface-emphasis);
+	--sc-modal-header-text: var(--sc-color-text-inverted);
+	--sc-modal-header-bg: var(--sc-color-brand);
+	--sc-modal-header-button-text: var(--sc-color-text-inverted);
+	--sc-modal-body-bg: var(--sc-color-surface-light);
 	--sc-modal-footer-bg: var(--sc-color-surface-muted);
 
 	--sc-toast-error-text: var(--sc-color-on-danger);
