@@ -49,6 +49,6 @@
 {/snippet}
 
 {#snippet footer()}
-	<button type="button" onclick={cancel} disabled={confirming}>Anuluj</button>
-	<button type="button" onclick={confirm} disabled={confirming}>Potwierdź</button>
+	<button type="button" class="outline neutral" onclick={cancel} disabled={confirming}>Anuluj</button>
+	<button type="button" class="brand" onclick={confirm} disabled={confirming}>Potwierdź</button>
 {/snippet}

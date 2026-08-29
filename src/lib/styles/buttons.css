@@ -122,6 +122,7 @@ button.link {
 
 	text-decoration: underline;
 }
+
 button.no-decoration {
 	text-decoration: none !important;
 }

@@ -188,3 +188,6 @@
 
 - dark mode init and switch support
 - light mode colors for: modal
+- barely visible neutral and neutral-on color definitions
+- modal header label and close button colors inconsistency
+- ConfirmModal footer buttons colors

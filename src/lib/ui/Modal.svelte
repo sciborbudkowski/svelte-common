@@ -376,7 +376,7 @@
 		color: var(--sc-color-on-info);
 	}
 	.modal-header .button-close {
-		color: var(--sc-color-text);
+		color: var(--sc-color-modal-header-text);
 		border: none;
 		background-color: transparent;
 		font-size: var(--size-5);

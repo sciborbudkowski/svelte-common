@@ -72,10 +72,10 @@
 	--sc-color-on-info: var(--clr-neutral-a8);
 	--sc-color-on-info-hover: var(--clr-neutral-a9);
 
-	--sc-color-neutral: var(--clr-neutral-a7);
-	--sc-color-neutral-hover: var(--clr-neutral-a6);
-	--sc-color-on-neutral: var(--clr-neutral-a1);
-	--sc-color-on-neutral-hover: var(--clr-neutral-a2);
+   	--sc-color-neutral: var(--clr-neutral-a5);
+	--sc-color-neutral-hover: var(--clr-neutral-a5);
+	--sc-color-on-neutral: var(--clr-neutral-a6);
+	--sc-color-on-neutral-hover: var(--clr-neutral-a9);
 }
 
 :root[data-theme='dark'] {
