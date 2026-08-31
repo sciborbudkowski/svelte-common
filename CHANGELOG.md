@@ -191,3 +191,4 @@
 - barely visible neutral and neutral-on color definitions
 - modal header label and close button colors inconsistency
 - ConfirmModal footer buttons colors
+- Modal size can be controlled both through context and props (context value overwrites props value)

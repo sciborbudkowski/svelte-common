@@ -6,7 +6,8 @@
 		modalsState,
 		modalStack,
 		registerModal,
-		unregisterModal
+		unregisterModal,
+		getModalContext
 	} from '$lib/stores/modal.svelte';
 
 	let {
@@ -41,11 +42,20 @@
 		footer?: Snippet;
 	} = $props();
 
+	type ModalDisplayContext = {
+		size?: 'wide' | 'narrow' | 'full';
+		fullHeight?: boolean;
+	};
+
 	const modal = $derived(modalsState.customModal[id]);
+	const modalDisplayContext = $derived(getModalContext<ModalDisplayContext>(id));
+
 	const controlled = $derived(open !== undefined);
 	const isOpen = $derived(open ?? modal?.isOpen ?? false);
 	const stackIndex = $derived(modalStack.indexOf(id));
 	const isTopMost = $derived(stackIndex !== -1 && stackIndex === modalStack.length - 1);
+	const mSize = $derived(modalDisplayContext?.size ?? size ?? 'wide');
+	const mFullHeight = $derived(modalDisplayContext?.fullHeight ?? fullHeight);
 
 	const FOCUSABLE_SELECTOR = [
 		'a[href]',
@@ -233,7 +243,7 @@
 	>
 		<div
 			bind:this={dialogEl}
-			class="modal-content {size} {fullHeight ? 'full-height' : ''}"
+			class="modal-content {mSize} {mFullHeight ? 'full-height' : ''}"
 			role="dialog"
 			aria-modal={isTopMost}
 			aria-hidden={!isTopMost}
