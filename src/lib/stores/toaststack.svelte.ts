@@ -11,6 +11,7 @@ export interface UIToast {
 	id: string;
 	title?: string;
 	message: string;
+	systemMessage?: string | null;
 	type: UIToastType;
 	timestamp: number;
 	autoClose?: boolean;
@@ -84,12 +85,14 @@ export function showSuccessToast(
 	message: string,
 	title: string = 'Sukces',
 	autoClose: boolean = true,
-	duration: number = 4000
+	duration: number = 4000,
+	systemMessage: string | null = null
 ) {
 	showToast({
 		type: 'success',
 		title,
 		message,
+		systemMessage,
 		autoClose,
 		duration
 	});
@@ -99,12 +102,14 @@ export function showErrorToast(
 	message: string,
 	title: string = 'Error!',
 	autoClose: boolean = true,
-	duration: number = 8000
+	duration: number = 8000,
+	systemMessage: string | null = null
 ) {
 	showToast({
 		type: 'error',
 		title: title === 'Error!' ? 'Błąd!' : title,
 		message,
+		systemMessage,
 		autoClose,
 		duration
 	});

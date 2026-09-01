@@ -85,6 +85,12 @@
 						{@html textToHtml(t.message)}
 					</div>
 				{/if}
+				{#if t.systemMessage}
+					<div class="system-message">
+						<!-- eslint-disable-next-line svelte/no-at-html-tags -->
+						{@html textToHtml(t.systemMessage)}
+					</div>
+				{/if}
 			</div>
 			<div class="x">
 				{#if t.autoClose}
@@ -100,7 +106,7 @@
 	{/each}
 </div>
 
-<style>
+<style lang="scss">
 	.toast-stack {
 		position: fixed;
 		z-index: var(--zi-always-top);
@@ -177,6 +183,18 @@
 	.toast .content .message {
 		font-size: var(--font-size-0);
 		font-weight: 400;
+	}
+	.toast .content .system-message {
+		font-size: var(--font-size-0);
+		font-style: italic;
+		color: var(--sc-color-text-muted);
+
+		&::before {
+			content: '[ ';
+		}
+		&::after {
+			content: ' ]';
+		}
 	}
 
 	.toast .x {
