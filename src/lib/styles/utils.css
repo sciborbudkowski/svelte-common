@@ -405,3 +405,17 @@
 	align-items: center;
 	justify-content: center;
 }
+
+
+.j-center {
+	justify-content: center;
+}
+.j-start {
+	justify-content: start;
+}
+.j-end {
+	justify-content: end;
+}
+.j-between {
+	justify-content: space-between;
+}

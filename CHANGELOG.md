@@ -184,6 +184,7 @@
 - dark mode token definitions
 - missing CSS bg-neutral class
 - systemMessage below message in toasts (optional)
+- .j-* css classes for justify-content-*, .j-content-* classes will stay for compatibility
 
 ### Fixed
 
