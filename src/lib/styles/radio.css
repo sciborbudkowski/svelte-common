@@ -7,13 +7,13 @@
     cursor: pointer;
 }
 
-input {
+.radio input {
     position: absolute;
     opacity: 0;
     pointer-events: none;
 }
 
-.radio-mark {
+.radio .radio-mark {
     position: relative;
     width: 1.2rem;
     height: 1.2rem;
@@ -22,11 +22,11 @@ input {
     border-radius: 50%;
 }
 
-input:checked + .radio-mark {
+.radio input:checked + .radio-mark {
     background-color: var(--sc-color-brand);
 }
 
-input:checked + .radio-mark::after {
+.radio input:checked + .radio-mark::after {
     content: '';
     position: absolute;
     top: 44%;
@@ -38,7 +38,7 @@ input:checked + .radio-mark::after {
     transform: translate(-50%, -50%) rotate(45deg);
 }
 
-input:focus-visible + .radio-mark {
+.radio input:focus-visible + .radio-mark {
     outline: 2px solid var(--sc-color-brand);
     outline-offset: 2px;
 }
