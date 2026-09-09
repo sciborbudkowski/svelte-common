@@ -185,6 +185,7 @@
 - missing CSS bg-neutral class
 - systemMessage below message in toasts (optional)
 - .j-* css classes for justify-content-*, .j-content-* classes will stay for compatibility
+- .radio CSS classes for styling radio buttons, .ws-nowrap (white-space) class, button.neutral for better visibility (used mostly for 'cancel' in modals)
 
 ### Fixed
 
@@ -194,3 +195,4 @@
 - modal header label and close button colors inconsistency
 - ConfirmModal footer buttons colors
 - Modal size can be controlled both through context and props (context value overwrites props value)
+- ToastStack systemMessage color better visible

@@ -419,3 +419,7 @@
 .j-between {
 	justify-content: space-between;
 }
+
+.ws-nowrap {
+    white-space: nowrap;
+}

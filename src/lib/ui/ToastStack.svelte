@@ -187,7 +187,7 @@
 	.toast .content .system-message {
 		font-size: var(--font-size-0);
 		font-style: italic;
-		color: var(--sc-color-text-muted);
+		color: var(--sc-color-text);
 
 		&::before {
 			content: '[ ';

@@ -1,0 +1,44 @@
+/* src/lib/styles/radio.css */
+
+.radio {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+}
+
+input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.radio-mark {
+    position: relative;
+    width: 1.2rem;
+    height: 1.2rem;
+    flex: 0 0 auto;
+    border: 2px solid var(--sc-color-brand);
+    border-radius: 50%;
+}
+
+input:checked + .radio-mark {
+    background-color: var(--sc-color-brand);
+}
+
+input:checked + .radio-mark::after {
+    content: '';
+    position: absolute;
+    top: 44%;
+    left: 50%;
+    width: 0.28rem;
+    height: 0.55rem;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+input:focus-visible + .radio-mark {
+    outline: 2px solid var(--sc-color-brand);
+    outline-offset: 2px;
+}

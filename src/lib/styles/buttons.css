@@ -48,6 +48,13 @@ button.xxl {
 	font-weight: 600;
 }
 
+button.neutral {
+	--sc-button-accent: var(--clr-neutral-a4);
+	--sc-button-on-accent: var(--clr-neutral-a1);
+	--sc-button-accent-hover: var(--clr-neutral-a3);
+	--sc-button-on-accent-hover: var(--clr-neutral-a6);
+}
+
 button.danger {
 	--sc-button-accent: var(--sc-button-danger-accent);
 	--sc-button-on-accent: var(--sc-button-danger-on-accent);
