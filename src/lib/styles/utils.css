@@ -448,3 +448,12 @@
 .ws-nowrap {
     white-space: nowrap;
 }
+
+.f-wide {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+.f-nosqueeze {
+	flex: 0 0 auto;
+	white-space: nowrap;
+}

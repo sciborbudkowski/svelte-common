@@ -187,6 +187,7 @@
 - .j-* css classes for justify-content-*, .j-content-* classes will stay for compatibility
 - .radio CSS classes for styling radio buttons, .ws-nowrap (white-space) class, button.neutral for better visibility (used mostly for 'cancel' in modals)
 - .clr-* classes for easy setting elements color
+- f-wide and f-nosqueeze CSS classes
 
 ### Fixed
 
