@@ -74,8 +74,8 @@
 
    	--sc-color-neutral: var(--clr-neutral-a5);
 	--sc-color-neutral-hover: var(--clr-neutral-a5);
-	--sc-color-on-neutral: var(--clr-neutral-a6);
-	--sc-color-on-neutral-hover: var(--clr-neutral-a9);
+	--sc-color-on-neutral: var(--clr-neutral-a8);
+	--sc-color-on-neutral-hover: var(--clr-bg-a2);
 }
 
 :root[data-theme='dark'] {

@@ -378,6 +378,31 @@
 	color: var(--sc-color-on-neutral);
 }
 
+.clr-brand {
+	color: var(--sc-color-brand);
+	background-color: transparent;
+}
+.clr-danger {
+	color: var(--sc-color-danger);
+	background-color: transparent
+}
+.clr-warning {
+	color: var(--sc-color-warning);
+	background-color: transparent
+}
+.clr-success {
+	color: var(--sc-color-success);
+	background-color: transparent
+}
+.clr-info {
+	color: var(--sc-color-info);
+	background-color: transparent
+}
+.clr-neutral {
+	color: var(--sc-color-neutral);
+	background-color: transparent
+}
+
 .fs-xxs {
 	font-size: 70%;
 }

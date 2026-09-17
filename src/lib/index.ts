@@ -13,6 +13,7 @@ export { default as CollapsibleCard } from './ui/CollapsibleCard.svelte';
 export { default as Accordion } from './ui/Accordion/Accordion.svelte';
 export { default as AccordionItem } from './ui/Accordion/AccordionItem.svelte';
 export { default as Spinner } from './ui/Spinner.svelte';
+export { default as Avatar } from './ui/Avatar.svelte'
 
 // Types
 export type { CacheAdapter } from './services/cache.ts';
