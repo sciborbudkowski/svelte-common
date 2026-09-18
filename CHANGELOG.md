@@ -198,4 +198,4 @@
 - ConfirmModal footer buttons colors
 - Modal size can be controlled both through context and props (context value overwrites props value)
 - ToastStack systemMessage color better visible
-- Avatar: sizes, and types fully supported
+- Avatar: sizes, and types fully supported, avoid broken image icon when no picture selected for 'image' avatar mode

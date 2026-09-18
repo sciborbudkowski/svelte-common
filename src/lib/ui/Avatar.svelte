@@ -32,7 +32,9 @@
         {#if type === 'initials'}
             <div class="content">{initials ?? '??'}</div>
         {:else if type === 'image'}
-            <img src={imageUrl} alt="avatar" class="image">
+            {#if imageUrl}
+                <img src={imageUrl} alt="avatar" class="image">
+            {/if}
         {:else if type === 'mixed'}
             <div class="background" style:background-image={imageUrl ? `url('${imageUrl}')` : 'none'}>
                 {initials ?? '??'}
@@ -87,7 +89,11 @@
     }
 
     .image {
-        border-radius: 50%;
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: inherit;
     }
 
     .background {
