@@ -67,6 +67,14 @@
 	</div>
 {/snippet}
 
-{#snippet footer()}<div class="w-100 py-1 text-center">
-		<button type="button" onclick={closeAlertModal}>Potwierdź</button>
-	</div>{/snippet}
+{#snippet footer()}
+	<div class="w-100 py-1 text-center">
+		<button type="button" class="btn" onclick={closeAlertModal}>OK</button>
+	</div>
+{/snippet}
+
+<style>
+	.btn {
+		min-width: 100px;
+	}
+</style>

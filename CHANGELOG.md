@@ -187,7 +187,7 @@
 - .j-* css classes for justify-content-*, .j-content-* classes will stay for compatibility
 - .radio CSS classes for styling radio buttons, .ws-nowrap (white-space) class, button.neutral for better visibility (used mostly for 'cancel' in modals)
 - .clr-* classes for easy setting elements color
-- f-wide and f-nosqueeze CSS classes
+- .f-wide, .f-nosqueeze and .text-justify CSS classes
 
 ### Fixed
 
@@ -199,3 +199,4 @@
 - Modal size can be controlled both through context and props (context value overwrites props value)
 - ToastStack systemMessage color better visible
 - Avatar: sizes, and types fully supported, avoid broken image icon when no picture selected for 'image' avatar mode
+- AlertModal button label and width

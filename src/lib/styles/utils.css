@@ -457,3 +457,7 @@
 	flex: 0 0 auto;
 	white-space: nowrap;
 }
+
+.text-justify {
+	text-align: justify;
+}
