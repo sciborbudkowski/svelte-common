@@ -200,3 +200,10 @@
 - ToastStack systemMessage color better visible
 - Avatar: sizes, and types fully supported, avoid broken image icon when no picture selected for 'image' avatar mode
 - AlertModal button label and width
+
+## 1.1.3 (28.09.2026)
+
+### Added
+
+- ScrollIndicator component as native browser's scroll bar replacement
+- .native-scrollbar-remove CSS class for remove native scroll bar

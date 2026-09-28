@@ -147,6 +147,14 @@ body {
 	margin: var(--size-2);
 }
 
+.native-scrollbar-remove {
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+.native-scrollbar-remove::-webkit-scrollbar {
+    display: none;
+}
+
 h1,
 h2,
 h3,
