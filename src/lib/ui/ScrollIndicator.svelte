@@ -170,6 +170,7 @@
 
 <style lang="scss">
     .scroll-indicator {
+        display: none;
         position: fixed;
         z-index: var(--sc-scroll-indicator-z-index, 10000);
         border-radius: 999px;
@@ -194,6 +195,12 @@
         background-color: var(--sc-scroll-indicator-thumb, oklch(from var(--sc-color-text) l c h / .45));
         will-change: transform;
         transition: height 120ms ease;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+        .scroll-indicator {
+            display: block;
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {

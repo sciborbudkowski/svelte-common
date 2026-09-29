@@ -149,10 +149,15 @@ body {
 
 .native-scrollbar-remove {
     overflow-y: auto;
-    scrollbar-width: none;
 }
-.native-scrollbar-remove::-webkit-scrollbar {
-    display: none;
+
+@media (hover: hover) and (pointer: fine) {
+	.native-scrollbar-remove {
+		scrollbar-width: none;
+	}
+	.native-scrollbar-remove::-webkit-scrollbar {
+		display: none;
+	}
 }
 
 h1,
