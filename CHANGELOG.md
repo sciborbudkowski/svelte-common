@@ -207,3 +207,6 @@
 
 - ScrollIndicator component as native browser's scroll bar replacement
 - .native-scrollbar-remove CSS class for remove native scroll bar
+
+### Fixed
+- shadow color for dark mode

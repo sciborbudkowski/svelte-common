@@ -95,7 +95,7 @@
 	--sc-color-control-track: var(--clr-bg-a7);
 	--sc-color-border: var(--clr-neutral-a4);
 	--sc-color-outline: var(--clr-neutral-a4);
-	--sc-color-shadow: oklch(10% 0.004 95);
+	--sc-color-shadow: var(--clr-neutral-a9);
 	--sc-color-on-media: var(--clr-neutral-a9);
 	--sc-color-on-media-muted: var(--clr-neutral-a8);
 	--sc-color-on-media-shadow: var(--clr-neutral-a0);
