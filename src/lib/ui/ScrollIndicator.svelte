@@ -14,7 +14,7 @@
         target?: HTMLElement | null;
         width?: number;
         inset?: number;
-        minThumbSize: number;
+        minThumbSize?: number;
         autoHide?: boolean;
         hideDelay?: number;
         showDuration?: number;
