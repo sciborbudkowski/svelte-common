@@ -75,10 +75,7 @@ export function showToast(
 	toasts = next.slice(0, TOAST_QUEUE_LENGTH);
 
 	if (t.autoClose) {
-		const timeout = setTimeout(() => {
-			dismissToast(t.id);
-			t.onClose?.();
-		}, duration);
+		const timeout = setTimeout(() => dismissToast(t.id), duration);
 		timeouts.set(t.id, timeout);
 	}
 
@@ -129,7 +126,10 @@ export function dismissToast(id: string) {
 	}
 
 	const index = toasts.findIndex((n) => n.id === id);
-	if (index !== -1) toasts.splice(index, 1);
+	if (index === -1) return;
+	
+	const [toast] = toasts.splice(index, 1);
+	toast.onClose?.();
 }
 
 export function clearToasts() {
