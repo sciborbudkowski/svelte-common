@@ -18,6 +18,7 @@ export interface UIToast {
 	duration?: number;
 	data?: unknown;
 	icon?: string;
+	onClose?: () => Promise<void> | (() => void);
 }
 
 let toasts: UIToast[] = $state([]);
@@ -74,7 +75,10 @@ export function showToast(
 	toasts = next.slice(0, TOAST_QUEUE_LENGTH);
 
 	if (t.autoClose) {
-		const timeout = setTimeout(() => dismissToast(t.id), duration);
+		const timeout = setTimeout(() => {
+			dismissToast(t.id);
+			t.onClose?.();
+		}, duration);
 		timeouts.set(t.id, timeout);
 	}
 
