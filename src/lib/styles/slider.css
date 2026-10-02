@@ -1,0 +1,22 @@
+/* src/lib/styles/slider.css */
+
+input[type="range"] {
+    appearance: none;
+    width: 100%;
+    height: var(--size-2);
+    outline: 1px solid var(--sc-slider-color) !important;
+    accent-color: var(--sc-slider-color);
+    border-radius: var(--sc-border-radius);
+    box-shadow: none !important;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    outline: none;
+    background: var(--sc-slider-color);
+    outline: 2px solid oklch(from var(--sc-slider-color) l c h / .5);
+    border-radius: 50%;
+}
+input[type="range"]::-webkit-slider-runnable-track {
+    outline: none;
+    background: transparent;
+}

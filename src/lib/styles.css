@@ -10,6 +10,7 @@
 @import './styles/buttons.css' layer(components);
 @import './styles/switch.css' layer(components);
 @import './styles/radio.css' layer(components);
+@import './styles/slider.css' layer(components);
 @import './styles/elements.css' layer(components);
 @import './styles/form.css' layer(components);
 @import './styles/utils.css' layer(utilities);

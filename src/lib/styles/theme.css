@@ -145,4 +145,7 @@
 	--sc-form-input-border-color: oklch(from var(--sc-color-outline) l c h / 0.5);
 	--sc-form-input-font-style: inherit;
 	--sc-form-input-focus-border-color: oklch(from var(--sc-color-outline) l c h / 0.85);
+
+    --sc-slider-color: var(--sc-color-brand);
+    --sc-slider-outline-color: var(--sc-color-text);
 }

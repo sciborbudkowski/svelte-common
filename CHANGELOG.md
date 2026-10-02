@@ -210,6 +210,7 @@
 - ToastStack onClose prop
 - .grid-XxY CSS classes
 - FloatingButton has more props and is draggable with positions stored with EphemeralStorage
+- style for input[type="range"]
 
 ### Fixed
 - shadow color for dark mode
