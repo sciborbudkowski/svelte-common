@@ -208,6 +208,7 @@
 - ScrollIndicator component as native browser's scroll bar replacement
 - .native-scrollbar-remove CSS class for remove native scroll bar
 - ToastStack onClose prop
+- .grid-XxY CSS classes
 
 ### Fixed
 - shadow color for dark mode
