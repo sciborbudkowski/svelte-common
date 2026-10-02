@@ -41,7 +41,7 @@
 		children?: Snippet;
 	} = $props();
 
-	const STORAGE_KEY = `monster-button-position-${() => id}`;
+	const STORAGE_KEY = `monster-button-position-${() => { return id; }}`;
 	let element = $state<HTMLElement>();
 	let customPosition: StoredPosition | null = $state(null);
 	let isDragging = $state(false);
@@ -87,6 +87,8 @@
 
 	function handlePointerDown(event: PointerEvent) {
 		if(!event.isPrimary || event.button !== 0) return;
+
+		didDrag = false;
 
 		const target = event.currentTarget as HTMLElement;
 		const rect = target.getBoundingClientRect();
@@ -199,6 +201,7 @@
 {#if href}
 	<!-- eslint-disable svelte/no-navigation-without-resolve -->
 	<a
+		draggable="false"
 		bind:this={element}
 		class="floating-button {position}"
 		class:dragging={isDragging}
@@ -273,11 +276,11 @@
 		transition: none;
 	}
 
-	.floating-button:hover {
+	/* .floating-button:hover {
 		background-color: var(--sc-floating-button-hover-bg);
 		transform: translateY(-2px);
 		box-shadow: var(--sc-shadow-5);
-	}
+	} */
 	.floating-button:active {
 		transform: translateY(0);
 		box-shadow: var(--sc-shadow-3);
@@ -291,6 +294,11 @@
 		cursor: not-allowed;
 		transform: none;
 		box-shadow: var(--sc-shadow-2);
+	}
+	.floating-button:not(.dragging):hover {
+		background-color: var(--sc-floating-button-hover-bg);
+		transform: translateY(-2px);
+		box-shadow: var(--sc-shadow-5);
 	}
 
 	.bottom-right {
