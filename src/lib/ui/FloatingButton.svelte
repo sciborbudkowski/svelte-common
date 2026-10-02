@@ -10,6 +10,8 @@
 		icon = 'fa-solid fa-plus',
 		position = 'bottom-right',
 		disabled = false,
+		backgroundColor = 'var(--sc-color-brand)',
+		color = 'var(--sc-color-text-inverted)',
 		onclick,
 		children
 	}: {
@@ -18,6 +20,8 @@
 		icon?: string;
 		position?: Position;
 		disabled?: boolean;
+		backgroundColor?: string;
+		color?: string;
 		onclick?: (event: MouseEvent) => void;
 		children?: Snippet;
 	} = $props();
@@ -40,6 +44,10 @@
 		title={ariaLabel}
 		{disabled}
 		{onclick}
+		style={`
+			--c: ${color};
+			--b: ${backgroundColor}
+		`}
 	>
 		{#if children}
 			{@render children()}
@@ -59,8 +67,8 @@
 		place-items: center;
 		border: 0;
 		border-radius: var(--radius-round);
-		background-color: var(--sc-floating-button-bg);
-		color: var(--sc-floating-button-text);
+		background-color: var(--b, --sc-floating-button-bg);
+		color: var(--c, --sc-floating-button-text);
 		box-shadow: var(--sc-shadow-4);
 		cursor: pointer;
 		text-decoration: none;
