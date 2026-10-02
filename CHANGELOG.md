@@ -209,7 +209,7 @@
 - .native-scrollbar-remove CSS class for remove native scroll bar
 - ToastStack onClose prop
 - .grid-XxY CSS classes
-- color and backgroundColor props for FloatingButton component
+- FloatingButton has more props and is draggable with positions stored with EphemeralStorage
 
 ### Fixed
 - shadow color for dark mode
