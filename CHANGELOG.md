@@ -209,7 +209,7 @@
 - .native-scrollbar-remove CSS class for remove native scroll bar
 - ToastStack onClose prop
 - .grid-XxY CSS classes
-- FloatingButton has more props and is draggable with positions stored with EphemeralStorage
+- FloatingButton has more props and is draggable with positions stored with EphemeralStorage, hidden prop for use with app settings
 - style for input[type="range"]
 
 ### Fixed

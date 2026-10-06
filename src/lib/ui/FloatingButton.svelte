@@ -22,6 +22,7 @@
 		icon = 'fa-solid fa-plus',
 		position = 'bottom-right',
 		disabled = false,
+		hidden = false,
 		backgroundColor = 'var(--sc-color-brand)',
 		color = 'var(--sc-color-text-inverted)',
 		opacity = 1,
@@ -34,6 +35,7 @@
 		icon?: string;
 		position?: Position;
 		disabled?: boolean;
+		hidden?: boolean;
 		backgroundColor?: string;
 		color?: string;
 		opacity?: number;
@@ -205,6 +207,7 @@
 		bind:this={element}
 		class="floating-button {position}"
 		class:dragging={isDragging}
+		class:hidden={hidden}
 		{href}
 		aria-label={ariaLabel}
 		title={ariaLabel}
@@ -228,6 +231,7 @@
 		type="button"
 		class="floating-button {position}"
 		class:dragging={isDragging}
+		class:hidden={hidden}
 		aria-label={ariaLabel}
 		title={ariaLabel}
 		{disabled}
@@ -316,6 +320,10 @@
 	.top-left {
 		left: var(--size-5);
 		top: var(--size-5);
+	}
+
+	.hidden {
+		display: none;
 	}
 
 	@media (max-width: 640px) {
