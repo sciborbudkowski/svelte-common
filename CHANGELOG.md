@@ -211,6 +211,7 @@
 - .grid-XxY CSS classes
 - FloatingButton has more props and is draggable with positions stored with EphemeralStorage, hidden prop for use with app settings
 - style for input[type="range"]
+- ScrollHint component for soft and discrete show the content is longer than view height
 
 ### Fixed
 - shadow color for dark mode
