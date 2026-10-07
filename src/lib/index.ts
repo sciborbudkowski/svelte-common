@@ -15,6 +15,7 @@ export { default as AccordionItem } from './ui/Accordion/AccordionItem.svelte';
 export { default as Spinner } from './ui/Spinner.svelte';
 export { default as Avatar } from './ui/Avatar.svelte';
 export { default as ScrollIndicator } from './ui/ScrollIndicator.svelte';
+export { default as ScrollHint } from './ui/ScrollHint.svelte';
 
 // Types
 export type { CacheAdapter } from './services/cache.ts';
