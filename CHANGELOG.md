@@ -215,3 +215,9 @@
 
 ### Fixed
 - shadow color for dark mode
+
+## 1.1.4 (07.10.2026)
+
+### Fixed
+- modal store setModalScrollLockTarget function to lock scrolling when there's other than body,
+  main scrolling element to prevent scroll content when modal is open

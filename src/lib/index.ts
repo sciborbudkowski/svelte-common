@@ -39,7 +39,8 @@ export {
 	closeModal,
 	getModalContext,
 	requestConfirmation,
-	isModalOpen
+	isModalOpen,
+	setModalScrollLockTarget
 } from './stores/modal.svelte.ts';
 
 // Utils

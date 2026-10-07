@@ -4,6 +4,35 @@
 
 npm install git+ssh://git@github.com/sciborbudkowski/svelte-common.git
 
+## Modal scroll locking
+
+Configure the application's scroll container once in the root layout. This applies to
+`Modal`, `AlertModal` and `ConfirmModal`:
+
+```svelte
+<script lang="ts">
+	import { onMount } from 'svelte';
+	import { setModalScrollLockTarget } from 'svelte-common';
+
+	let mainElement = $state<HTMLElement | null>(null);
+
+	onMount(() => {
+		setModalScrollLockTarget(mainElement);
+		return () => setModalScrollLockTarget(null);
+	});
+</script>
+
+<main bind:this={mainElement}>
+	<!-- Application content -->
+</main>
+```
+
+Without configuration, the target defaults to `document.body`. The first open modal
+saves the target's inline overflow values and priorities, then sets `overflow: hidden`.
+The original values return after the last modal closes or unmounts, regardless of
+closing order. Changing the target while modals are open restores the old target
+and locks the new one. Only `.modal-body` scrolls inside the modal.
+
 ## Light and dark theme
 
 Initialize theme synchronization once in the root layout:

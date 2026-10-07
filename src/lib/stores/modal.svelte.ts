@@ -37,31 +37,59 @@ interface ModalOptions {
 	context?: unknown;
 }
 
-let previousBodyOverflow: string | null = null;
+let scrollLockTarget: HTMLElement | null = null;
+const overflowProperties = ['overflow', 'overflow-x', 'overflow-y'] as const;
+let scrollLock: {
+	target: HTMLElement;
+	previousOverflow: { property: string; value: string; priority: string }[];
+} | null = null;
 
-function lockBodyScroll(): void {
-	if (previousBodyOverflow !== null) return;
+function lockScroll(): void {
+	if (scrollLock !== null) return;
 
-	previousBodyOverflow = document.body.style.overflow;
-	document.body.style.overflow = 'hidden';
+	const target = scrollLockTarget ?? document.body;
+	scrollLock = {
+		target,
+		previousOverflow: overflowProperties.map((property) => ({
+			property,
+			value: target.style.getPropertyValue(property),
+			priority: target.style.getPropertyPriority(property)
+		}))
+	};
+	target.style.setProperty('overflow', 'hidden', 'important');
 }
 
-function unlockBodyScroll(): void {
-	if (previousBodyOverflow === null) return;
+function unlockScroll(): void {
+	if (scrollLock === null) return;
 
-	document.body.style.overflow = previousBodyOverflow;
-	previousBodyOverflow = null;
+	const { target, previousOverflow } = scrollLock;
+	for (const property of overflowProperties) target.style.removeProperty(property);
+	for (const { property, value, priority } of previousOverflow) {
+		if (value) target.style.setProperty(property, value, priority);
+	}
+	scrollLock = null;
 }
 
 function requireBrowser(operation: string): void {
 	if (!BROWSER) throw new Error(`${operation} can only be used in the browser.`);
 }
 
+/** Configure the shared scroll container for all modals. Null restores the body default. */
+export function setModalScrollLockTarget(target: HTMLElement | null): void {
+	requireBrowser('setModalScrollLockTarget');
+
+	if (scrollLockTarget === target) return;
+
+	unlockScroll();
+	scrollLockTarget = target;
+	if (modalStack.length > 0) lockScroll();
+}
+
 export function registerModal(id: string) {
 	requireBrowser('registerModal');
 
 	if (modalStack.includes(id)) return;
-	if (modalStack.length === 0) lockBodyScroll();
+	if (modalStack.length === 0) lockScroll();
 
 	modalStack.push(id);
 }
@@ -74,7 +102,7 @@ export function unregisterModal(id: string) {
 
 	modalStack.splice(index, 1);
 
-	if (modalStack.length === 0) unlockBodyScroll();
+	if (modalStack.length === 0) unlockScroll();
 }
 
 export const modalsState = $state<ModalState>({
