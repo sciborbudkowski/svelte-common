@@ -1,9 +1,8 @@
 <!-- src/lib/ui/ScrollHint.svelte -->
 
 <script lang="ts">
-    import { onMount } from 'svelte';
-
     let {
+        target,
         threshold = 40,
         timeout = 1000,
         bgColor = 'oklch(from rgb(0 0 0) l c h / .1)',
@@ -16,6 +15,7 @@
         maxVisibility = .5,
         size = '1.25rem'
     }: {
+        target?: HTMLElement | null;
         threshold?: number;
         timeout?: number;
         bgColor?: string;
@@ -33,32 +33,37 @@
     let ready = $state(false);
 
     function update() {
-        const scrollBottom = window.scrollY + window.innerHeight;
-        const documentHeight = document.documentElement.scrollHeight;
+        if(!target) {
+            visible = false;
+            return;
+        }
 
         visible =
-            documentHeight > window.innerHeight &&
-            scrollBottom < documentHeight - threshold;
+            target.scrollHeight > target.clientHeight &&
+            target.scrollTop + target.clientHeight < target.scrollHeight - threshold;
     }
 
-    onMount(() => {
-        const t = setTimeout(() => {
-            ready = true;
-            update();
-        }, timeout);
+    $effect(() => {
+        if(!target) return;
 
-        window.addEventListener('scroll', update, { passive: true });
-        window.addEventListener('resize', update);
+        target.addEventListener('scroll', update, { passive: true });
 
         const observer = new ResizeObserver(update);
         observer.observe(document.documentElement);
 
         return () => {
-            clearTimeout(t);
             window.removeEventListener('scroll', update);
-            window.removeEventListener('resize', update);
             observer.disconnect();
         };
+    });
+
+    $effect(() => {
+        const id = setTimeout(() => {
+            ready = true;
+            update();
+        }, timeout);
+
+        return () => clearTimeout(id);
     });
 </script>
 
@@ -75,7 +80,7 @@
         --o: ${offset};
         --min: ${minVisibility};
         --max: ${maxVisibility};
-        --s: ${size};
+        --size: ${size};
     `}>
         <i class="fa-solid fa-chevron-down"></i>
 </div>
@@ -101,7 +106,7 @@
         box-shadow: var(--s);
 
         color: var(--c);
-        font-size: var(--s);
+        font-size: var(--size);
 
         opacity: 0;
         transform: translateX(-50%) translateY(.5rem);
