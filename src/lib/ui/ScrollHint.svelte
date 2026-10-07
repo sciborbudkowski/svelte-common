@@ -5,10 +5,28 @@
 
     let {
         threshold = 40,
-        timeout = 1000
+        timeout = 1000,
+        bgColor = 'oklch(from rgb(0 0 0) l c h / .1)',
+        color = '#fff',
+        shadow = 'none',
+        width = '50px',
+        height = '50px',
+        offset = '75px',
+        minVisibility = 0,
+        maxVisibility = .5,
+        size = '1.25rem'
     }: {
         threshold?: number;
         timeout?: number;
+        bgColor?: string;
+        color?: string;
+        shadow?: string;
+        width?: string;
+        height?: string;
+        offset?: string;
+        minVisibility?: number;
+        maxVisibility?: number;
+        size?: string;
     } = $props();
 
     let visible = $state(false);
@@ -44,32 +62,46 @@
     });
 </script>
 
-<div class:visible={visible && ready} class="scroll-hint" aria-hidden="true">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><!--!Font Awesome Free v7.3.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2026 Fonticons, Inc.--><path d="M297.4 470.6C309.9 483.1 330.2 483.1 342.7 470.6L534.7 278.6C547.2 266.1 547.2 245.8 534.7 233.3C522.2 220.8 501.9 220.8 489.4 233.3L320 402.7L150.6 233.4C138.1 220.9 117.8 220.9 105.3 233.4C92.8 245.9 92.8 266.2 105.3 278.7L297.3 470.7z"/></svg>
+<div
+    class:visible={visible && ready}
+    class="scroll-hint"
+    aria-hidden="true"
+    style={`
+        --c: ${color};
+        --b: ${bgColor};
+        --s: ${shadow};
+        --w: ${width};
+        --h: ${height};
+        --o: ${offset};
+        --min: ${minVisibility};
+        --max: ${maxVisibility};
+        --s: ${size};
+    `}>
+        <i class="fa-solid fa-chevron-down"></i>
 </div>
 
 <style>
     .scroll-hint {
         position: fixed;
         left: 50%;
-        bottom: calc(var(--sc-bottom-bar-height) + var(--size-4));
+        bottom: var(--o);
         z-index: 1000;
 
         display: flex;
         align-items: center;
         justify-content: center;
 
-        width: var(--size-6);
-        height: var(--size-6);
+        width: var(--w);
+        height: var(--h);
 
         border-radius: 50%;
 
-        background: var(--sc-color-surface-semitransparent);
-        backdrop-filter: blut(6px);
-        box-shadow: var(--sc-shadow-2);
+        background: var(--b);
+        backdrop-filter: blur(6px);
+        box-shadow: var(--s);
 
-        color: var(--clr-bg-a4);
-        font-size: var(--font-size-3);
+        color: var(--c);
+        font-size: var(--s);
 
         opacity: 0;
         transform: translateX(-50%) translateY(.5rem);
@@ -88,11 +120,11 @@
     @keyframes scroll-hint {
         0%,
         100% {
-            opacity: .4;
+            opacity: var(--min);
             translate: 0 0;
         }
         50% {
-            opacity: 1;
+            opacity: var(--max);
             translate: 0 .3rem;
         }
     }
