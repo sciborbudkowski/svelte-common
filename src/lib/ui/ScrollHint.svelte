@@ -55,20 +55,37 @@
     }
 
     $effect(() => {
-        update();
+        const scrollTarget = target ?? window;
 
-        target?.addEventListener('scroll', update, { passive: true });
+        const scheduleUpdate = () => {
+            requestAnimationFrame(update);
+        };
 
-        const observer = new ResizeObserver(update);
-        if(!target) {
-            observer.observe(document.documentElement);
-        } else {
-            observer.observe(target);
+        scheduleUpdate();
+
+        scrollTarget.addEventListener('scroll', update, { passive: true });
+
+        const resizeObserver = new ResizeObserver(scheduleUpdate);
+        const mutationObserver = new MutationObserver(scheduleUpdate);
+
+        if(target) { // instanceof HTMLElement
+            resizeObserver.observe(target);
+            mutationObserver.observe(target, {
+                childList: true,
+                subtree: true
+            });
+        } else { // is window
+            resizeObserver.observe(document.documentElement);
+            mutationObserver.observe(document.body, {
+                childList: true,
+                subtree: true
+            });
         }
 
         return () => {
-            target?.removeEventListener('scroll', update);
-            observer.disconnect();
+            scrollTarget?.removeEventListener('scroll', update);
+            resizeObserver.disconnect();
+            mutationObserver.disconnect();
         };
     });
 
