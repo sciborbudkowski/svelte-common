@@ -2,7 +2,7 @@
 
 <script lang="ts">
     let {
-        target,
+        target = null,
         threshold = 40,
         timeout = 1000,
         bgColor = 'oklch(from rgb(0 0 0) l c h / .1)',
@@ -13,7 +13,9 @@
         offset = '75px',
         minVisibility = 0,
         maxVisibility = .5,
-        size = '1.25rem'
+        size = '1.25rem',
+        fadingTime = '300ms',
+        bounce = 'var(--size-2)'
     }: {
         target?: HTMLElement | null;
         threshold?: number;
@@ -27,14 +29,23 @@
         minVisibility?: number;
         maxVisibility?: number;
         size?: string;
+        fadingTime?: string;
+        bounce?: string;
     } = $props();
 
     let visible = $state(false);
     let ready = $state(false);
 
-    function update() {
+    function update(): void {
         if(!target) {
-            visible = false;
+            const scrollTop = window.scrollY;
+            const viewportHeight = window.innerHeight;
+            const scrollHeight = document.documentElement.scrollHeight;
+
+            visible =
+                scrollHeight > viewportHeight &&
+                scrollTop + viewportHeight < scrollHeight - threshold;
+
             return;
         }
 
@@ -44,15 +55,19 @@
     }
 
     $effect(() => {
-        if(!target) return;
+        update();
 
-        target.addEventListener('scroll', update, { passive: true });
+        target?.addEventListener('scroll', update, { passive: true });
 
         const observer = new ResizeObserver(update);
-        observer.observe(document.documentElement);
+        if(!target) {
+            observer.observe(document.documentElement);
+        } else {
+            observer.observe(target);
+        }
 
         return () => {
-            window.removeEventListener('scroll', update);
+            target?.removeEventListener('scroll', update);
             observer.disconnect();
         };
     });
@@ -81,6 +96,8 @@
         --min: ${minVisibility};
         --max: ${maxVisibility};
         --size: ${size};
+        --ft: ${fadingTime};
+        --bounce: ${bounce};
     `}>
         <i class="fa-solid fa-chevron-down"></i>
 </div>
@@ -111,7 +128,7 @@
         opacity: 0;
         transform: translateX(-50%) translateY(.5rem);
 
-        transition: opacity 300ms ease, transform 300ms ease;
+        transition: opacity var(--ft) ease, transform var(--ft) ease;
 
         pointer-events: none;
     }
@@ -130,7 +147,7 @@
         }
         50% {
             opacity: var(--max);
-            translate: 0 .3rem;
+            translate: 0 var(--bounce);
         }
     }
 
