@@ -468,8 +468,8 @@ for view props and controller responsibilities.
 
 [Draft source](../src/lib/ui/CollapsibleTabBar.svelte)
 
-This exported component remains in development and is excluded from the earlier
-audit fixes. It renders placeholder states, has no tab data/content/selection API,
+This internal draft remains in development. It is excluded from public exports and
+the packed package, as well as the earlier audit fixes. It renders placeholder states, has no tab data/content/selection API,
 and is not a usable tab bar yet. Its existing props are recorded for completeness:
 
 | Prop         | Type                    | Current default                                             |

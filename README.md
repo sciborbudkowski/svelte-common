@@ -5,14 +5,14 @@ and small application utilities. Defaults for many labels and date helpers are P
 
 ## Install
 
-The repository documents installation from Git over SSH:
+Install from the public Git repository:
 
 ```sh
-npm install git+ssh://git@github.com/sciborbudkowski/svelte-common.git
+npm install git+https://github.com/sciborbudkowski/svelte-common.git
 ```
 
 Requires **Svelte 5.25 or newer within the Svelte 5 major version**, a Svelte-aware
-bundler, and access to the Git repository for this installation method. Import the
+bundler. Import the
 stylesheet once in the application root. It includes global element styles and a reset.
 
 ## Quick start
@@ -66,8 +66,8 @@ actions from event handlers or `onMount`, rather than during server rendering.
 | [Migration and troubleshooting](docs/migration-and-troubleshooting.md) | Behavior changes from the audit fixes and common integration problems.                   |
 | [Documentation index](docs/README.md)                                  | Complete public export map and maintenance notes.                                        |
 
-`CollapsibleTabBar` is exported but unfinished. Its draft interface is documented
-separately in the component reference; it is not a finished tab-navigation component.
+`CollapsibleTabBar` is an internal draft and is excluded from public exports and
+the published package.
 
 The [API migration guide](docs/api-migration.md) describes controlled state, native
 attribute forwarding, independent renderers and compatibility aliases. The original
@@ -75,3 +75,32 @@ attribute forwarding, independent renderers and compatibility aliases. The origi
 
 The [original audit](docs/component-audit-2026-10-10.md) and
 [fix status](docs/component-audit-fixes-2026-10-10.md) record the earlier review and validation.
+
+## Component playground
+
+Run `npm ci` and `npm run dev`, then open the local URL printed by Vite. The home
+page demonstrates finished components, state controls, dialogs, notifications,
+loaders, scrolling, themes and CSS helpers. Demo images are local SVGs.
+
+## Selective imports
+
+```ts
+import Avatar from 'svelte-common/components/Avatar';
+import { ApiClient } from 'svelte-common/services/api';
+import { friendlyFileSize } from 'svelte-common/utils/file-size';
+import 'svelte-common/tokens.css';
+import 'svelte-common/styles/buttons.css';
+```
+
+Named root imports still support tree-shaking. Explicit subpaths let consumers
+resolve only the relevant feature. See [selective imports](docs/selective-imports.md)
+for every path, CSS choices and reproducible consumer bundle checks.
+
+## License and maintenance
+
+Project code is [MIT licensed](LICENSE). Third-party assets and dependencies retain
+their own terms; see [third-party notices](THIRD_PARTY_NOTICES.md) and the
+[licensing guide](docs/licensing.md), including the separate GSAP license.
+
+[GitHub Actions CI](docs/github-actions.md) runs lint, type checks, tests, package
+checks and consumer bundle verification on Node 24 and 26 for every pull request.

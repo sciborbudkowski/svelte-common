@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  merge_group:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate (Node ${{ matrix.node }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [24, 26]
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+          cache-dependency-path: package-lock.json
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Check formatting and lint
+        run: npm run lint
+
+      - name: Check Svelte and TypeScript
+        run: npm run check
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build demo and validate package archive
+        run: npm run build
+
+      - name: Verify consumer bundles
+        run: npm run test:bundles
+
+  ci:
+    name: CI passed
+    if: ${{ always() }}
+    needs: [validate]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    permissions: {}
+    steps:
+      - name: Require all validation jobs to pass
+        env:
+          VALIDATION_RESULT: ${{ needs.validate.result }}
+        run: test "$VALIDATION_RESULT" = success

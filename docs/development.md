@@ -14,7 +14,7 @@
 | `src/lib/utils/`                                                                     | Small application helpers.                                                                       |
 | `src/lib/styles.css`, `src/lib/styles/`                                              | Public CSS entry and style modules.                                                              |
 | `src/lib/debug/`                                                                     | SizeView.                                                                                        |
-| `src/routes/`                                                                        | SvelteKit development/preview shell; current page is a placeholder.                              |
+| `src/routes/`                                                                        | Interactive component and CSS-helper playground.                                                 |
 | `docs/`                                                                              | Guides/references and historical audits.                                                         |
 | `scripts/validate-package.mjs`                                                       | Real-tarball package validator.                                                                  |
 | `dist/`, `.svelte-kit/`                                                              | Generated outputs, ignored by Git.                                                               |
@@ -88,16 +88,19 @@ real browsers when changing the corresponding features.
 
 [Metadata](../package.json) · [Validator](../scripts/validate-package.mjs)
 
-The package exports its Svelte entry/types and styles.css, styles-without-reset.css,
-tokens.css and reset.css. CSS is declared as a
+The package exports its Svelte entry/types, explicit feature subpaths, the four
+aggregate CSS entries and eight individual CSS modules; see
+[selective imports](selective-imports.md). CSS is declared as a
 side effect so bundlers retain the stylesheet import. `files` ships `dist` while
-excluding test/spec files and fixtures. npm also includes standard package metadata/
+excluding test/spec files, fixtures and the unfinished CollapsibleTabBar draft. npm also includes standard package metadata/
 README files; the `docs` directory is repository documentation, not currently listed
 as a distributed package directory.
 
 The validator creates a temporary directory, runs `npm pack --ignore-scripts`,
 locates the actual `.tgz` without relying on npm stdout, and passes its bytes to
-publint. Error-level messages fail the process; temporary files are removed in finally.
+publint. It also checks every export target, the license/notices, and exclusions
+against the archive contents. Error-level messages fail the process; temporary files
+are removed in finally.
 This avoids recursive prepack and validates a real package rather than only loose
 files. `npm run build` also builds the preview app; `npm run package` alone does not
 run archive validation.
@@ -127,3 +130,14 @@ For a documentation-only change, check Markdown formatting, relative links/ancho
 and examples against the current source. For behavior changes, run the applicable
 tests and full release checks. Do not add an internal helper to index.ts just to make
 a documentation example compile.
+
+## Consumer bundles and public-project maintenance
+
+After `npm run package` or `npm run build`, run `npm run test:bundles`. It builds
+small consumer applications through actual package exports and rejects unrelated
+heavy dependencies. See [selective imports](selective-imports.md) for coverage and
+limits. The validator uses the already locked @publint/pack dependency directly
+when inspecting archives; it does not depend on a system tar executable.
+
+The project uses [MIT](../LICENSE), with packaged [third-party notices](../THIRD_PARTY_NOTICES.md).
+[GitHub Actions CI](github-actions.md) runs the validation commands on Node 24 and 26.

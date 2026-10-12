@@ -1,6 +1,17 @@
 # Changelog
 
-## Unreleased — API flexibility migration
+## Unreleased — Public package and playground
+
+- Added an interactive component/CSS-helper playground with theme controls and local demo assets.
+- Removed CollapsibleTabBar from public exports and package contents; kept the draft source.
+- Added explicit component/service/store/utility/type and individual CSS exports.
+- Isolated friendlyFileSize from Markdown dependencies, retaining compatibility re-exports.
+- Added real consumer bundle checks and expanded archive checks for exports and exclusions.
+- Applied MIT to project code and included third-party notices for Font Awesome and dependencies.
+- Documented selective imports and licensing.
+- Added GitHub Actions CI on Node 24 and 26, a required-check gate and weekly updates for pinned actions.
+
+## API flexibility migration
 
 - Added consistent controlled/default/change APIs for cards, accordion selection,
   carousel index/user pause and floating drag coordinates.
@@ -239,3 +250,9 @@
   main scrolling element to prevent scroll content when modal is open
 
 ## 1.2.0 (12.10.2026)
+
+## 1.2.1
+
+### Added
+
+- CI

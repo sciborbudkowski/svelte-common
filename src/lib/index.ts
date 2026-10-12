@@ -16,7 +16,6 @@ export { default as Spinner } from './ui/Spinner.svelte';
 export { default as Avatar } from './ui/Avatar.svelte';
 export { default as ScrollIndicator } from './ui/ScrollIndicator.svelte';
 export { default as ScrollHint } from './ui/ScrollHint.svelte';
-export { default as CollapsibleTabBar } from './ui/CollapsibleTabBar.svelte';
 
 export { default as FloatingAction } from './ui/FloatingAction.svelte';
 export { default as FloatingLink } from './ui/FloatingLink.svelte';

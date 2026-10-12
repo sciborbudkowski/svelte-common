@@ -66,7 +66,8 @@ See [services](services.md), [components](components.md) and
 ## Current limits
 
 `CollapsibleTabBar` is unfinished, has placeholder rendering and unresolved state/
-CSS/timer behavior. It was deliberately excluded from the audit fixes. Do not rely
+CSS/timer behavior. It was deliberately excluded from the audit fixes and is now excluded from public
+exports and the packed package. Do not rely
 on it as a complete tab system; document any application experimentation separately.
 
 The source does not declare a tested browser matrix. The prior verification uses
@@ -74,3 +75,6 @@ unit tests, jsdom, mocks, SSR and build checks, not proof of native browser layo
 screen-reader output or mobile save/share behavior. Validate those flows on the
 application's target devices. There is no global localization provider, automatic
 WebSocket heartbeat/message buffer, offline replay worker or image upload validator.
+
+See [selective imports](selective-imports.md) for the new public subpaths and removal
+of the unfinished CollapsibleTabBar export. Its source file remains in the repository.

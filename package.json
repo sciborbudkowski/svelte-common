@@ -1,6 +1,6 @@
 {
 	"name": "svelte-common",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
@@ -15,13 +15,16 @@
 		"lint:code": "eslint .",
 		"lint": "npm run lint:format && npm run lint:code",
 		"test:unit": "vitest",
-		"test": "npm run test:unit -- --run"
+		"test": "npm run test:unit -- --run",
+		"test:bundles": "node scripts/validate-bundles.mjs"
 	},
 	"files": [
 		"dist",
 		"!dist/**/*.test.*",
 		"!dist/**/*.spec.*",
-		"!dist/**/fixtures/**"
+		"!dist/**/fixtures/**",
+		"!dist/ui/CollapsibleTabBar.*",
+		"THIRD_PARTY_NOTICES.md"
 	],
 	"sideEffects": [
 		"**/*.css"
@@ -37,13 +40,193 @@
 		"./styles.css": "./dist/styles.css",
 		"./styles-without-reset.css": "./dist/styles-without-reset.css",
 		"./tokens.css": "./dist/tokens.css",
-		"./reset.css": "./dist/reset.css"
+		"./reset.css": "./dist/reset.css",
+		"./components/Carousel": {
+			"types": "./dist/ui/Carousel.svelte.d.ts",
+			"svelte": "./dist/ui/Carousel.svelte"
+		},
+		"./components/CircularTimer": {
+			"types": "./dist/ui/CircularTimer.svelte.d.ts",
+			"svelte": "./dist/ui/CircularTimer.svelte"
+		},
+		"./components/FloatingButton": {
+			"types": "./dist/ui/FloatingButton.svelte.d.ts",
+			"svelte": "./dist/ui/FloatingButton.svelte"
+		},
+		"./components/Loader": {
+			"types": "./dist/ui/Loader.svelte.d.ts",
+			"svelte": "./dist/ui/Loader.svelte"
+		},
+		"./components/Modal": {
+			"types": "./dist/ui/Modal.svelte.d.ts",
+			"svelte": "./dist/ui/Modal.svelte"
+		},
+		"./components/AlertModal": {
+			"types": "./dist/ui/Modals/AlertModal.svelte.d.ts",
+			"svelte": "./dist/ui/Modals/AlertModal.svelte"
+		},
+		"./components/ConfirmModal": {
+			"types": "./dist/ui/Modals/ConfirmModal.svelte.d.ts",
+			"svelte": "./dist/ui/Modals/ConfirmModal.svelte"
+		},
+		"./components/ToastStack": {
+			"types": "./dist/ui/ToastStack.svelte.d.ts",
+			"svelte": "./dist/ui/ToastStack.svelte"
+		},
+		"./components/CollapsibleCard": {
+			"types": "./dist/ui/CollapsibleCard.svelte.d.ts",
+			"svelte": "./dist/ui/CollapsibleCard.svelte"
+		},
+		"./components/Accordion": {
+			"types": "./dist/ui/Accordion/Accordion.svelte.d.ts",
+			"svelte": "./dist/ui/Accordion/Accordion.svelte"
+		},
+		"./components/AccordionItem": {
+			"types": "./dist/ui/Accordion/AccordionItem.svelte.d.ts",
+			"svelte": "./dist/ui/Accordion/AccordionItem.svelte"
+		},
+		"./components/Spinner": {
+			"types": "./dist/ui/Spinner.svelte.d.ts",
+			"svelte": "./dist/ui/Spinner.svelte"
+		},
+		"./components/Avatar": {
+			"types": "./dist/ui/Avatar.svelte.d.ts",
+			"svelte": "./dist/ui/Avatar.svelte"
+		},
+		"./components/ScrollIndicator": {
+			"types": "./dist/ui/ScrollIndicator.svelte.d.ts",
+			"svelte": "./dist/ui/ScrollIndicator.svelte"
+		},
+		"./components/ScrollHint": {
+			"types": "./dist/ui/ScrollHint.svelte.d.ts",
+			"svelte": "./dist/ui/ScrollHint.svelte"
+		},
+		"./components/FloatingAction": {
+			"types": "./dist/ui/FloatingAction.svelte.d.ts",
+			"svelte": "./dist/ui/FloatingAction.svelte"
+		},
+		"./components/FloatingLink": {
+			"types": "./dist/ui/FloatingLink.svelte.d.ts",
+			"svelte": "./dist/ui/FloatingLink.svelte"
+		},
+		"./components/Dialog": {
+			"types": "./dist/ui/Dialog.svelte.d.ts",
+			"svelte": "./dist/ui/Dialog.svelte"
+		},
+		"./components/ManagedModal": {
+			"types": "./dist/ui/ManagedModal.svelte.d.ts",
+			"svelte": "./dist/ui/ManagedModal.svelte"
+		},
+		"./components/LoaderView": {
+			"types": "./dist/ui/LoaderView.svelte.d.ts",
+			"svelte": "./dist/ui/LoaderView.svelte"
+		},
+		"./components/ToastStackView": {
+			"types": "./dist/ui/ToastStackView.svelte.d.ts",
+			"svelte": "./dist/ui/ToastStackView.svelte"
+		},
+		"./components/ManagedLoader": {
+			"types": "./dist/ui/Loader.svelte.d.ts",
+			"svelte": "./dist/ui/Loader.svelte"
+		},
+		"./components/ManagedToastStack": {
+			"types": "./dist/ui/ToastStack.svelte.d.ts",
+			"svelte": "./dist/ui/ToastStack.svelte"
+		},
+		"./components/SizeView": {
+			"types": "./dist/debug/SizeView.svelte.d.ts",
+			"svelte": "./dist/debug/SizeView.svelte"
+		},
+		"./services/api": {
+			"types": "./dist/services/api.d.ts",
+			"default": "./dist/services/api.js"
+		},
+		"./services/websockets": {
+			"types": "./dist/services/websockets.svelte.d.ts",
+			"svelte": "./dist/services/websockets.svelte.js"
+		},
+		"./services/storage": {
+			"types": "./dist/services/storage.d.ts",
+			"default": "./dist/services/storage.js"
+		},
+		"./services/cache": {
+			"types": "./dist/services/cache.d.ts",
+			"default": "./dist/services/cache.js"
+		},
+		"./stores/theme": {
+			"types": "./dist/stores/theme.svelte.d.ts",
+			"svelte": "./dist/stores/theme.svelte.js"
+		},
+		"./stores/gps": {
+			"types": "./dist/stores/gps.svelte.d.ts",
+			"svelte": "./dist/stores/gps.svelte.js"
+		},
+		"./stores/modals": {
+			"types": "./dist/stores/modals.d.ts",
+			"svelte": "./dist/stores/modals.js"
+		},
+		"./stores/loader": {
+			"types": "./dist/stores/loader.svelte.d.ts",
+			"svelte": "./dist/stores/loader.svelte.js"
+		},
+		"./stores/toasts": {
+			"types": "./dist/stores/toaststack.svelte.d.ts",
+			"svelte": "./dist/stores/toaststack.svelte.js"
+		},
+		"./utils/app-id": {
+			"types": "./dist/utils/app-id.d.ts",
+			"default": "./dist/utils/app-id.js"
+		},
+		"./utils/date": {
+			"types": "./dist/utils/date.d.ts",
+			"default": "./dist/utils/date.js"
+		},
+		"./utils/styles": {
+			"types": "./dist/utils/styles.d.ts",
+			"default": "./dist/utils/styles.js"
+		},
+		"./utils/text": {
+			"types": "./dist/utils/text.d.ts",
+			"default": "./dist/utils/text.js"
+		},
+		"./utils/file-size": {
+			"types": "./dist/utils/file-size.d.ts",
+			"default": "./dist/utils/file-size.js"
+		},
+		"./utils/token": {
+			"types": "./dist/utils/token.d.ts",
+			"default": "./dist/utils/token.js"
+		},
+		"./utils/files": {
+			"types": "./dist/utils/files.d.ts",
+			"default": "./dist/utils/files.js"
+		},
+		"./utils/lang": {
+			"types": "./dist/utils/lang.d.ts",
+			"default": "./dist/utils/lang.js"
+		},
+		"./utils/scroll": {
+			"types": "./dist/utils/scroll.d.ts",
+			"default": "./dist/utils/scroll.js"
+		},
+		"./types": {
+			"types": "./dist/types.d.ts"
+		},
+		"./styles/buttons.css": "./dist/styles/buttons.css",
+		"./styles/switch.css": "./dist/styles/switch.css",
+		"./styles/radio.css": "./dist/styles/radio.css",
+		"./styles/slider.css": "./dist/styles/slider.css",
+		"./styles/elements.css": "./dist/styles/elements.css",
+		"./styles/form.css": "./dist/styles/form.css",
+		"./styles/utils.css": "./dist/styles/utils.css",
+		"./styles/grids.css": "./dist/styles/grids.css"
 	},
 	"peerDependencies": {
 		"svelte": "^5.25.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
+		"@publint/pack": "^0.1.7",
 		"@sveltejs/adapter-auto": "^7.0.1",
 		"@sveltejs/kit": "^2.70.2",
 		"@sveltejs/package": "^2.5.8",
@@ -73,5 +256,6 @@
 		"gsap": "^3.15.0",
 		"isomorphic-dompurify": "4.5.0",
 		"marked": "^18.0.9"
-	}
+	},
+	"license": "MIT"
 }

@@ -5,10 +5,10 @@
 ## Installation and imports
 
 ```sh
-npm install git+ssh://git@github.com/sciborbudkowski/svelte-common.git
+npm install git+https://github.com/sciborbudkowski/svelte-common.git
 ```
 
-This installation requires Git and SSH access to the repository. A Git installation
+This installation requires Git and HTTPS access to the public repository. A Git installation
 runs the project's preparation step, which builds `dist`. The package declares
 `svelte: ^5.25.0` as a peer dependency and uses an ESM/Svelte export condition. Its
 components require a bundler that compiles Svelte; the root export is not a plain
@@ -20,8 +20,9 @@ import { Avatar, ApiClient, formatDate } from 'svelte-common';
 import 'svelte-common/styles.css';
 ```
 
-The root and four CSS subpaths are exported: styles.css, styles-without-reset.css,
-tokens.css and reset.css. See [style choices](api-migration.md#stylesheet-choices).
+The root, individual components/services/stores/utilities, and CSS entry points
+have [public import paths](selective-imports.md). See
+[style choices](api-migration.md#stylesheet-choices) for the aggregate stylesheets.
 Avoid imports from
 `svelte-common/dist/...` or the library's internal `$lib` aliases. Bundled SVGs cover
 standard controls. FloatingButton/AccordionItem can accept custom icon class names,

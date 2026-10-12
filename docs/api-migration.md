@@ -4,7 +4,8 @@
 
 This migration is implemented in the current working tree. Existing store-backed
 exports and legacy aliases are retained. No version bump, publication or application
-deployment is implied. `CollapsibleTabBar.svelte` remains unchanged.
+deployment is implied. `CollapsibleTabBar.svelte` remains unchanged. Its public
+export was subsequently removed; see [selective imports](selective-imports.md).
 
 ## Shared state contract
 
