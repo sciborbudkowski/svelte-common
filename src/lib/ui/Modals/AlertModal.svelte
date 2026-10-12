@@ -3,9 +3,32 @@
 <script lang="ts">
 	import { modalsState, closeAlertModal } from '../../stores/modal.svelte.ts';
 	import { textToHtml } from '../../utils/text.ts';
-	import Modal from '../Modal.svelte';
+	import Dialog from '../Dialog.svelte';
+	import type { ComponentProps } from 'svelte';
+	import Icon from '../internal/Icon.svelte';
 
-	const id = 'defaultAlertModalId';
+	let {
+		id = 'defaultAlertModalId',
+		titles = {},
+		okLabel = 'OK',
+		headerProps = {},
+		...props
+	}: Omit<
+		ComponentProps<typeof Dialog>,
+		| 'open'
+		| 'defaultOpen'
+		| 'openingKey'
+		| 'onConfirm'
+		| 'onCancel'
+		| 'onOpenChange'
+		| 'header'
+		| 'content'
+		| 'children'
+		| 'footer'
+	> & {
+		titles?: Partial<Record<'info' | 'success' | 'warning' | 'error', string>>;
+		okLabel?: string;
+	} = $props();
 	const modal = $derived(modalsState.alertModal);
 
 	const alertClass = $derived.by(() => {
@@ -24,13 +47,13 @@
 	const icon = $derived.by(() => {
 		switch (modalsState.alertModal.type) {
 			case 'error':
-				return 'fa-times-circle';
+				return 'error';
 			case 'info':
-				return 'fa-info-circle';
+				return 'info';
 			case 'success':
-				return 'fa-check-circle';
+				return 'success';
 			case 'warning':
-				return 'fa-exclamation-triangle';
+				return 'warning';
 		}
 	});
 
@@ -48,17 +71,21 @@
 	});
 </script>
 
-<Modal
+<Dialog
+	{...props}
 	{id}
 	open={modal.isOpen}
+	openingKey={modal}
 	onCancel={closeAlertModal}
-	headerClass={alertClass}
+	headerProps={{ ...headerProps, class: [alertClass, headerProps.class ?? props.headerClass] }}
 	{header}
 	{content}
 	{footer}
 />
 
-{#snippet header()}<div><i class="fa-solid {icon} me-2"></i>{title}</div>{/snippet}
+{#snippet header()}<div>
+		<Icon name={icon} class="me-2" />{titles[modal.type] ?? title}
+	</div>{/snippet}
 
 {#snippet content()}
 	<div role="alert">
@@ -69,7 +96,7 @@
 
 {#snippet footer()}
 	<div class="w-100 py-1 text-center">
-		<button type="button" class="btn" onclick={closeAlertModal}>OK</button>
+		<button type="button" class="btn" onclick={closeAlertModal}>{okLabel}</button>
 	</div>
 {/snippet}
 

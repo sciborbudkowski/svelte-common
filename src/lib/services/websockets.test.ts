@@ -3,7 +3,7 @@
 // @vitest-environment jsdom
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { WebSocketClient } from './websockets.svelte.ts';
+import { WebSocketClient, type SocketStatus } from './websockets.svelte.ts';
 
 class MockWebSocket {
 	static readonly CONNECTING = 0;
@@ -81,12 +81,14 @@ describe('WebSocketClient', () => {
 		vi.useRealTimers();
 		vi.unstubAllGlobals();
 		vi.resetAllMocks();
+		vi.restoreAllMocks();
 	});
 
 	function createClient(
 		options: {
 			maxReconnectAttempts?: number;
 			reconnectDelay?: number;
+			onStatusChange?: (status: SocketStatus) => void;
 		} = {}
 	) {
 		const client = new WebSocketClient({
@@ -123,6 +125,101 @@ describe('WebSocketClient', () => {
 
 		expect(MockWebSocket.instances).toHaveLength(1);
 		expect(client.state.status).toBe('disconnected');
+	});
+
+	it('disconnect prevents visibility reconnection during and after closing', () => {
+		const client = createClient();
+		client.connect();
+		const ws = MockWebSocket.instances[0];
+		ws.open();
+
+		client.disconnect();
+		document.dispatchEvent(new Event('visibilitychange'));
+		expect(MockWebSocket.instances).toHaveLength(1);
+
+		ws.serverClose(1000, 'DISCONNECT');
+		document.dispatchEvent(new Event('visibilitychange'));
+		vi.runAllTimers();
+		expect(MockWebSocket.instances).toHaveLength(1);
+		expect(client.state.status).toBe('disconnected');
+	});
+
+	it('explicit connect re-enables automatic reconnection after disconnect', () => {
+		const client = createClient({ reconnectDelay: 100 });
+		client.connect();
+		client.disconnect();
+		MockWebSocket.instances[0].serverClose(1000, 'DISCONNECT');
+
+		client.connect();
+		MockWebSocket.instances[1].open();
+		MockWebSocket.instances[1].serverClose();
+		vi.advanceTimersByTime(100);
+		expect(MockWebSocket.instances).toHaveLength(3);
+
+		MockWebSocket.instances[2].open();
+		Object.defineProperty(document, 'visibilityState', { value: 'hidden' });
+		MockWebSocket.instances[2].serverClose();
+		expect(vi.getTimerCount()).toBe(0);
+
+		Object.defineProperty(document, 'visibilityState', { value: 'visible' });
+		document.dispatchEvent(new Event('visibilitychange'));
+		expect(MockWebSocket.instances).toHaveLength(4);
+	});
+
+	it('visibility does not start a client before explicit connect', () => {
+		createClient();
+		document.dispatchEvent(new Event('visibilitychange'));
+		expect(MockWebSocket.instances).toHaveLength(0);
+	});
+
+	it('status callback exceptions do not interrupt connection, retries or disposal', () => {
+		const callbackError = new Error('consumer callback failed');
+		const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+		const removeSpy = vi.spyOn(document, 'removeEventListener');
+		const client = createClient({
+			reconnectDelay: 100,
+			onStatusChange: () => {
+				throw callbackError;
+			}
+		});
+
+		expect(() => client.connect()).not.toThrow();
+		const ws = MockWebSocket.instances[0];
+		expect(() => ws.open()).not.toThrow();
+		expect(client.state.status).toBe('open');
+		expect(() => ws.serverClose()).not.toThrow();
+		vi.advanceTimersByTime(100);
+		expect(MockWebSocket.instances).toHaveLength(2);
+
+		expect(() => client.dispose()).not.toThrow();
+		expect(MockWebSocket.instances[1].close).toHaveBeenCalledWith(1000, 'DISCONNECT');
+		expect(removeSpy).toHaveBeenCalledWith('visibilitychange', expect.any(Function));
+		expect(vi.getTimerCount()).toBe(0);
+		MockWebSocket.instances[1].serverClose(1000, 'DISCONNECT');
+		document.dispatchEvent(new Event('visibilitychange'));
+		expect(MockWebSocket.instances).toHaveLength(2);
+		expect(client.state.status).toBe('disconnected');
+		expect(errorSpy).toHaveBeenCalledWith(expect.any(String), callbackError);
+	});
+
+	it('installs socket handlers before notifying the connecting status', () => {
+		let handlersInstalled = false;
+		const client = createClient({
+			onStatusChange: (status) => {
+				if (status !== 'connecting') return;
+				const ws = MockWebSocket.instances[0];
+				handlersInstalled = Boolean(ws.onopen && ws.onmessage && ws.onerror && ws.onclose);
+			}
+		});
+
+		client.connect();
+		expect(handlersInstalled).toBe(true);
+	});
+
+	it('send returns false when the browser WebSocket global is unavailable', () => {
+		const client = createClient();
+		vi.stubGlobal('WebSocket', undefined);
+		expect(client.send('ping', {})).toBe(false);
 	});
 
 	it('zamknięcie starego socketa nie wpływa na nowy', () => {
@@ -219,6 +316,67 @@ describe('WebSocketClient', () => {
 
 		expect(removeSpy).toHaveBeenLastCalledWith('visibilitychange', visibilityHandler);
 
+		expect(vi.getTimerCount()).toBe(0);
+	});
+	it('records URL and constructor failures without throwing or retrying', () => {
+		const client = new WebSocketClient({ url: 'http://[' });
+		clients.push(client);
+		client.init({ token: 't', uuid: 'u' });
+		expect(() => client.connect()).not.toThrow();
+		expect(client.state.error).toBeTruthy();
+		expect(client.state.status).toBe('disconnected');
+		expect(vi.getTimerCount()).toBe(0);
+		const broken = vi.fn(function () {
+			throw new Error('constructor failed');
+		});
+		vi.stubGlobal('WebSocket', Object.assign(broken, { OPEN: 1, CONNECTING: 0 }));
+		const second = createClient();
+		expect(() => second.connect()).not.toThrow();
+		expect(second.state.error).toBe('constructor failed');
+		document.dispatchEvent(new Event('visibilitychange'));
+		expect(broken).toHaveBeenCalledTimes(1);
+	});
+	it('replaces an obsolete reconnect deadline after a manual connection', () => {
+		const client = createClient({ reconnectDelay: 1000 });
+		client.connect();
+		MockWebSocket.instances[0].serverClose();
+		vi.advanceTimersByTime(100);
+		client.connect();
+		MockWebSocket.instances[1].open();
+		vi.advanceTimersByTime(400);
+		MockWebSocket.instances[1].serverClose();
+		vi.advanceTimersByTime(500);
+		expect(MockWebSocket.instances).toHaveLength(2);
+		vi.advanceTimersByTime(500);
+		expect(MockWebSocket.instances).toHaveLength(3);
+	});
+	it('normalizes nonfinite reconnect settings and clamps negative attempt limits', () => {
+		const client = createClient({ reconnectDelay: NaN, maxReconnectAttempts: Infinity });
+		client.connect();
+		MockWebSocket.instances[0].serverClose();
+		vi.advanceTimersByTime(999);
+		expect(MockWebSocket.instances).toHaveLength(1);
+		vi.advanceTimersByTime(1);
+		expect(MockWebSocket.instances).toHaveLength(2);
+		client.dispose();
+		const noRetries = createClient({ maxReconnectAttempts: -1 });
+		noRetries.connect();
+		MockWebSocket.instances.at(-1)!.serverClose();
+		expect(vi.getTimerCount()).toBe(0);
+	});
+	it('reconnects an active socket when its credentials change and ignores the old close event', () => {
+		const client = createClient();
+		client.connect();
+		const old = MockWebSocket.instances[0];
+		old.open();
+		client.init({ token: 'new-token', uuid: 'new-uuid' });
+		expect(old.close).toHaveBeenCalledWith(1000, 'RECONNECT');
+		const replacement = MockWebSocket.instances[1];
+		expect(new URL(replacement.url).searchParams.get('token')).toBe('new-token');
+		old.serverClose();
+		expect(client.state.status).toBe('connecting');
+		replacement.open();
+		expect(client.state.status).toBe('open');
 		expect(vi.getTimerCount()).toBe(0);
 	});
 });

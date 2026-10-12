@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased — API flexibility migration
+
+- Added consistent controlled/default/change APIs for cards, accordion selection,
+  carousel index/user pause and floating drag coordinates.
+- Extracted Dialog, LoaderView and ToastStackView; retained store-backed renderers
+  and added ManagedModal/ManagedLoader/ManagedToastStack integration APIs.
+- Added typed native root/part attributes, customization snippets, configurable
+  labels, public prop/state types and native FloatingAction/FloatingLink wrappers.
+- Added same-duration CircularTimer restart keys and explicit millisecond aliases.
+- Added tokens-only, optional-reset and full-styling-without-reset CSS exports.
+- Kept deprecated initialization/class aliases. CollapsibleCard id now targets its
+  root; panelId preserves an explicit legacy panel target. Empty floating href now
+  renders an anchor. No changes were made to the unfinished CollapsibleTabBar.
+
 ## 1.0.0 - 2026-08-10
 
 ### Changed
@@ -184,7 +198,7 @@
 - dark mode token definitions
 - missing CSS bg-neutral class
 - systemMessage below message in toasts (optional)
-- .j-* css classes for justify-content-*, .j-content-* classes will stay for compatibility
+- .j-* css classes for justify-content-_, .j-content-_ classes will stay for compatibility
 - .radio CSS classes for styling radio buttons, .ws-nowrap (white-space) class, button.neutral for better visibility (used mostly for 'cancel' in modals)
 - .clr-* classes for easy setting elements color
 - .f-wide, .f-nosqueeze and .text-justify CSS classes
@@ -214,10 +228,14 @@
 - ScrollHint component for soft and discrete show the content is longer than view height
 
 ### Fixed
+
 - shadow color for dark mode
 
 ## 1.1.4 (07.10.2026)
 
 ### Fixed
+
 - modal store setModalScrollLockTarget function to lock scrolling when there's other than body,
   main scrolling element to prevent scroll content when modal is open
+
+## 1.2.0 (12.10.2026)

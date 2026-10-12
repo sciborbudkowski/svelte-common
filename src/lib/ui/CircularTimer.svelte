@@ -1,18 +1,29 @@
 <!-- src/lib/ui/CircularTimer.svelte -->
 
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
 	export type UISize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 	let {
 		duration = 5000,
+		durationMs,
+		resetKey,
 		size = 'sm',
 		onTimeout = undefined,
-		withNumericTimer = false
-	}: {
+		withNumericTimer = false,
+		ariaLabel = undefined,
+		class: cssClass,
+		style,
+		...rest
+	}: Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
+		/** Milliseconds. Nonpositive/nonfinite values complete on the next microtask. */
 		duration?: number;
+		durationMs?: number;
+		resetKey?: unknown;
 		size?: UISize;
 		onTimeout?: () => void | Promise<void>;
 		withNumericTimer?: boolean;
+		ariaLabel?: string;
 	} = $props();
 
 	const sizes: Record<UISize, number> = {
@@ -39,7 +50,10 @@
 		xl: '4rem'
 	};
 
-	const normalizedDuration = $derived(Number.isFinite(duration) && duration > 0 ? duration : 0);
+	const effectiveDuration = $derived(durationMs ?? duration);
+	const normalizedDuration = $derived(
+		Number.isFinite(effectiveDuration) && effectiveDuration > 0 ? effectiveDuration : 0
+	);
 	const pixelSize = $derived(sizes[size]);
 	const strokeWidth = $derived(strokes[size]);
 	const center = $derived(pixelSize / 2);
@@ -52,12 +66,23 @@
 	const strokeDshOffset = $derived(circumference - progress * circumference);
 
 	$effect(() => {
+		void resetKey;
 		const total = normalizedDuration;
 
 		remainingTime = total;
 		progress = total > 0 ? 0 : 1;
 
-		if (total === 0) return;
+		if (total === 0) {
+			let cancelled = false;
+			void Promise.resolve()
+				.then(() => {
+					if (!cancelled) return onTimeout?.();
+				})
+				.catch((error) => console.error('CircularTimer onTimeout failed: ', error));
+			return () => {
+				cancelled = true;
+			};
+		}
 
 		const startedAt = performance.now();
 
@@ -96,12 +121,23 @@
 	});
 </script>
 
-<div style={`--fs-timer:${timeLeft[size]}`}>
+<div
+	{...rest}
+	class={cssClass}
+	style={`--fs-timer:${timeLeft[size]}; ${style ?? ''}`}
+	role={(rest['aria-label'] ?? ariaLabel) ? 'timer' : undefined}
+	aria-label={(rest['aria-label'] ?? ariaLabel)
+		? `${rest['aria-label'] ?? ariaLabel}: ${Math.ceil(remainingTime / 1000)} s`
+		: undefined}
+	aria-live="off"
+	aria-hidden={!(rest['aria-label'] ?? ariaLabel)}
+>
 	<div class="circular-progress-timer">
 		<svg
 			width={sizes[size]}
 			height={sizes[size]}
 			class="progress-ring"
+			aria-hidden="true"
 			style={`--stroke-dashoffset:${strokeDshOffset}px; --circumference:${circumference}px;`}
 		>
 			<circle

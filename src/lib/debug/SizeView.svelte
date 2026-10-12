@@ -1,5 +1,6 @@
 <!-- src/lib/debug/SizeView.svelte -->
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
 	let {
 		color = '#fff',
 		backgroundColor = 'transparent',
@@ -8,8 +9,11 @@
 		bottom = '10px',
 		right = '',
 		top = '',
-		fontSize = '.75rem'
-	}: {
+		fontSize = '.75rem',
+		class: cssClass,
+		style,
+		...rest
+	}: Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
 		color?: string;
 		backgroundColor?: string;
 		borderColor?: string;
@@ -27,7 +31,8 @@
 <svelte:window bind:innerWidth={w} bind:innerHeight={h} />
 
 <div
-	class="indicator"
+	{...rest}
+	class={['indicator', cssClass]}
 	style={`
         --sv-color: ${color};
         --sv-background-color: ${backgroundColor};
@@ -37,6 +42,7 @@
         --sv-right: ${right};
         --sv-top: ${top};
         --sv-font-size: ${fontSize};
+        ${style ?? ''}
     `}
 >
 	[W: {w} | H: {h}]

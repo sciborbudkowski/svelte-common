@@ -55,7 +55,7 @@ export const updateLoaderProgress = (
 ): void => {
 	requireBrowser('updateLoaderProgress');
 
-	loaderState.progress = percentage;
+	loaderState.progress = Number.isFinite(percentage) ? Math.min(100, Math.max(0, percentage)) : 0;
 	loaderState.status = status;
 };
 

@@ -1,0 +1,6 @@
+/* Tokens only; no reset or native element rules. */
+@layer reset, base, components, utilities;
+@import './styles/palette.css' layer(base);
+@import './styles/props.css' layer(base);
+@import './styles/tokens.css' layer(base);
+@import './styles/theme.css' layer(base);

@@ -14,7 +14,7 @@ export const formatDate = (
 	conditionDaysOld = 7,
 	addSuffix = true
 ): string | null => {
-	if (!iso) return null;
+	if (iso == null || iso === '') return null;
 
 	const date = iso instanceof Date ? iso : new Date(iso);
 	if (Number.isNaN(date.getTime())) return null;
@@ -37,7 +37,7 @@ export const formatDate = (
 };
 
 export const toYMDHMDate = (iso: DateTimeInput): string => {
-	if (!iso) return '';
+	if (iso == null || iso === '') return '';
 
 	const date = iso instanceof Date ? iso : new Date(iso);
 	if (Number.isNaN(date.getTime())) return '';
@@ -52,7 +52,7 @@ export const toYMDHMDate = (iso: DateTimeInput): string => {
 };
 
 export const toHMSTime = (iso: DateTimeInput): string => {
-	if (!iso) return '';
+	if (iso == null || iso === '') return '';
 
 	const date = iso instanceof Date ? iso : new Date(iso);
 	if (Number.isNaN(date.getTime())) return '';
@@ -65,7 +65,7 @@ export const toHMSTime = (iso: DateTimeInput): string => {
 };
 
 export const getDistanceToNow = (iso: DateTimeInput): string => {
-	if (!iso) return '';
+	if (iso == null || iso === '') return '';
 
 	const date = iso instanceof Date ? iso : new Date(iso);
 	if (Number.isNaN(date.getTime())) return '';
@@ -74,7 +74,7 @@ export const getDistanceToNow = (iso: DateTimeInput): string => {
 };
 
 export const formatDateDifference = (date1: DateTimeInput, date2: DateTimeInput): string => {
-	if (!date1 || !date2) return '';
+	if (date1 == null || date2 == null || date1 === '' || date2 === '') return '';
 
 	const d1 = date1 instanceof Date ? date1 : new Date(date1);
 	const d2 = date2 instanceof Date ? date2 : new Date(date2);

@@ -90,27 +90,33 @@ export function initializeTheme(): () => void {
 	if (!BROWSER) return () => {};
 
 	destroyTheme();
-	mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+	const query = window.matchMedia('(prefers-color-scheme: dark)');
+	mediaQuery = query;
 
 	const handleSystemChange = (): void => {
 		if (themeState.preference === 'system') applyTheme('system');
 	};
 
 	const handleStorage = (event: StorageEvent): void => {
-		if (event.key !== THEME_STORAGE_KEY) return;
-		applyTheme(isThemePreference(event.newValue) ? event.newValue : 'system');
+		if (event.storageArea !== window.localStorage) return;
+		if (event.key === null) applyTheme(getStoredPreference());
+		else if (event.key === THEME_STORAGE_KEY)
+			applyTheme(isThemePreference(event.newValue) ? event.newValue : 'system');
 	};
 
-	mediaQuery.addEventListener('change', handleSystemChange);
+	query.addEventListener('change', handleSystemChange);
 	window.addEventListener('storage', handleStorage);
 
-	removeListeners = () => {
-		mediaQuery?.removeEventListener('change', handleSystemChange);
+	const cleanup = () => {
+		query.removeEventListener('change', handleSystemChange);
 		window.removeEventListener('storage', handleStorage);
 	};
 
+	removeListeners = cleanup;
 	applyTheme(getStoredPreference());
 	themeState.initialized = true;
 
-	return destroyTheme;
+	return () => {
+		if (removeListeners === cleanup) destroyTheme();
+	};
 }

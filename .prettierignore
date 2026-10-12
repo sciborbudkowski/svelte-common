@@ -7,3 +7,6 @@ bun.lockb
 
 # Miscellaneous
 /static/
+
+# Unfinished component, excluded from this audit's fixes at the owner's request.
+src/lib/ui/CollapsibleTabBar.svelte

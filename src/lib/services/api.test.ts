@@ -237,6 +237,7 @@ describe('ApiClient', () => {
 		const client = new ApiClient({
 			baseUrl: 'https://api.test',
 			fetch: fetcher,
+			credentials: 'omit',
 
 			cache: {
 				adapter: cache.adapter
@@ -271,6 +272,7 @@ describe('ApiClient', () => {
 		const client = new ApiClient({
 			baseUrl: 'https://api.test',
 			fetch: fetcher,
+			credentials: 'omit',
 
 			cache: {
 				adapter: cache.adapter,
@@ -313,6 +315,7 @@ describe('ApiClient', () => {
 
 		const clientA = new ApiClient({
 			baseUrl: 'https://api-a.test',
+			credentials: 'omit',
 			fetch: fetcher,
 
 			cache: {
@@ -322,6 +325,7 @@ describe('ApiClient', () => {
 
 		const clientB = new ApiClient({
 			baseUrl: 'https://api-b.test',
+			credentials: 'omit',
 			fetch: fetcher,
 
 			cache: {
@@ -432,6 +436,7 @@ describe('ApiClient', () => {
 		const clientA = new ApiClient({
 			baseUrl: 'https://api.test',
 			fetch: fetcher,
+			credentials: 'omit',
 
 			cache: {
 				adapter: cache.adapter,
@@ -442,6 +447,7 @@ describe('ApiClient', () => {
 		const clientB = new ApiClient({
 			baseUrl: 'https://api.test',
 			fetch: fetcher,
+			credentials: 'omit',
 
 			cache: {
 				adapter: cache.adapter,
@@ -475,6 +481,7 @@ describe('ApiClient', () => {
 		const client = new ApiClient({
 			baseUrl: 'https://api.test',
 			fetch: fetcher,
+			credentials: 'omit',
 
 			cache: {
 				adapter: cache.adapter,

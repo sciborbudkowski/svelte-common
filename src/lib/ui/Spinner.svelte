@@ -1,6 +1,7 @@
 <!-- src/lib/ui/Spinner.svelte -->
 
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
 	let {
 		width = '2rem',
 		height = '2rem',
@@ -8,8 +9,12 @@
 		spinnerColor = 'var(--sc-color-brand)',
 		animationType = 'linear',
 		durationMs = 1000,
-		initialRotation = 180
-	}: {
+		initialRotation = 180,
+		ariaLabel = undefined,
+		class: cssClass,
+		style,
+		...rest
+	}: Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
 		width?: string;
 		height?: string;
 		border?: string;
@@ -17,11 +22,16 @@
 		animationType?: 'linear' | 'ease' | 'ease-in' | 'ease-in-out';
 		durationMs?: number;
 		initialRotation?: number;
+		ariaLabel?: string;
 	} = $props();
 </script>
 
 <div
-	class="spinner"
+	{...rest}
+	class={['spinner', cssClass]}
+	role={(rest['aria-label'] ?? ariaLabel) ? 'status' : undefined}
+	aria-label={rest['aria-label'] ?? ariaLabel}
+	aria-hidden={!(rest['aria-label'] ?? ariaLabel)}
 	style="
         --w: {width};
         --h: {height};
@@ -29,7 +39,7 @@
         --c: {spinnerColor};
         --at: {animationType};
         --d: {durationMs}ms;
-        --ir: {initialRotation}deg;"
+        --ir: {initialRotation}deg; {style ?? ''}"
 ></div>
 
 <style>
@@ -49,6 +59,11 @@
 		}
 		100% {
 			transform: rotate(calc(var(--ir) + 360deg));
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.spinner {
+			animation: none;
 		}
 	}
 </style>

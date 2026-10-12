@@ -44,6 +44,7 @@ export class Gps {
 		intervalMs: GPS_INTERVAL_MS
 	});
 
+	private generation = 0;
 	private watchId: number | null = null;
 	private balancedConsumers = 0;
 	private preciseConsumers = 0;
@@ -75,6 +76,7 @@ export class Gps {
 	}
 
 	stop(): void {
+		this.generation++;
 		if (this.watchId !== null && browser && 'geolocation' in navigator)
 			navigator.geolocation.clearWatch(this.watchId);
 
@@ -96,8 +98,10 @@ export class Gps {
 		this.state.mode = this.getEffectiveMode();
 		this.state.error = null;
 
+		const generation = ++this.generation;
 		this.watchId = navigator.geolocation.watchPosition(
 			(pos) => {
+				if (generation !== this.generation) return;
 				const now = Date.now();
 				const shouldEmit =
 					this.state.updatedAt === null || now - this.lastEmitedAt >= this.state.intervalMs;
@@ -117,9 +121,10 @@ export class Gps {
 				this.lastEmitedAt = now;
 			},
 			(err) => {
+				if (generation !== this.generation) return;
 				this.state.error = this.getErrorDescriptionFor(err);
-				this.state.active = false;
-				this.stop();
+				// A watch can recover after timeout/position-unavailable errors.
+				if (err.code === err.PERMISSION_DENIED) this.stop();
 			},
 			this.getGpsOptions(this.state.mode)
 		);
@@ -128,7 +133,10 @@ export class Gps {
 	}
 
 	restart(): void {
-		if (this.watchId === null) return;
+		if (this.watchId === null) {
+			if (this.balancedConsumers + this.preciseConsumers > 0) this.start();
+			return;
+		}
 
 		const nextMode = this.getEffectiveMode();
 		if (nextMode === this.state.mode) return;

@@ -5,14 +5,13 @@
 	import { slide } from 'svelte/transition';
 	import type { Snippet } from 'svelte';
 
-	const ACCORDION = 'accordion-context';
-
-	type AccordionContext = {
-		isOpen: (id: string) => boolean;
-		toggle: (id: string) => void;
-	};
+	import { ACCORDION, type AccordionContext } from './context.ts';
+	import Icon from '../internal/Icon.svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
+	import { notify, type ButtonPartProps, type PanelPartProps } from '../contracts.ts';
 
 	const ctx = getContext<AccordionContext>(ACCORDION);
+	if (!ctx) throw new Error('AccordionItem must be rendered inside Accordion.');
 
 	let {
 		id,
@@ -20,57 +19,102 @@
 		subTitle = '',
 		icon,
 		children,
-		isOpen = false
-	}: {
+		trigger,
+		isOpen = false,
+		defaultOpen = isOpen,
+		onOpenChange,
+		disabled = false,
+		triggerProps = {},
+		panelProps = {},
+		class: cssClass,
+		...rest
+	}: Omit<HTMLAttributes<HTMLElement>, 'children' | 'title'> & {
+		disabled?: boolean;
+		triggerProps?: ButtonPartProps;
+		panelProps?: PanelPartProps;
 		id: string;
 		title: string;
 		subTitle?: string;
 		icon?: string;
 		children?: Snippet;
+		trigger?: Snippet<[import('../contracts.ts').TriggerState]>;
+		/** Legacy alias for defaultOpen; read only during initialization. */
 		isOpen?: boolean;
+		/** Initial state request, subject to the parent Accordion's single-open policy. */
+		defaultOpen?: boolean;
+		/** Called after this item's trigger is activated. */
+		onOpenChange?: (open: boolean) => void | Promise<void>;
 	} = $props();
 
-	const handleClick = () => ctx.toggle(id);
-	const openState = () => ctx.isOpen(id) || isOpen || false;
+	// Both defaults are initialization inputs; the parent owns subsequent open state.
+	(() => {
+		if (defaultOpen) ctx.open(id);
+	})();
+	const handleClick = (event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) => {
+		if (disabled || ctx.isDisabled() || triggerProps.disabled) return;
+		triggerProps.onclick?.(event);
+		if (event.defaultPrevented) return;
+		const proposed = !ctx.isOpen(id);
+		ctx.toggle(id, event);
+		notify(onOpenChange, proposed);
+	};
+	const openState = () => ctx.isOpen(id);
+	const panelId = $derived(`${ctx.id}-acc-panel-${id}`);
+	const headerId = $derived(`${ctx.id}-acc-header-${id}`);
 </script>
 
-<section class="accrd-item">
+<section
+	{...rest}
+	{id}
+	class={['accrd-item', cssClass]}
+	data-state={openState() ? 'open' : 'closed'}
+	data-disabled={disabled || ctx.isDisabled() || undefined}
+>
 	<div class="accrd-header">
 		<button
+			{...triggerProps}
+			disabled={disabled || ctx.isDisabled() || triggerProps.disabled}
 			type="button"
-			class="accrd-trigger"
+			class={['accrd-trigger', triggerProps.class]}
 			onclick={handleClick}
+			aria-label={triggerProps['aria-label'] ?? (trigger ? title : undefined)}
 			aria-expanded={openState()}
-			aria-controls={`acc-panel-${id}`}
-			id={`acc-header-${id}`}
+			aria-controls={panelId}
+			id={headerId}
 		>
-			<span class="flex-r j-content-between w-100">
-				<span class="accrd-title">
-					{#if icon}
-						<i class="{icon} me-1"></i>
-					{/if}
-					{title}
+			{#if trigger}{@render trigger({
+					open: openState(),
+					disabled: disabled || ctx.isDisabled() || !!triggerProps.disabled
+				})}{:else}
+				<span class="flex-r j-content-between w-100">
+					<span class="accrd-title">
+						{#if icon}
+							<Icon name={icon} class="me-1" />
+						{/if}
+						{title}
+					</span>
+					<span class="accrd-icon">
+						{#if openState()}
+							<Icon name="minus" />
+						{:else}
+							<Icon name="plus" />
+						{/if}
+					</span>
 				</span>
-				<span class="accrd-icon">
-					{#if openState()}
-						<i class="fa-regular fa-square-minus"></i>
-					{:else}
-						<i class="fa-regular fa-square-plus"></i>
-					{/if}
-				</span>
-			</span>
-			{#if subTitle}
-				<span class="accrd-header2">{subTitle}</span>
+				{#if subTitle}
+					<span class="accrd-header2">{subTitle}</span>
+				{/if}
 			{/if}
 		</button>
 	</div>
 
 	{#if openState()}
 		<div
-			id={`acc-panel-${id}`}
+			{...panelProps}
+			id={panelId}
 			role="region"
-			aria-labelledby={`acc-header-${id}`}
-			class="accrd-panel"
+			aria-labelledby={headerId}
+			class={['accrd-panel', panelProps.class]}
 			transition:slide={{ duration: 200 }}
 		>
 			{@render children?.()}

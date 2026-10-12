@@ -23,11 +23,12 @@ export class WebSocketClient<T = unknown> {
 	private ws: WebSocket | null = null;
 	private reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 	private visibilityHandler: (() => void) | null = null;
+	private reconnectEnabled = false;
 	private token: string | null = null;
 	private uuid: string | null = null;
 
 	private readonly url: string;
-	private readonly maxRecconectAttempts: number;
+	private readonly maxReconnectAttempts: number;
 	private readonly reconnectDelay: number;
 	private readonly onMessage?: (message: T) => void;
 	private readonly onStatusChange?: (status: SocketStatus) => void;
@@ -36,22 +37,41 @@ export class WebSocketClient<T = unknown> {
 
 	constructor(options: WebSocketClientOptions<T>) {
 		this.url = options.url;
-		this.maxRecconectAttempts = options.maxReconnectAttempts ?? 10;
-		this.reconnectDelay = options.reconnectDelay ?? 1000;
+		this.maxReconnectAttempts = Number.isFinite(options.maxReconnectAttempts)
+			? Math.max(0, Math.floor(options.maxReconnectAttempts!))
+			: 10;
+		this.reconnectDelay = Number.isFinite(options.reconnectDelay)
+			? Math.min(30_000, Math.max(0, options.reconnectDelay!))
+			: 1000;
 		this.onMessage = options.onMessage;
 		this.onStatusChange = options.onStatusChange;
 		this.debug = options.debug ?? false;
 	}
 
 	init(options: { token: string; uuid: string }) {
+		const changed = this.token !== options.token || this.uuid !== options.uuid;
 		this.token = options.token;
 		this.uuid = options.uuid;
 		this.setupVisibilityListener();
+		if (changed && this.reconnectEnabled) {
+			const previous = this.ws;
+			this.ws = null;
+			if (previous) {
+				this.intentionallyClosed.add(previous);
+				previous.close(1000, 'RECONNECT');
+			}
+			this.state.attempts = 0;
+			this.connect();
+		}
 	}
 
 	private setStatus(status: SocketStatus) {
 		this.state.status = status;
-		this.onStatusChange?.(status);
+		try {
+			this.onStatusChange?.(status);
+		} catch (error) {
+			console.error('WebSocket status callback failed: ', error);
+		}
 	}
 
 	connect() {
@@ -62,22 +82,33 @@ export class WebSocketClient<T = unknown> {
 			return;
 		}
 
-		if (this.ws?.readyState === WebSocket.OPEN || this.ws?.readyState === WebSocket.CONNECTING)
+		this.reconnectEnabled = true;
+		this.clearReconnectTimeout();
+
+		let ws: WebSocket;
+		try {
+			if (typeof WebSocket === 'undefined') throw new Error('WebSocket is unavailable.');
+			if (this.ws?.readyState === WebSocket.OPEN || this.ws?.readyState === WebSocket.CONNECTING)
+				return;
+			const url = new SvelteURL(this.url, window.location.href);
+			if (url.protocol === 'http:') url.protocol = 'ws:';
+			if (url.protocol === 'https:') url.protocol = 'wss:';
+			url.searchParams.set('token', this.token);
+			url.searchParams.set('uuid', this.uuid);
+			ws = new WebSocket(url);
+		} catch (error) {
+			// Constructor failures are configuration/security failures; do not retry in a loop.
+			this.reconnectEnabled = false;
+			this.state.error = error instanceof Error ? error.message : String(error);
+			this.setStatus('disconnected');
 			return;
-
-		const url = new SvelteURL(this.url, window.location.href);
-		if (url.protocol === 'http:') url.protocol = 'ws:';
-		if (url.protocol === 'https:') url.protocol = 'wss:';
-		url.searchParams.set('token', this.token);
-		url.searchParams.set('uuid', this.uuid);
-
-		const ws = new WebSocket(url);
+		}
 		this.ws = ws;
-		this.setStatus('connecting');
 
 		ws.onopen = () => {
 			if (this.ws !== ws) return;
 
+			this.clearReconnectTimeout();
 			this.state.attempts = 0;
 			this.state.error = null;
 			this.setStatus('open');
@@ -114,10 +145,13 @@ export class WebSocketClient<T = unknown> {
 
 			if (!intentional && document.visibilityState === 'visible') this.scheduleReconnect();
 		};
+
+		this.setStatus('connecting');
 	}
 
 	send(type: string, payload: unknown): boolean {
-		if (this.ws?.readyState !== WebSocket.OPEN) return false;
+		if (!this.ws || typeof WebSocket === 'undefined' || this.ws.readyState !== WebSocket.OPEN)
+			return false;
 
 		try {
 			this.ws.send(JSON.stringify({ type, payload }));
@@ -130,6 +164,7 @@ export class WebSocketClient<T = unknown> {
 	}
 
 	disconnect() {
+		this.reconnectEnabled = false;
 		this.clearReconnectTimeout();
 
 		const ws = this.ws;
@@ -145,15 +180,19 @@ export class WebSocketClient<T = unknown> {
 	}
 
 	dispose() {
-		this.disconnect();
-		this.resetVisibilityListener();
+		try {
+			this.disconnect();
+		} finally {
+			this.resetVisibilityListener();
+		}
 	}
 
 	private scheduleReconnect() {
-		if (this.reconnectTimeout) return;
+		if (!this.reconnectEnabled || this.reconnectTimeout) return;
 
-		if (this.state.attempts >= this.maxRecconectAttempts) {
-			if (this.debug) console.warn('WebSocket::scheduleReconnect - max reconnect attempts rached.');
+		if (this.state.attempts >= this.maxReconnectAttempts) {
+			if (this.debug)
+				console.warn('WebSocket::scheduleReconnect - max reconnect attempts reached.');
 			return;
 		}
 
@@ -162,7 +201,7 @@ export class WebSocketClient<T = unknown> {
 
 		this.reconnectTimeout = setTimeout(() => {
 			this.reconnectTimeout = null;
-			this.connect();
+			if (this.reconnectEnabled) this.connect();
 		}, delay);
 	}
 
@@ -179,7 +218,11 @@ export class WebSocketClient<T = unknown> {
 		this.resetVisibilityListener();
 
 		this.visibilityHandler = () => {
-			if (document.visibilityState === 'visible' && this.ws?.readyState !== WebSocket.OPEN) {
+			if (
+				this.reconnectEnabled &&
+				document.visibilityState === 'visible' &&
+				this.ws?.readyState !== WebSocket.OPEN
+			) {
 				this.state.attempts = 0;
 				this.clearReconnectTimeout();
 				this.connect();

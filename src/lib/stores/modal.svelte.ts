@@ -1,6 +1,9 @@
 // src/lib/stores/modal.svelte.ts
 
 import { BROWSER } from 'esm-env';
+import { tick } from 'svelte';
+import { canReceiveFocus } from '../utils/focus.ts';
+import { acquireScrollLock } from '../utils/overlays.svelte.ts';
 
 type AlertModalType = 'info' | 'success' | 'warning' | 'error';
 type MaybePromise<T> = T | Promise<T>;
@@ -9,7 +12,7 @@ interface CustomModalState {
 	isOpen: boolean;
 	id: string;
 	context?: unknown;
-	onConfirm: ((context?: unknown) => void) | null;
+	onConfirm: ((context?: unknown) => MaybePromise<void>) | null;
 	onCancel: ((context?: unknown) => void) | null;
 }
 
@@ -32,42 +35,27 @@ interface ModalState {
 }
 
 interface ModalOptions {
-	onConfirm?: (context?: unknown) => void;
+	onConfirm?: (context?: unknown) => MaybePromise<void>;
 	onCancel?: (context?: unknown) => void;
 	context?: unknown;
 }
 
 let scrollLockTarget: HTMLElement | null = null;
-const overflowProperties = ['overflow', 'overflow-x', 'overflow-y'] as const;
-let scrollLock: {
-	target: HTMLElement;
-	previousOverflow: { property: string; value: string; priority: string }[];
-} | null = null;
+// eslint-disable-next-line svelte/prefer-svelte-reactivity -- private focus history does not drive rendering
+const focusHistory = new Map<
+	string,
+	{ dialog: HTMLElement | null; previous: HTMLElement | null }
+>();
+let releaseScrollLock: (() => void) | null = null;
 
 function lockScroll(): void {
-	if (scrollLock !== null) return;
-
-	const target = scrollLockTarget ?? document.body;
-	scrollLock = {
-		target,
-		previousOverflow: overflowProperties.map((property) => ({
-			property,
-			value: target.style.getPropertyValue(property),
-			priority: target.style.getPropertyPriority(property)
-		}))
-	};
-	target.style.setProperty('overflow', 'hidden', 'important');
+	if (releaseScrollLock) return;
+	releaseScrollLock = acquireScrollLock(scrollLockTarget ?? document.body);
 }
 
 function unlockScroll(): void {
-	if (scrollLock === null) return;
-
-	const { target, previousOverflow } = scrollLock;
-	for (const property of overflowProperties) target.style.removeProperty(property);
-	for (const { property, value, priority } of previousOverflow) {
-		if (value) target.style.setProperty(property, value, priority);
-	}
-	scrollLock = null;
+	releaseScrollLock?.();
+	releaseScrollLock = null;
 }
 
 function requireBrowser(operation: string): void {
@@ -85,12 +73,16 @@ export function setModalScrollLockTarget(target: HTMLElement | null): void {
 	if (modalStack.length > 0) lockScroll();
 }
 
-export function registerModal(id: string) {
+export function registerModal(id: string, dialog: HTMLElement | null = null) {
 	requireBrowser('registerModal');
 
 	if (modalStack.includes(id)) return;
 	if (modalStack.length === 0) lockScroll();
 
+	focusHistory.set(id, {
+		dialog,
+		previous: document.activeElement instanceof HTMLElement ? document.activeElement : null
+	});
 	modalStack.push(id);
 }
 
@@ -100,9 +92,31 @@ export function unregisterModal(id: string) {
 	const index = modalStack.indexOf(id);
 	if (index === -1) return;
 
+	const wasTopMost = index === modalStack.length - 1;
+	const removed = focusHistory.get(id);
+	if (removed?.dialog) {
+		for (const entry of focusHistory.values()) {
+			if (entry.previous && removed.dialog.contains(entry.previous)) {
+				entry.previous = removed.previous;
+			}
+		}
+	}
+	focusHistory.delete(id);
 	modalStack.splice(index, 1);
 
 	if (modalStack.length === 0) unlockScroll();
+
+	if (wasTopMost && removed) {
+		void tick().then(() => {
+			const topDialog = focusHistory.get(modalStack.at(-1) ?? '')?.dialog;
+			const previous = removed.previous;
+			if (previous && canReceiveFocus(previous) && (!topDialog || topDialog.contains(previous))) {
+				previous.focus();
+			} else if (topDialog && canReceiveFocus(topDialog)) {
+				topDialog.focus();
+			}
+		});
+	}
 }
 
 export const modalsState = $state<ModalState>({
@@ -138,6 +152,7 @@ export const openConfirmModal = (
 	options?: { onCancel?: () => void; context?: unknown }
 ) => {
 	requireBrowser('openConfirmModal');
+	settleConfirmation(false);
 
 	modalsState.confirmModal = {
 		isOpen: true,
@@ -149,23 +164,23 @@ export const openConfirmModal = (
 	};
 };
 
-let pendingConfirmation: ((result: boolean) => void) | null = null;
+type ConfirmationRequest = { resolve: (result: boolean) => void };
+let pendingConfirmation: ConfirmationRequest | null = null;
 
-function settleConfirmation(result: boolean): void {
-	const resolve = pendingConfirmation;
+function settleConfirmation(result: boolean, request = pendingConfirmation): void {
+	if (!request || request !== pendingConfirmation) return;
 	pendingConfirmation = null;
-	resolve?.(result);
+	request.resolve(result);
 }
 
 export function requestConfirmation(message: string): Promise<boolean> {
 	requireBrowser('requestConfirmation');
-	settleConfirmation(false);
-
 	return new Promise((resolve) => {
-		pendingConfirmation = resolve;
-		openConfirmModal(message, () => settleConfirmation(true), {
-			onCancel: () => settleConfirmation(false)
+		const request = { resolve };
+		openConfirmModal(message, () => settleConfirmation(true, request), {
+			onCancel: () => settleConfirmation(false, request)
 		});
+		pendingConfirmation = request;
 	});
 }
 

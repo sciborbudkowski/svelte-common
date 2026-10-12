@@ -143,4 +143,71 @@ describe('Gps', () => {
 		expect(clearWatch).toHaveBeenCalledTimes(1);
 		expect(clearWatch).toHaveBeenCalledWith(1);
 	});
+	it('keeps watching after a transient timeout and recovers on a later position', () => {
+		const gps = new Gps();
+		const cleanup = gps.init();
+		const error = watchPosition.mock.calls[0][1]!;
+		error({
+			code: 3,
+			TIMEOUT: 3,
+			POSITION_UNAVAILABLE: 2,
+			PERMISSION_DENIED: 1,
+			message: 'timeout'
+		});
+		expect(gps.state.active).toBe(true);
+		expect(clearWatch).not.toHaveBeenCalled();
+		watchPosition.mock.calls[0][0]({
+			coords: {
+				latitude: 10,
+				longitude: 20,
+				accuracy: 1,
+				speed: null,
+				heading: null,
+				altitude: null,
+				altitudeAccuracy: null
+			},
+			timestamp: 0
+		} as GeolocationPosition);
+		expect(gps.state.coords?.lat).toBe(10);
+		expect(gps.state.error).toBeNull();
+		cleanup();
+	});
+	it('ignores success and failure callbacks from a replaced watch', () => {
+		const gps = new Gps();
+		const balanced = gps.init();
+		const old = watchPosition.mock.calls[0];
+		const precise = gps.init('precise');
+		old[0]({
+			coords: { latitude: 99, longitude: 99, accuracy: 1 },
+			timestamp: 0
+		} as GeolocationPosition);
+		old[1]!({
+			code: 3,
+			TIMEOUT: 3,
+			POSITION_UNAVAILABLE: 2,
+			PERMISSION_DENIED: 1,
+			message: 'late timeout'
+		});
+		expect(gps.state.active).toBe(true);
+		expect(gps.state.coords).toBeNull();
+		expect(clearWatch).not.toHaveBeenCalledWith(2);
+		precise();
+		balanced();
+	});
+	it('stops on denied permission and supports an explicit restart for current consumers', () => {
+		const gps = new Gps();
+		const cleanup = gps.init();
+		watchPosition.mock.calls[0][1]!({
+			code: 1,
+			TIMEOUT: 3,
+			POSITION_UNAVAILABLE: 2,
+			PERMISSION_DENIED: 1,
+			message: 'denied'
+		});
+		expect(gps.state.active).toBe(false);
+		gps.restart();
+		expect(gps.state.active).toBe(true);
+		expect(watchPosition).toHaveBeenCalledTimes(2);
+		cleanup();
+	});
 });

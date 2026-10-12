@@ -1,62 +1,82 @@
-<!-- src/lib/ui/Accordion/Accordion.svelte -->
-
 <script lang="ts">
-	import { setContext } from 'svelte';
-	import type { Snippet } from 'svelte';
-
-	const ACCORDION = 'accordion-context';
-
-	type AccordionContext = {
-		isOpen: (id: string) => boolean;
-		toggle: (id: string) => void;
-	};
-
+	import { setContext, untrack, type Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
+	import { createControllableState } from '../internal/controllable.svelte.ts';
+	import type { ChangeHandler, AccordionChangeDetails } from '../contracts.ts';
+	import { ACCORDION, type AccordionContext } from './context.ts';
+	const componentId = $props.id();
 	let {
 		children,
 		multiple = false,
+		value,
+		defaultValue,
 		defaultOpen = [],
-		cssClass = ''
-	}: {
+		onValueChange,
+		disabled = false,
+		cssClass = '',
+		class: className,
+		...rest
+	}: Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
 		children?: Snippet;
 		multiple?: boolean;
-		defaultOpen?: string | string[];
-		cssClass?: string;
+		value?: readonly string[];
+		defaultValue?: readonly string[];
+		/** @deprecated Use defaultValue. */ defaultOpen?: string | string[];
+		onValueChange?: ChangeHandler<string[], AccordionChangeDetails>;
+		disabled?: boolean;
+		/** @deprecated Use class. */ cssClass?: string;
 	} = $props();
-
-	function getDefaultOpenItems() {
-		return Array.isArray(defaultOpen) ? defaultOpen : defaultOpen ? [defaultOpen] : [];
+	function normalize(ids: readonly string[]): string[] {
+		const unique = [...new Set(ids)];
+		return multiple ? unique : unique.slice(0, 1);
 	}
-
-	let openItems = $state(new Set<string>(getDefaultOpenItems()));
-
-	function toggle(id: string) {
-		// eslint-disable-next-line svelte/prefer-svelte-reactivity -- local immutable-update copy, reassigned to $state below
-		const next = new Set(openItems);
-
-		if (multiple) {
-			if (next.has(id)) {
-				next.delete(id);
-			} else {
-				next.add(id);
-			}
-		} else {
-			if (next.has(id)) {
-				next.clear();
-			} else {
-				next.clear();
-				next.add(id);
-			}
-		}
-
-		openItems = next;
+	const allowItemDefaults = untrack(() => value === undefined && defaultValue === undefined);
+	const state = createControllableState<readonly string[], AccordionChangeDetails>({
+		value: () => value,
+		defaultValue: () =>
+			normalize(
+				defaultValue ??
+					(Array.isArray(defaultOpen) ? defaultOpen : defaultOpen ? [defaultOpen] : [])
+			),
+		equals: (a, b) => a.length === b.length && a.every((id, i) => id === b[i]),
+		onChange: (next, details) => onValueChange?.([...next], details)
+	});
+	const selected = $derived(normalize(state.value));
+	function toggle(id: string, event?: Event) {
+		if (disabled) return;
+		const current = normalize(state.value);
+		const next = current.includes(id)
+			? current.filter((item) => item !== id)
+			: multiple
+				? [...current, id]
+				: [id];
+		state.request(next, { reason: 'trigger', itemId: id, event });
 	}
-
-	const isOpen = (id: string) => openItems.has(id);
-
-	setContext<AccordionContext>(ACCORDION, { isOpen, toggle });
+	function open(id: string) {
+		if (!allowItemDefaults || state.controlled) return;
+		const current = normalize(state.value);
+		if (current.includes(id) || (!multiple && current.length)) return;
+		state.replace(multiple ? [...current, id] : [id]);
+	}
+	$effect(() => {
+		const normalized = normalize(state.value);
+		if (!state.controlled && normalized.length !== state.value.length) state.replace(normalized);
+	});
+	setContext<AccordionContext>(ACCORDION, {
+		id: componentId,
+		isOpen: (id) => normalize(state.value).includes(id),
+		toggle,
+		open,
+		isDisabled: () => disabled
+	});
 </script>
 
-<div class={`accrd ${cssClass}`}>
+<div
+	{...rest}
+	class={['accrd', className !== undefined ? className : cssClass]}
+	data-state={selected.length ? 'open' : 'closed'}
+	data-disabled={disabled || undefined}
+>
 	{@render children?.()}
 </div>
 

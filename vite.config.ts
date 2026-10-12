@@ -21,6 +21,14 @@ export default defineConfig({
 		expect: { requireAssertions: true },
 		projects: [
 			{
+				extends: './vitest.client.config.ts',
+				test: {
+					name: 'client',
+					environment: 'jsdom',
+					include: ['src/**/*.svelte.{test,spec}.{js,ts}']
+				}
+			},
+			{
 				extends: './vite.config.ts',
 				test: {
 					name: 'server',

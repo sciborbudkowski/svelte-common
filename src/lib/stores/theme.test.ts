@@ -113,4 +113,36 @@ describe('theme', () => {
 		expect(themeState.preference).toBe('system');
 		expect(themeState.resolved).toBe('dark');
 	});
+	it('keeps newer listeners when an older initializer is cleaned up', () => {
+		const first = initializeTheme();
+		const second = initializeTheme();
+		first();
+		expect(themeState.initialized).toBe(true);
+		systemDark = true;
+		systemChange?.();
+		expect(themeState.resolved).toBe('dark');
+		second();
+		expect(themeState.initialized).toBe(false);
+	});
+	it('handles a localStorage clear and ignores events for a different storage area', () => {
+		initializeTheme();
+		setTheme('dark');
+		const unrelated = new Event('storage');
+		Object.defineProperties(unrelated, {
+			key: { value: THEME_STORAGE_KEY },
+			newValue: { value: 'light' },
+			storageArea: { value: {} }
+		});
+		window.dispatchEvent(unrelated);
+		expect(themeState.preference).toBe('dark');
+		window.localStorage.clear();
+		const cleared = new Event('storage');
+		Object.defineProperties(cleared, {
+			key: { value: null },
+			storageArea: { value: window.localStorage }
+		});
+		window.dispatchEvent(cleared);
+		expect(themeState.preference).toBe('system');
+		expect(themeState.resolved).toBe('light');
+	});
 });

@@ -1,12 +1,12 @@
 {
 	"name": "svelte-common",
-	"version": "1.1.4+1",
+	"version": "1.2.0",
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build && npm run prepack",
 		"preview": "vite preview",
 		"prepare": "npm run package",
-		"prepack": "npm run package && publint",
+		"prepack": "npm run package && node scripts/validate-package.mjs",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"format": "prettier --write .",
@@ -20,7 +20,8 @@
 	"files": [
 		"dist",
 		"!dist/**/*.test.*",
-		"!dist/**/*.spec.*"
+		"!dist/**/*.spec.*",
+		"!dist/**/fixtures/**"
 	],
 	"sideEffects": [
 		"**/*.css"
@@ -33,10 +34,13 @@
 			"types": "./dist/index.d.ts",
 			"svelte": "./dist/index.js"
 		},
-		"./styles.css": "./dist/styles.css"
+		"./styles.css": "./dist/styles.css",
+		"./styles-without-reset.css": "./dist/styles-without-reset.css",
+		"./tokens.css": "./dist/tokens.css",
+		"./reset.css": "./dist/reset.css"
 	},
 	"peerDependencies": {
-		"svelte": "^5.0.0"
+		"svelte": "^5.25.0"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",
@@ -67,7 +71,7 @@
 		"date-fns": "^4.4.0",
 		"esm-env": "^1.2.2",
 		"gsap": "^3.15.0",
-		"isomorphic-dompurify": "4.2.0",
+		"isomorphic-dompurify": "4.5.0",
 		"marked": "^18.0.9"
 	}
 }

@@ -384,23 +384,23 @@
 }
 .clr-danger {
 	color: var(--sc-color-danger);
-	background-color: transparent
+	background-color: transparent;
 }
 .clr-warning {
 	color: var(--sc-color-warning);
-	background-color: transparent
+	background-color: transparent;
 }
 .clr-success {
 	color: var(--sc-color-success);
-	background-color: transparent
+	background-color: transparent;
 }
 .clr-info {
 	color: var(--sc-color-info);
-	background-color: transparent
+	background-color: transparent;
 }
 .clr-neutral {
 	color: var(--sc-color-neutral);
-	background-color: transparent
+	background-color: transparent;
 }
 
 .fs-xxs {
@@ -431,7 +431,6 @@
 	justify-content: center;
 }
 
-
 .j-center {
 	justify-content: center;
 }
@@ -446,7 +445,7 @@
 }
 
 .ws-nowrap {
-    white-space: nowrap;
+	white-space: nowrap;
 }
 
 .f-wide {

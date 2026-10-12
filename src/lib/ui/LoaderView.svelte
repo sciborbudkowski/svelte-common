@@ -1,0 +1,190 @@
+<!-- src/lib/ui/Loader.svelte -->
+<script lang="ts">
+	import { fade, fly } from 'svelte/transition';
+	import type { HTMLAttributes } from 'svelte/elements';
+	let {
+		open = false,
+		message = 'Ładowanie...',
+		progress = 0,
+		status = 'Proszę czekać.',
+		dialogProps = {},
+		class: cssClass,
+		...rest
+	}: Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
+		open?: boolean;
+		message?: string;
+		progress?: number;
+		status?: string;
+		dialogProps?: Omit<
+			HTMLAttributes<HTMLDivElement>,
+			'children' | 'role' | 'aria-modal' | 'aria-busy' | 'tabindex' | 'aria-labelledby'
+		>;
+	} = $props();
+	const normalizedProgress = $derived(
+		Number.isFinite(progress) ? Math.min(100, Math.max(0, progress)) : 0
+	);
+	import { untrack } from 'svelte';
+	import { acquireScrollLock, registerOverlay } from '../utils/overlays.svelte.ts';
+	let overlay: HTMLDivElement | null = $state(null);
+	let dialog: HTMLDivElement | null = $state(null);
+	const titleId = $props.id();
+	$effect(() => {
+		const overlayElement = overlay;
+		const dialogElement = dialog;
+		if (!open || !overlayElement || !dialogElement) return;
+		return untrack(() => {
+			const releaseOverlay = registerOverlay(overlayElement, dialogElement, 1, true);
+			const releaseScroll = acquireScrollLock(document.body);
+			dialogElement.focus({ preventScroll: true });
+			return () => {
+				releaseOverlay();
+				releaseScroll();
+			};
+		});
+	});
+</script>
+
+{#if open}
+	<div
+		{...rest}
+		bind:this={overlay}
+		class={['loader-overlay', cssClass]}
+		transition:fade={{ duration: 150, easing: (t) => t * (2 - t) }}
+	>
+		<div
+			{...dialogProps}
+			bind:this={dialog}
+			class={['loader-content', dialogProps.class]}
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby={titleId}
+			aria-busy="true"
+			tabindex="-1"
+			transition:fly={{ y: 20, duration: 400 }}
+		>
+			<div class="spinner" aria-hidden="true"></div>
+			<h4 id={titleId}>{message}</h4>
+			<div
+				class="progress-bar"
+				role="progressbar"
+				aria-label={message}
+				aria-valuemin="0"
+				aria-valuemax="100"
+				aria-valuenow={normalizedProgress}
+			>
+				<div class="progress-fill" style="width: {normalizedProgress}%"></div>
+			</div>
+			<p class="status" role="status" aria-live="polite">{status}</p>
+		</div>
+	</div>
+{/if}
+
+<style>
+	.loader-overlay {
+		position: fixed !important;
+		top: 0 !important;
+		left: 0 !important;
+		width: 100% !important;
+		height: 100% !important;
+		background-color: var(--sc-loader-overlay) !important;
+		display: flex !important;
+		flex-direction: column !important;
+		justify-content: center !important;
+		align-items: center !important;
+		z-index: 10001 !important;
+		visibility: visible !important;
+		pointer-events: auto !important;
+		backdrop-filter: blur(4px);
+		padding: 0 1rem;
+		box-sizing: border-box;
+	}
+
+	.loader-content {
+		background: var(--sc-loader-content);
+		backdrop-filter: var(--sc-backdrop-filter);
+		padding: 2.5rem;
+		border-radius: 16px;
+		text-align: center;
+		width: min(380px, 100%);
+		min-width: 0;
+		box-sizing: border-box;
+		overflow-wrap: anywhere;
+		max-height: 100%;
+		overflow-y: auto;
+		box-shadow: 0 8px 32px var(--sc-loader-content);
+		border: 1px solid var(--sc-loader-content-border);
+	}
+
+	.spinner {
+		width: 50px;
+		height: 50px;
+		border: 6px solid var(--sc-loader-spinner);
+		border-top: 6px solid var(--sc-loader-spinner-accent);
+		border-radius: 50%;
+		animation: spin 1s linear infinite;
+		margin: 0 auto 1rem;
+	}
+
+	@keyframes spin {
+		0% {
+			transform: rotate(0deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+	h4 {
+		margin-bottom: 1rem;
+		color: var(--sc-loader-title);
+	}
+
+	.progress-bar {
+		width: 100%;
+		height: 10px;
+		background: var(--sc-loader-progress-bar);
+		border-radius: 5px;
+		overflow: hidden;
+		margin-bottom: 1rem;
+	}
+
+	.progress-fill {
+		height: 100%;
+		background: linear-gradient(90deg, #4facfe 0%, #00f2fe 50%, #43e97b 100%);
+		transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+		border-radius: 5px;
+		position: relative;
+		overflow: hidden;
+	}
+
+	.progress-fill::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 0;
+		right: 0;
+		bottom: 0;
+		background: linear-gradient(
+			90deg,
+			transparent,
+			oklch(from var(--sc-color-surface) l c h / 0.4),
+			transparent
+		);
+		animation: shimmer 2s infinite;
+	}
+
+	@keyframes shimmer {
+		0% {
+			transform: translateX(-100%);
+		}
+		100% {
+			transform: translateX(100%);
+		}
+	}
+
+	.status {
+		color: var(--sc-loader-status);
+		font-size: var(--font-size-1);
+		margin: 0;
+	}
+</style>

@@ -16,8 +16,32 @@ export { default as Spinner } from './ui/Spinner.svelte';
 export { default as Avatar } from './ui/Avatar.svelte';
 export { default as ScrollIndicator } from './ui/ScrollIndicator.svelte';
 export { default as ScrollHint } from './ui/ScrollHint.svelte';
+export { default as CollapsibleTabBar } from './ui/CollapsibleTabBar.svelte';
+
+export { default as FloatingAction } from './ui/FloatingAction.svelte';
+export { default as FloatingLink } from './ui/FloatingLink.svelte';
+export { default as Dialog } from './ui/Dialog.svelte';
+export { default as ManagedModal } from './ui/ManagedModal.svelte';
+export { default as LoaderView } from './ui/LoaderView.svelte';
+export { default as ToastStackView } from './ui/ToastStackView.svelte';
+export { default as ManagedLoader } from './ui/Loader.svelte';
+export { default as ManagedToastStack } from './ui/ToastStack.svelte';
 
 // Types
+export type * from './ui/types.ts';
+export type {
+	TriggerState,
+	ChangeDetails,
+	ChangeHandler,
+	OpenChangeDetails,
+	AccordionChangeDetails,
+	CarouselIndexChangeDetails,
+	CarouselPauseChangeDetails,
+	DragPosition,
+	DragPositionChangeDetails,
+	ButtonPartProps,
+	PanelPartProps
+} from './ui/contracts.ts';
 export type { CacheAdapter } from './services/cache.ts';
 
 // Services

@@ -1,8 +1,17 @@
 <!-- src/lib/ui/FloatingButton.svelte -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack } from 'svelte';
 	import { EphemeralStorage } from '$lib/services/storage.js';
-	import type { Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
+	import type { HTMLAttributes, HTMLAnchorAttributes, HTMLButtonAttributes } from 'svelte/elements';
+	import { createControllableState } from './internal/controllable.svelte.ts';
+	import {
+		notify,
+		type DragPosition,
+		type DragPositionChangeDetails,
+		type ChangeHandler
+	} from './contracts.ts';
+	import Icon from './internal/Icon.svelte';
 
 	type Position = 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
 
@@ -11,7 +20,7 @@
 		top: number;
 	};
 
-	const POSITION_TTL = 1000 * 60 * 60 * 24 *365;
+	const POSITION_TTL = 1000 * 60 * 60 * 24 * 365;
 	const VIEWPORT_MARGIN = 0;
 	const DRAG_TRESHOLD = 4;
 
@@ -19,7 +28,7 @@
 		id,
 		href,
 		ariaLabel = 'Floating Button',
-		icon = 'fa-solid fa-plus',
+		icon = 'plus',
 		position = 'bottom-right',
 		disabled = false,
 		hidden = false,
@@ -27,26 +36,73 @@
 		color = 'var(--sc-color-text-inverted)',
 		opacity = 1,
 		onclick,
-		children
-	}: {
-		id: string;
-		href?: string;
-		ariaLabel?: string;
-		icon?: string;
-		position?: Position;
-		disabled?: boolean;
-		hidden?: boolean;
-		backgroundColor?: string;
-		color?: string;
-		opacity?: number;
-		onclick?: (event: MouseEvent) => void;
-		children?: Snippet;
-	} = $props();
+		children,
+		dragPosition,
+		defaultDragPosition,
+		onDragPositionChange,
+		onDragMove,
+		persistPosition = true,
+		storageKey: suppliedStorageKey,
+		class: cssClass,
+		style,
+		onpointerdown,
+		onpointermove,
+		onpointerup,
+		onpointercancel,
+		...rest
+	}: HTMLAttributes<HTMLElement> &
+		Pick<HTMLAnchorAttributes, 'target' | 'download' | 'rel' | 'hreflang' | 'referrerpolicy'> &
+		Pick<
+			HTMLButtonAttributes,
+			| 'type'
+			| 'name'
+			| 'value'
+			| 'form'
+			| 'formaction'
+			| 'formmethod'
+			| 'formenctype'
+			| 'formnovalidate'
+			| 'formtarget'
+		> & {
+			href?: string;
+			dragPosition?: DragPosition | null;
+			defaultDragPosition?: DragPosition | null;
+			onDragPositionChange?: ChangeHandler<DragPosition | null, DragPositionChangeDetails>;
+			onDragMove?: ChangeHandler<DragPosition, DragPositionChangeDetails>;
+			persistPosition?: boolean;
+			storageKey?: string;
+			id: string;
+			ariaLabel?: string;
+			icon?: string;
+			position?: Position;
+			disabled?: boolean;
+			hidden?: boolean;
+			backgroundColor?: string;
+			color?: string;
+			opacity?: number;
+			onclick?: (event: MouseEvent) => void;
+			children?: Snippet;
+		} = $props();
 
-	const STORAGE_KEY = `monster-button-position-${() => { return id; }}`;
+	const storageKey = $derived(suppliedStorageKey ?? `monster-button-position-${id}`);
+	const buttonAttrs = $derived(rest as HTMLButtonAttributes);
+	const anchorAttrs = $derived(rest as HTMLAnchorAttributes);
+	const initialDragPosition = untrack(() =>
+		defaultDragPosition ? { ...defaultDragPosition } : null
+	);
+	const hasDefaultDragPosition = untrack(() => defaultDragPosition !== undefined);
+	const coordinates = createControllableState<DragPosition | null, DragPositionChangeDetails>({
+		value: () => dragPosition,
+		defaultValue: () => initialDragPosition,
+		onChange: (next, details) => onDragPositionChange?.(next ? { ...next } : null, details),
+		equals: (a, b) => a === b || (!!a && !!b && a.left === b.left && a.top === b.top)
+	});
 	let element = $state<HTMLElement>();
-	let customPosition: StoredPosition | null = $state(null);
+	let dragPreview: DragPosition | null = $state.raw(null);
 	let isDragging = $state(false);
+	const customPosition = $derived(
+		!coordinates.controlled && isDragging ? dragPreview : coordinates.value
+	);
 
 	let storedPosition: StoredPosition | null = null;
 	let pointerId: number | null = null;
@@ -57,10 +113,10 @@
 	let buttonWidth = 0;
 	let buttonHeight = 0;
 	let didDrag = false;
-	let lastDragEndedAt = 0;
+	let lastDragEndedAt: number | null = null;
 
 	function isPositionVisible(value: StoredPosition): boolean {
-		if(!element) return false;
+		if (!element) return false;
 
 		const width = element.offsetWidth;
 		const height = element.offsetHeight;
@@ -76,10 +132,10 @@
 	}
 
 	function applyStoredPosition() {
-		if(storedPosition && isPositionVisible(storedPosition)) {
-			customPosition = storedPosition;
+		if (storedPosition && isPositionVisible(storedPosition)) {
+			coordinates.replace({ ...storedPosition });
 		} else {
-			customPosition = null;
+			coordinates.replace(initialDragPosition ? { ...initialDragPosition } : null);
 		}
 	}
 
@@ -87,8 +143,10 @@
 		return Math.min(Math.max(value, min), max);
 	}
 
-	function handlePointerDown(event: PointerEvent) {
-		if(!event.isPrimary || event.button !== 0) return;
+	function handlePointerDown(event: PointerEvent & { currentTarget: EventTarget & HTMLElement }) {
+		if (disabled || !event.isPrimary || event.button !== 0) return;
+		onpointerdown?.(event);
+		if (event.defaultPrevented) return;
 
 		didDrag = false;
 
@@ -106,12 +164,13 @@
 		target.setPointerCapture(event.pointerId);
 	}
 
-	function handlePointerMove(event: PointerEvent) {
-		if(event.pointerId !== pointerId) return;
+	function handlePointerMove(event: PointerEvent & { currentTarget: EventTarget & HTMLElement }) {
+		onpointermove?.(event);
+		if (event.defaultPrevented || disabled || event.pointerId !== pointerId) return;
 
 		const distance = Math.hypot(event.clientX - pointerStartX, event.clientY - pointerStartY);
 
-		if(!didDrag && distance < DRAG_TRESHOLD) return;
+		if (!didDrag && distance < DRAG_TRESHOLD) return;
 
 		didDrag = true;
 		isDragging = true;
@@ -119,39 +178,43 @@
 		const maxLeft = Math.max(VIEWPORT_MARGIN, window.innerWidth - buttonWidth - VIEWPORT_MARGIN);
 		const maxTop = Math.max(VIEWPORT_MARGIN, window.innerHeight - buttonHeight - VIEWPORT_MARGIN);
 
-		customPosition = {
+		dragPreview = {
 			left: clamp(event.clientX - dragOffsetX, VIEWPORT_MARGIN, maxLeft),
 			top: clamp(event.clientY - dragOffsetY, VIEWPORT_MARGIN, maxTop)
 		};
+		notify(onDragMove, { ...dragPreview }, { reason: 'drag', event });
 	}
 
-	function handlePointerUp(event: PointerEvent) {
-		if(event.pointerId !== pointerId) return;
-
+	function releasePointer(event: PointerEvent & { currentTarget: EventTarget & HTMLElement }) {
+		if (event.currentTarget.hasPointerCapture?.(event.pointerId))
+			event.currentTarget.releasePointerCapture(event.pointerId);
 		pointerId = null;
 		isDragging = false;
-
-		if(!didDrag || !customPosition) return;
-
+	}
+	function handlePointerUp(event: PointerEvent & { currentTarget: EventTarget & HTMLElement }) {
+		onpointerup?.(event);
+		if (event.pointerId !== pointerId) return;
+		const proposed = dragPreview;
+		releasePointer(event);
+		dragPreview = null;
+		if (disabled || event.defaultPrevented || !didDrag || !proposed) return;
 		lastDragEndedAt = performance.now();
-
-		storedPosition = { ...customPosition };
-
-		void EphemeralStorage.set(STORAGE_KEY, storedPosition, POSITION_TTL);
+		coordinates.request({ ...proposed }, { reason: 'drag', event });
+		if (!coordinates.controlled) {
+			storedPosition = coordinates.value ? { ...coordinates.value } : null;
+			if (persistPosition && storedPosition)
+				void EphemeralStorage.set(storageKey, storedPosition, POSITION_TTL);
+		}
 	}
-
-	function handlePointerCancel(event: PointerEvent) {
-		if(event.pointerId !== pointerId) return;
-
-		pointerId = null;
-		isDragging = false;
+	function handlePointerCancel(event: PointerEvent & { currentTarget: EventTarget & HTMLElement }) {
+		onpointercancel?.(event);
+		if (event.pointerId !== pointerId) return;
+		releasePointer(event);
+		dragPreview = null;
 		didDrag = false;
-
-		applyStoredPosition();
 	}
-
-	function handleClick(event: MouseEvent) {
-		if(performance.now() - lastDragEndedAt < 500) {
+	function handleClick(event: MouseEvent & { currentTarget: EventTarget & HTMLElement }) {
+		if (disabled || (lastDragEndedAt !== null && performance.now() - lastDragEndedAt < 500)) {
 			event.preventDefault();
 			event.stopPropagation();
 			return;
@@ -175,42 +238,57 @@
 			--b: ${backgroundColor};
 			--o: ${opacity};
 			${coordinates}
+			${style ?? ''}
 		`;
 	}
 
-	onMount(() => {
+	$effect(() => {
+		const key = storageKey;
+		if (coordinates.controlled || !persistPosition || hasDefaultDragPosition) return;
 		let mounted = true;
-
-		void(async () => {
-			storedPosition = await EphemeralStorage.get<StoredPosition>(STORAGE_KEY);
-			
-			if(mounted) applyStoredPosition();
+		const initialPosition = storedPosition;
+		void (async () => {
+			const position = await EphemeralStorage.get<StoredPosition>(key);
+			if (mounted && !isDragging && storedPosition === initialPosition) {
+				storedPosition = position;
+				applyStoredPosition();
+			}
 		})();
+		return () => {
+			mounted = false;
+		};
+	});
 
+	onMount(() => {
 		function handleResize() {
-			if(!isDragging) applyStoredPosition();
+			if (!isDragging && !coordinates.controlled) applyStoredPosition();
 		}
 
 		window.addEventListener('resize', handleResize);
 
 		return () => {
-			mounted = false;
 			window.removeEventListener('resize', handleResize);
+			if (pointerId !== null && element?.hasPointerCapture?.(pointerId))
+				element.releasePointerCapture(pointerId);
 		};
 	});
 </script>
 
-{#if href}
+{#if href !== undefined}
 	<!-- eslint-disable svelte/no-navigation-without-resolve -->
 	<a
+		{...anchorAttrs}
+		{id}
 		draggable="false"
 		bind:this={element}
-		class="floating-button {position}"
+		class={['floating-button', position, cssClass]}
 		class:dragging={isDragging}
-		class:hidden={hidden}
-		{href}
-		aria-label={ariaLabel}
-		title={ariaLabel}
+		class:hidden
+		href={disabled ? undefined : href}
+		aria-disabled={disabled || undefined}
+		tabindex={disabled ? -1 : rest.tabindex}
+		aria-label={rest['aria-label'] ?? ariaLabel}
+		title={rest.title ?? ariaLabel}
 		style={buttonStyle()}
 		onpointerdown={handlePointerDown}
 		onpointermove={handlePointerMove}
@@ -218,22 +296,24 @@
 		onpointercancel={handlePointerCancel}
 		onclick={handleClick}
 	>
-			{#if children}
-				{@render children()}
-			{:else}
-				<i class={icon} aria-hidden="true"></i>
-			{/if}
+		{#if children}
+			{@render children()}
+		{:else}
+			<Icon name={icon} />
+		{/if}
 	</a>
 	<!-- eslint-enable svelte/no-navigation-without-resolve -->
 {:else}
 	<button
+		{...buttonAttrs}
+		{id}
 		bind:this={element}
-		type="button"
-		class="floating-button {position}"
+		type={buttonAttrs.type ?? 'button'}
+		class={['floating-button', position, cssClass]}
 		class:dragging={isDragging}
-		class:hidden={hidden}
-		aria-label={ariaLabel}
-		title={ariaLabel}
+		class:hidden
+		aria-label={rest['aria-label'] ?? ariaLabel}
+		title={rest.title ?? ariaLabel}
 		{disabled}
 		onclick={handleClick}
 		style={buttonStyle()}
@@ -245,7 +325,7 @@
 		{#if children}
 			{@render children()}
 		{:else}
-			<i class={icon} aria-hidden="true"></i>
+			<Icon name={icon} />
 		{/if}
 	</button>
 {/if}
@@ -260,8 +340,8 @@
 		place-items: center;
 		border: 0;
 		border-radius: var(--radius-round);
-		background-color: var(--b, --sc-floating-button-bg);
-		color: var(--c, --sc-floating-button-text);
+		background-color: var(--b, var(--sc-floating-button-bg));
+		color: var(--c, var(--sc-floating-button-text));
 		box-shadow: var(--sc-shadow-4);
 		cursor: pointer;
 		text-decoration: none;
@@ -293,7 +373,8 @@
 		outline: var(--border-2) solid var(--sc-floating-button-focus-outline);
 		outline-offset: var(--size-1);
 	}
-	.floating-button:disabled {
+	.floating-button:disabled,
+	.floating-button[aria-disabled='true'] {
 		opacity: 0.5;
 		cursor: not-allowed;
 		transform: none;

@@ -2,14 +2,35 @@
 
 <script lang="ts">
 	import { slide } from 'svelte/transition';
+	import Icon from './internal/Icon.svelte';
+	import { syncInert } from './internal/inert.ts';
+	import type { HTMLAttributes } from 'svelte/elements';
+	import { createControllableState } from './internal/controllable.svelte.ts';
+	import type {
+		ButtonPartProps,
+		PanelPartProps,
+		ChangeHandler,
+		ChangeDetails
+	} from './contracts.ts';
 
 	const componentId = $props.id();
 
 	let {
 		id = componentId,
+		panelId: suppliedPanelId,
+		trigger,
 		visibleContent,
 		hiddenContent,
+		open,
 		defaultOpen = false,
+		onOpenChange,
+		disabled = false,
+		triggerProps = {},
+		panelProps = {},
+		headerProps = {},
+		footerProps = {},
+		class: cssClass,
+		style,
 		header = null,
 		footer = null,
 		padding = '1rem',
@@ -19,8 +40,18 @@
 		showLessLabel = 'Pokaż mniej',
 		showMoreLessLabelClass = 'link',
 		...rest
-	}: {
+	}: Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
 		id?: string;
+		panelId?: string;
+		trigger?: import('svelte').Snippet<[import('./contracts.ts').TriggerState]>;
+		open?: boolean;
+		onOpenChange?: ChangeHandler<boolean, ChangeDetails<'trigger'>>;
+		disabled?: boolean;
+		triggerProps?: ButtonPartProps;
+		panelProps?: PanelPartProps;
+		headerProps?: HTMLAttributes<HTMLDivElement>;
+		footerProps?: HTMLAttributes<HTMLDivElement>;
+		/** Must contain no interactive elements when isVisibleContentClickable is true. */
 		visibleContent: import('svelte').Snippet;
 		hiddenContent: import('svelte').Snippet;
 		defaultOpen?: boolean;
@@ -32,31 +63,48 @@
 		showMoreLabel?: string;
 		showLessLabel?: string;
 		showMoreLessLabelClass?: string | null;
-		class?: string | null;
 	} = $props();
 
-	let isOpen = $state((() => defaultOpen)());
-
+	const state = createControllableState<boolean, ChangeDetails<'trigger'>>({
+		value: () => open,
+		defaultValue: () => defaultOpen,
+		onChange: (next, details) => onOpenChange?.(next, details)
+	});
+	const isOpen = $derived(state.value);
+	const panelId = $derived(suppliedPanelId ?? `${id}-panel`);
 	const toggleLabel = $derived(isOpen ? showLessLabel : showMoreLabel);
-
-	function toggle(): void {
-		isOpen = !isOpen;
+	function toggle(event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }): void {
+		if (disabled || triggerProps.disabled) return;
+		triggerProps.onclick?.(event);
+		if (!event.defaultPrevented) state.request(!isOpen, { reason: 'trigger', event });
 	}
 </script>
 
-<div class={'card ' + (rest.class ?? '')}>
+<div
+	{...rest}
+	{id}
+	class={['card', cssClass]}
+	{style}
+	data-state={isOpen ? 'open' : 'closed'}
+	data-disabled={disabled || undefined}
+>
 	{#if header}
-		<div class="card-header">{@render header?.()}</div>
+		<div {...headerProps} class={['card-header', headerProps.class]}>{@render header?.()}</div>
 	{/if}
 	<div class="card-body" style={padding ? `--cbp: ${padding}` : ''}>
 		{#if chevronPosition === 'right'}
 			<div class="flex-r j-content-between a-center w-100">
 				{#if isVisibleContentClickable}
 					<button
+						{...triggerProps}
+						disabled={disabled || triggerProps.disabled}
 						type="button"
-						class={showMoreLessLabelClass}
+						class={[
+							'sc-collapsible-trigger',
+							triggerProps.class !== undefined ? triggerProps.class : showMoreLessLabelClass
+						]}
 						aria-expanded={isOpen}
-						aria-controls={id}
+						aria-controls={panelId}
 						onclick={toggle}
 					>
 						{@render visibleContent?.()}
@@ -65,37 +113,56 @@
 					{@render visibleContent?.()}
 				{/if}
 				<button
+					{...triggerProps}
+					disabled={disabled || triggerProps.disabled}
 					type="button"
-					class={showMoreLessLabelClass}
+					class={[
+						'sc-collapsible-trigger',
+						triggerProps.class !== undefined ? triggerProps.class : showMoreLessLabelClass
+					]}
 					aria-expanded={isOpen}
 					aria-label={toggleLabel}
-					aria-controls={id}
+					aria-controls={panelId}
 					onclick={toggle}
 				>
-					<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-					{toggleLabel}
+					{#if trigger}{@render trigger({
+							open: isOpen,
+							disabled: disabled || !!triggerProps.disabled
+						})}{:else}<Icon name={isOpen ? 'chevron-up' : 'chevron-down'} />{toggleLabel}{/if}
 				</button>
 			</div>
 		{:else if chevronPosition === 'left'}
 			<div class="flex-r gap-2">
 				<button
+					{...triggerProps}
+					disabled={disabled || triggerProps.disabled}
 					type="button"
-					class={showMoreLessLabelClass}
+					class={[
+						'sc-collapsible-trigger',
+						triggerProps.class !== undefined ? triggerProps.class : showMoreLessLabelClass
+					]}
 					aria-expanded={isOpen}
 					aria-label={toggleLabel}
-					aria-controls={id}
-					style="padding: 0;"
+					aria-controls={panelId}
+					style={`padding: 0; ${triggerProps.style ?? ''}`}
 					onclick={toggle}
 				>
-					<i class={'fa-solid ' + (isOpen ? 'fa-chevron-up' : 'fa-chevron-down')}></i>
-					{toggleLabel}
+					{#if trigger}{@render trigger({
+							open: isOpen,
+							disabled: disabled || !!triggerProps.disabled
+						})}{:else}<Icon name={isOpen ? 'chevron-up' : 'chevron-down'} />{toggleLabel}{/if}
 				</button>
 				{#if isVisibleContentClickable}
 					<button
+						{...triggerProps}
+						disabled={disabled || triggerProps.disabled}
 						type="button"
-						class={showMoreLessLabelClass}
+						class={[
+							'sc-collapsible-trigger',
+							triggerProps.class !== undefined ? triggerProps.class : showMoreLessLabelClass
+						]}
 						aria-expanded={isOpen}
-						aria-controls={id}
+						aria-controls={panelId}
 						onclick={toggle}
 					>
 						{@render visibleContent?.()}
@@ -105,7 +172,14 @@
 				{/if}
 			</div>
 		{/if}
-		<div {id} aria-hidden={!isOpen}>
+		<div
+			{...panelProps}
+			id={panelId}
+			aria-hidden={!isOpen}
+			inert={!isOpen ? true : undefined}
+			use:syncInert={!isOpen}
+			data-state={isOpen ? 'open' : 'closed'}
+		>
 			{#if isOpen}
 				<div transition:slide={{ duration: 300 }}>
 					{@render hiddenContent?.()}
@@ -114,7 +188,7 @@
 		</div>
 	</div>
 	{#if footer}
-		<div class="card-footer">{@render footer?.()}</div>
+		<div {...footerProps} class={['card-footer', footerProps.class]}>{@render footer?.()}</div>
 	{/if}
 </div>
 

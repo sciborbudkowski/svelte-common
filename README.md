@@ -1,74 +1,77 @@
-# svelte-common library
+# svelte-common
 
-## Installing
+A Svelte 5 library of UI components, reactive services and stores, shared styles,
+and small application utilities. Defaults for many labels and date helpers are Polish.
 
+## Install
+
+The repository documents installation from Git over SSH:
+
+```sh
 npm install git+ssh://git@github.com/sciborbudkowski/svelte-common.git
-
-## Modal scroll locking
-
-Configure the application's scroll container once in the root layout. This applies to
-`Modal`, `AlertModal` and `ConfirmModal`:
-
-```svelte
-<script lang="ts">
-	import { onMount } from 'svelte';
-	import { setModalScrollLockTarget } from 'svelte-common';
-
-	let mainElement = $state<HTMLElement | null>(null);
-
-	onMount(() => {
-		setModalScrollLockTarget(mainElement);
-		return () => setModalScrollLockTarget(null);
-	});
-</script>
-
-<main bind:this={mainElement}>
-	<!-- Application content -->
-</main>
 ```
 
-Without configuration, the target defaults to `document.body`. The first open modal
-saves the target's inline overflow values and priorities, then sets `overflow: hidden`.
-The original values return after the last modal closes or unmounts, regardless of
-closing order. Changing the target while modals are open restores the old target
-and locks the new one. Only `.modal-body` scrolls inside the modal.
+Requires **Svelte 5.25 or newer within the Svelte 5 major version**, a Svelte-aware
+bundler, and access to the Git repository for this installation method. Import the
+stylesheet once in the application root. It includes global element styles and a reset.
 
-## Light and dark theme
-
-Initialize theme synchronization once in the root layout:
+## Quick start
 
 ```svelte
 <script lang="ts">
+	import 'svelte-common/styles.css';
 	import { onMount } from 'svelte';
-	import { initializeTheme } from 'svelte-common';
+	import {
+		AlertModal,
+		ConfirmModal,
+		Loader,
+		ToastStack,
+		initializeTheme,
+		requestConfirmation,
+		showSuccessToast
+	} from 'svelte-common';
 
 	onMount(initializeTheme);
-</script>
-```
 
-To avoid a flash of the light theme, add this script to the `<head>` of the consuming
-application's `app.html` (add a nonce or hash when using a restrictive CSP):
-
-```html
-<script>
-	(() => {
-		let preference = 'system';
-
-		try {
-			const stored = localStorage.getItem('sc-theme');
-			if (stored === 'light' || stored === 'dark' || stored === 'system') preference = stored;
-		} catch {
-			// Storage is optional.
+	async function confirmAction() {
+		if (await requestConfirmation('Continue?')) {
+			showSuccessToast('Confirmed.');
 		}
-
-		const systemDark =
-			typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches;
-		document.documentElement.dataset.theme =
-			preference === 'dark' || (preference === 'system' && systemDark) ? 'dark' : 'light';
-	})();
+	}
 </script>
+
+<button type="button" class="brand" onclick={confirmAction}>Continue</button>
+
+<AlertModal />
+<ConfirmModal />
+<Loader />
+<ToastStack />
 ```
 
-Use `setTheme('light' | 'dark' | 'system')`, `toggleTheme()` or `useSystemTheme()` to change
-the preference. Reactive `themeState` exposes both the saved `preference` and currently
-`resolved` theme.
+Mount each shared renderer once, usually in the root layout. Call browser-only store
+actions from event handlers or `onMount`, rather than during server rendering.
+
+## Documentation
+
+| Guide                                                                  | Contents                                                                                 |
+| ---------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| [Getting started](docs/getting-started.md)                             | Installation, root layout, snippets, SSR, browser requirements and imports.              |
+| [Components](docs/components.md)                                       | Props, defaults, examples and behavior for general UI and scrolling components.          |
+| [Modals and feedback](docs/overlays-and-feedback.md)                   | Modal APIs, confirmation flow, loader sequences and toast lifecycle.                     |
+| [Services](docs/services.md)                                           | API responses, scoped caching, offline queues, downloads, WebSockets and storage.        |
+| [Stores](docs/stores.md)                                               | Theme synchronization and GPS ownership, state and cleanup.                              |
+| [Utilities](docs/utilities.md)                                         | Dates, text, tokens, files, language, theme readers, scrolling and application identity. |
+| [Styling](docs/styling.md)                                             | CSS layers, theme tokens, utility classes, buttons and form markup.                      |
+| [Development](docs/development.md)                                     | Source layout, scripts, tests, packaging and release checks.                             |
+| [Migration and troubleshooting](docs/migration-and-troubleshooting.md) | Behavior changes from the audit fixes and common integration problems.                   |
+| [Documentation index](docs/README.md)                                  | Complete public export map and maintenance notes.                                        |
+
+`CollapsibleTabBar` is exported but unfinished. Its draft interface is documented
+separately in the component reference; it is not a finished tab-navigation component.
+
+The [API migration guide](docs/api-migration.md) describes controlled state, native
+attribute forwarding, independent renderers and compatibility aliases. The original
+[design guide](docs/api-flexibility-guide.md) records the reasoning and migration plan.
+
+The [original audit](docs/component-audit-2026-10-10.md) and
+[fix status](docs/component-audit-fixes-2026-10-10.md) record the earlier review and validation.

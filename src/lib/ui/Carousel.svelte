@@ -1,6 +1,14 @@
 <!-- src/lib/ui/Carousel.svelte -->
 <script lang="ts">
-	import { onMount } from 'svelte';
+	import { onMount, untrack, type Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
+	import { createControllableState } from './internal/controllable.svelte.ts';
+	import type {
+		ChangeHandler,
+		CarouselIndexChangeDetails,
+		CarouselPauseChangeDetails,
+		ButtonPartProps
+	} from './contracts.ts';
 	import { scrollToTarget } from '../utils/scroll.ts';
 	import { textToHtml } from '../utils/text.ts';
 
@@ -21,26 +29,166 @@
 		}[];
 	};
 
+	export type CarouselLabels = {
+		region: string;
+		slideRoleDescription: string;
+		navigation: string;
+		previous: string;
+		next: string;
+		pause: string;
+		resume: string;
+		pauseAction: string;
+		resumeAction: string;
+		slide: (index: number, total: number) => string;
+		goToSlide: (index: number) => string;
+	};
 	let {
 		slides,
-		timeout = 5000
-	}: {
+		slideContent,
+		timeout = 5000,
+		autoplay = true,
+		ariaLabel = 'Karuzela',
+		index,
+		defaultIndex = 0,
+		onIndexChange,
+		paused,
+		defaultPaused = false,
+		onPausedChange,
+		disabled = false,
+		autoplayIntervalMs,
+		labels = {},
+		previousButtonProps = {},
+		nextButtonProps = {},
+		paginationButtonProps = {},
+		rotationButtonProps = {},
+		class: cssClass,
+		onfocusin,
+		onmouseenter,
+		onmouseleave,
+		...rest
+	}: Omit<HTMLAttributes<HTMLDivElement>, 'children'> & {
+		index?: number;
+		defaultIndex?: number;
+		onIndexChange?: ChangeHandler<number, CarouselIndexChangeDetails>;
+		paused?: boolean;
+		defaultPaused?: boolean;
+		onPausedChange?: ChangeHandler<boolean, CarouselPauseChangeDetails>;
+		disabled?: boolean;
+		autoplayIntervalMs?: number;
+		labels?: Partial<CarouselLabels>;
+		previousButtonProps?: ButtonPartProps;
+		nextButtonProps?: ButtonPartProps;
+		paginationButtonProps?: ButtonPartProps;
+		rotationButtonProps?: ButtonPartProps;
 		/**
 		 * Slides array must stay constant after component mount.
 		 */
 		slides: Slide[];
+		slideContent?: Snippet<[Slide, number]>;
 		timeout?: number;
+		autoplay?: boolean;
+		ariaLabel?: string;
 	} = $props();
 
+	const text = $derived({
+		region: 'karuzela',
+		slideRoleDescription: 'slajd',
+		navigation: 'Nawigacja karuzeli',
+		previous: 'Poprzedni slajd',
+		next: 'Następny slajd',
+		pause: 'Wstrzymaj',
+		resume: 'Wznów',
+		pauseAction: 'Wstrzymaj pokaz slajdów',
+		resumeAction: 'Wznów pokaz slajdów',
+		slide: (index: number, total: number) => `${index + 1} z ${total}`,
+		goToSlide: (index: number) => `Przejdź do slajdu ${index + 1}`,
+		...labels
+	});
+	const effectiveTimeout = $derived(autoplayIntervalMs ?? timeout);
 	const DEFAULT_SLIDE_TIMEOUT = 5000;
 	const slideTimeout = $derived(
-		Number.isFinite(timeout) && timeout > 0 ? timeout : DEFAULT_SLIDE_TIMEOUT
+		Number.isFinite(effectiveTimeout) && effectiveTimeout > 0
+			? effectiveTimeout
+			: DEFAULT_SLIDE_TIMEOUT
 	);
 
-	let currentSlide = $state(0);
-	let currentLabel = $state('01');
+	function normalizeIndex(value: number) {
+		return Number.isFinite(value) ? Math.max(0, Math.min(slides.length - 1, Math.floor(value))) : 0;
+	}
+	const indexState = createControllableState<number, CarouselIndexChangeDetails>({
+		value: () => index,
+		defaultValue: () => normalizeIndex(defaultIndex),
+		onChange: (next, details) => onIndexChange?.(next, details)
+	});
+	const pauseState = createControllableState<boolean, CarouselPauseChangeDetails>({
+		value: () => paused,
+		defaultValue: () => defaultPaused,
+		onChange: (next, details) => onPausedChange?.(next, details)
+	});
+	const currentSlide = $derived(normalizeIndex(indexState.value));
+	let renderedIndex = untrack(() => currentSlide);
+	let currentLabel = $state(untrack(() => slideNumber(currentSlide)));
 	let progressFill = $state(0);
 	let isAnimating = $state(false);
+	const pausedByUser = $derived(pauseState.value);
+	let pausedByFocus = $state(false);
+	let hovered = $state(false);
+	let reducedMotion = $state(false);
+	let motionReady = $state(false);
+	const rotating = $derived(
+		autoplay &&
+			!disabled &&
+			motionReady &&
+			!pausedByUser &&
+			!pausedByFocus &&
+			!hovered &&
+			!reducedMotion &&
+			slides.length > 1
+	);
+	let transitionTimelines: { kill: () => void }[] = [];
+
+	function pauseForFocus(event: FocusEvent): void {
+		if (!(event.target instanceof Element) || !event.target.closest('.mc-rotation-control'))
+			pausedByFocus = true;
+	}
+	function toggleRotation(
+		event: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }
+	): void {
+		if (disabled || reducedMotion || !motionReady || rotationButtonProps.disabled) return;
+		rotationButtonProps.onclick?.(event);
+		if (event.defaultPrevented) return;
+		if (pausedByFocus && !pauseState.value) {
+			pausedByFocus = false;
+			return;
+		}
+		pauseState.request(!pauseState.value, { reason: 'rotation-control', event });
+		if (!pauseState.value) pausedByFocus = false;
+	}
+	function clearAnimationStyles(): void {
+		gsapRef?.killTweensOf([...slideElements, ...contentElements, ...bgElements, currentCounterEl]);
+		for (const timeline of transitionTimelines) timeline.kill();
+		transitionTimelines = [];
+		gsapRef?.set(
+			[...slideElements, ...contentElements, ...bgElements, currentCounterEl].filter(Boolean),
+			{ clearProps: 'transform,opacity' }
+		);
+		isAnimating = false;
+		currentLabel = slideNumber(currentSlide);
+	}
+	$effect(() => {
+		void slideTimeout;
+		if (!rotating) {
+			clearAutoplay();
+			stopCounterProgress();
+			gsapRef?.killTweensOf(bgElements);
+		} else if (!isAnimating) {
+			startCounterProgress();
+			startBgZoom(currentSlide);
+		}
+	});
+	$effect(() => {
+		if (reducedMotion && motionReady) clearAnimationStyles();
+	});
 
 	let gsapRef: (typeof import('gsap'))['gsap'] | null = null;
 	let autoplayTimeout: ReturnType<typeof setTimeout> | null = null;
@@ -76,16 +224,17 @@
 
 	function queueAutoplay() {
 		clearAutoplay();
+		if (!rotating) return;
 		autoplayTimeout = setTimeout(() => {
-			if (!isAnimating) {
-				nextSlide();
+			if (!isAnimating && rotating) {
+				nextSlide(undefined, 'autoplay');
 			}
 		}, slideTimeout);
 	}
 
 	function startCounterProgress() {
 		stopCounterProgress();
-		if (totalSlides < 2) return;
+		if (!rotating) return;
 
 		const increment = 100 / (slideTimeout / 50);
 		progressInterval = setInterval(() => {
@@ -100,6 +249,10 @@
 
 	function updateProgressBar() {
 		if (!gsapRef || !progressBarEl) return;
+		if (reducedMotion) {
+			gsapRef.set(progressBarEl, { scaleX: (currentSlide + 1) / totalSlides });
+			return;
+		}
 		if (totalSlides === 0) return;
 
 		gsapRef.to(progressBarEl, {
@@ -111,7 +264,7 @@
 
 	function updateCounter() {
 		const nextLabel = slideNumber(currentSlide);
-		if (!gsapRef || !currentCounterEl) {
+		if (!gsapRef || !currentCounterEl || reducedMotion) {
 			currentLabel = nextLabel;
 			return;
 		}
@@ -121,6 +274,7 @@
 			opacity: 0,
 			duration: 0.3,
 			onComplete: () => {
+				if (!motionReady) return;
 				currentLabel = nextLabel;
 				gsapRef?.set(currentCounterEl, { y: 20 });
 				gsapRef?.to(currentCounterEl, {
@@ -133,7 +287,7 @@
 	}
 
 	function animateTransition(fromIndex: number, toIndex: number, direction: 1 | -1): boolean {
-		if (!gsapRef) return false;
+		if (!gsapRef || reducedMotion || !motionReady) return false;
 
 		const fromSlide = slideElements[fromIndex];
 		const toSlide = slideElements[toIndex];
@@ -147,6 +301,7 @@
 		gsapRef.killTweensOf(toBg);
 
 		const tlOut = gsapRef.timeline();
+		transitionTimelines.push(tlOut);
 		tlOut
 			.to(fromContent, {
 				y: direction * -100,
@@ -179,6 +334,7 @@
 		gsapRef.set(toBg, { scale: 1.2, y: 0 });
 
 		const tlIn = gsapRef.timeline({ delay: 0.3 });
+		transitionTimelines.push(tlIn);
 		tlIn
 			.to(toSlide, {
 				y: '0vh',
@@ -203,6 +359,10 @@
 					duration: 0.8,
 					ease: 'power2.out',
 					onComplete: () => {
+						if (!motionReady) return;
+						transitionTimelines = transitionTimelines.filter(
+							(timeline) => timeline !== tlIn && timeline !== tlOut
+						);
 						isAnimating = false;
 						startCounterProgress();
 						startBgZoom(toIndex);
@@ -221,7 +381,7 @@
 	}
 
 	function startBgZoom(index: number) {
-		if (!gsapRef) return;
+		if (!gsapRef || !rotating) return;
 		const bg = bgElements[index];
 		if (!bg) return;
 
@@ -234,38 +394,62 @@
 		});
 	}
 
-	function goToSlide(index: number, forcedDirection?: 1 | -1) {
-		if (totalSlides < 2) return;
-		if (index < 0 || index >= totalSlides) return;
-		if (index === currentSlide || isAnimating) return;
-
-		isAnimating = true;
-		stopCounterProgress();
-
-		const fromIndex = currentSlide;
-		const direction = forcedDirection ?? (index > currentSlide ? 1 : -1);
-
-		const animating = animateTransition(fromIndex, index, direction);
-		if (!animating) {
-			isAnimating = false;
-			startCounterProgress();
+	type ButtonEvent = MouseEvent & { currentTarget: EventTarget & HTMLButtonElement };
+	function goToSlide(
+		next: number,
+		reason: CarouselIndexChangeDetails['reason'],
+		event?: ButtonEvent
+	) {
+		if (
+			disabled ||
+			totalSlides < 2 ||
+			next < 0 ||
+			next >= totalSlides ||
+			next === currentSlide ||
+			isAnimating
+		)
 			return;
+		indexState.request(next, { reason, event });
+		// A rejected automatic proposal must retain a fresh rotation deadline.
+		if (reason === 'autoplay' && currentSlide !== next) startCounterProgress();
+	}
+	function nextSlide(event?: ButtonEvent, reason: CarouselIndexChangeDetails['reason'] = 'next') {
+		if (event) {
+			if (nextButtonProps.disabled) return;
+			nextButtonProps.onclick?.(event);
+			if (event.defaultPrevented) return;
 		}
-
-		currentSlide = index;
-		updateCounter();
-		updateProgressBar();
+		if (totalSlides) goToSlide((currentSlide + 1) % totalSlides, reason, event);
 	}
-
-	function nextSlide() {
-		if (totalSlides === 0) return;
-		goToSlide((currentSlide + 1) % totalSlides, 1);
+	function previousSlide(event?: ButtonEvent) {
+		if (event) {
+			if (previousButtonProps.disabled) return;
+			previousButtonProps.onclick?.(event);
+			if (event.defaultPrevented) return;
+		}
+		if (totalSlides) goToSlide((currentSlide - 1 + totalSlides) % totalSlides, 'previous', event);
 	}
-
-	function previousSlide() {
-		if (totalSlides === 0) return;
-		goToSlide((currentSlide - 1 + totalSlides) % totalSlides, -1);
+	function paginate(next: number, event: ButtonEvent) {
+		if (paginationButtonProps.disabled) return;
+		paginationButtonProps.onclick?.(event);
+		if (!event.defaultPrevented) goToSlide(next, 'pagination', event);
 	}
+	$effect(() => {
+		const next = currentSlide;
+		void motionReady;
+		if (next === renderedIndex) return;
+		const previous = renderedIndex;
+		renderedIndex = next;
+		untrack(() => {
+			clearAnimationStyles();
+			stopCounterProgress();
+			clearAutoplay();
+			isAnimating = animateTransition(previous, next, next > previous ? 1 : -1);
+			if (!isAnimating) startCounterProgress();
+			updateCounter();
+			updateProgressBar();
+		});
+	});
 
 	function cssUrl(value: string): string {
 		return value.replaceAll('\\', '\\\\').replaceAll('"', '\\"');
@@ -281,13 +465,21 @@
 	onMount(() => {
 		let disposed = false;
 		let gsapContext: { revert: () => void } | undefined;
+		const query = window.matchMedia?.('(prefers-reduced-motion: reduce)');
+		reducedMotion = query?.matches ?? false;
+		const handleMotion = () => {
+			reducedMotion = query?.matches ?? false;
+		};
+		query?.addEventListener('change', handleMotion);
 
 		void (async () => {
 			const { gsap } = await import('gsap');
 			if (disposed || !carouselEl) return;
 			if (totalSlides === 0) return;
 
+			renderedIndex = currentSlide;
 			gsapRef = gsap;
+			motionReady = true;
 			gsapContext = gsap.context(() => {
 				slideElements = Array.from(carouselEl?.querySelectorAll<HTMLDivElement>('.mc-slide') ?? []);
 				bgElements = Array.from(carouselEl?.querySelectorAll<HTMLDivElement>('.mc-slide-bg') ?? []);
@@ -301,7 +493,7 @@
 
 					if (!slide || !content || !bg) return;
 
-					if (index === 0) {
+					if (index === currentSlide) {
 						gsap.set(slide, { y: '0vh', opacity: 1 });
 						gsap.set(content, { y: 0, opacity: 1 });
 						gsap.set(bg, { scale: 1.1, y: 0 });
@@ -319,13 +511,25 @@
 					});
 				}
 
-				startCounterProgress();
-				startBgZoom(currentSlide);
+				if (reducedMotion) clearAnimationStyles();
 			}, carouselEl);
-		})();
+		})().catch((error) => {
+			if (disposed) return;
+			clearAutoplay();
+			stopCounterProgress();
+			clearAnimationStyles();
+			gsapContext?.revert();
+			gsapRef = null;
+			motionReady = false;
+			console.error('Carousel animation initialization failed: ', error);
+		});
 
 		return () => {
 			disposed = true;
+			motionReady = false;
+			query?.removeEventListener('change', handleMotion);
+			for (const timeline of transitionTimelines) timeline.kill();
+			transitionTimelines = [];
 			clearAutoplay();
 			stopCounterProgress();
 
@@ -350,51 +554,99 @@
 
 {#if totalSlides > 0}
 	<div class="mc-progress-bar" bind:this={progressBarEl}></div>
-	<div class="modern-carousel" bind:this={carouselEl}>
+	<div
+		{...rest}
+		class={['modern-carousel', cssClass]}
+		data-index={currentSlide}
+		data-paused={pausedByUser || pausedByFocus || undefined}
+		data-disabled={disabled || undefined}
+		bind:this={carouselEl}
+		role="region"
+		aria-roledescription={text.region}
+		aria-label={rest['aria-label'] ?? ariaLabel}
+		onfocusin={(event) => {
+			onfocusin?.(event);
+			pauseForFocus(event);
+		}}
+		onmouseenter={(event) => {
+			onmouseenter?.(event);
+			hovered = true;
+		}}
+		onmouseleave={(event) => {
+			onmouseleave?.(event);
+			hovered = false;
+		}}
+	>
 		{#each slides as slide, index (slide.id)}
-			<div class="mc-slide" class:is-active={index === currentSlide}>
+			<div
+				class="mc-slide"
+				class:is-active={index === currentSlide}
+				role="group"
+				aria-roledescription={text.slideRoleDescription}
+				aria-label={text.slide(index, totalSlides)}
+				aria-hidden={index !== currentSlide}
+				inert={index !== currentSlide}
+			>
 				<div
 					class="mc-slide-bg"
 					style={createSlideStyle(slide.image, slide.filter, slide.backgroundPosition)}
 				></div>
 				<div class="mc-slide-content">
-					<h4>{slide.header}</h4>
-					<h1>{slide.title}</h1>
-					<!-- eslint-disable-next-line svelte/no-at-html-tags -- slide.description is sanitized before it reaches Carousel -->
-					<p>{@html textToHtml(slide.descriptionHtml)}</p>
-					<div class="buttons">
-						{#each slide.buttons as button (button.id)}
-							<button
-								type="button"
-								class={button.class}
-								style={button.customStyle}
-								onclick={() => scrollToTarget(button.target)}>{button.title}</button
-							>
-						{/each}
-					</div>
+					{#if slideContent}{@render slideContent(slide, index)}{:else}
+						<h4>{slide.header}</h4>
+						<h1>{slide.title}</h1>
+						<!-- eslint-disable-next-line svelte/no-at-html-tags -- slide.description is sanitized before it reaches Carousel -->
+						<p>{@html textToHtml(slide.descriptionHtml)}</p>
+						<div class="buttons">
+							{#each slide.buttons as button (button.id)}
+								<button
+									type="button"
+									class={button.class}
+									style={button.customStyle}
+									onclick={() => scrollToTarget(button.target)}>{button.title}</button
+								>
+							{/each}
+						</div>
+					{/if}
 				</div>
 			</div>
 		{/each}
 
 		{#if totalSlides > 1}
-			<div class="mc-navigation" aria-label="Nawigacja karuzeli">
+			<div class="mc-navigation" aria-label={text.navigation}>
 				{#each slides as _, index (_.id)}
 					<button
 						type="button"
-						class="mc-nav-item"
+						{...paginationButtonProps}
+						class={['mc-nav-item', paginationButtonProps.class]}
+						disabled={disabled || paginationButtonProps.disabled}
 						class:active={index === currentSlide}
-						aria-label={`Przejdź do slajdu ${index + 1}`}
+						aria-label={paginationButtonProps['aria-label'] ?? text.goToSlide(index)}
 						aria-pressed={index === currentSlide}
-						onclick={() => goToSlide(index, index > currentSlide ? 1 : -1)}
+						onclick={(event) => paginate(index, event)}
 					></button>
 				{/each}
 			</div>
 
-			<div class="mc-slide-counter" aria-live="polite">
+			<div class="mc-slide-counter" aria-live={rotating ? 'off' : 'polite'}>
+				{#if autoplay}
+					<button
+						type="button"
+						{...rotationButtonProps}
+						class={['mc-rotation-control', rotationButtonProps.class]}
+						disabled={disabled || reducedMotion || !motionReady || rotationButtonProps.disabled}
+						onclick={toggleRotation}
+						aria-label={rotationButtonProps['aria-label'] ??
+							(pausedByUser || pausedByFocus ? text.resumeAction : text.pauseAction)}
+						>{pausedByUser || pausedByFocus ? text.resume : text.pause}</button
+					>
+				{/if}
 				<button
-					class="counter-button"
+					{...previousButtonProps}
+					class={['counter-button', previousButtonProps.class]}
 					type="button"
-					aria-label="Poprzedni slajd"
+					disabled={disabled || previousButtonProps.disabled}
+					aria-label={previousButtonProps['aria-label'] ?? text.previous}
 					onclick={previousSlide}
 				>
 					<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
@@ -407,9 +659,11 @@
 				<span class="separator">/</span>
 				<span class="total">{slideNumber(totalSlides - 1)}</span>
 				<button
-					class="counter-button"
+					{...nextButtonProps}
+					class={['counter-button', nextButtonProps.class]}
 					type="button"
-					aria-label="Następny slajd"
+					disabled={disabled || nextButtonProps.disabled}
+					aria-label={nextButtonProps['aria-label'] ?? text.next}
 					onclick={nextSlide}
 				>
 					<svg class="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"
@@ -427,6 +681,20 @@
 {/if}
 
 <style>
+	.mc-rotation-control {
+		color: inherit;
+		background: transparent;
+		border: 1px solid currentColor;
+		border-radius: 0.25rem;
+		font-size: 0.8rem;
+		padding: 0.25rem 0.5rem;
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.mc-slide-bg {
+			transform: none;
+		}
+	}
+
 	h4 {
 		display: inline-block;
 		padding: var(--size-2) var(--size-3);
@@ -484,6 +752,8 @@
 	}
 
 	.mc-slide.is-active {
+		opacity: 1;
+		transform: translateY(0);
 		pointer-events: auto;
 	}
 

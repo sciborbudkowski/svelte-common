@@ -65,6 +65,8 @@ export type ApiResponseParser<TCode extends string = string> = <T>(
 
 export interface ApiCacheOptions {
 	adapter: CacheAdapter;
+	/** Stable, non-secret user/session identifier. Null from a getter disables caching. */
+	scope?: string | (() => string | null);
 	getKey?: (context: ApiCacheKeyContext) => string;
 	shouldCache?: (url: string) => boolean;
 	getTtl?: (url: string) => number;
@@ -95,6 +97,8 @@ export interface OfflineAction {
 	id: string;
 	method: OfflineMethod;
 	endpoint: string;
+	url: string;
+	credentials: RequestCredentials;
 	headers: Array<[string, string]>;
 	body?: string;
 	createdAt: number;
@@ -117,10 +121,12 @@ export interface ApiClientOptions<TCode extends string = string> {
 		adapter: OfflineQueueAdapter;
 		shouldQueue?: (endpoint: string, method: OfflineAction['method']) => boolean;
 		createActionId?: () => string;
-		idempotency?: {
-			headerName?: string;
-			createKey?: () => string;
-		};
+		idempotency?:
+			| {
+					headerName?: string;
+					createKey?: () => string;
+			  }
+			| false;
 	};
 }
 
@@ -196,6 +202,28 @@ export class ApiClient<TCode extends string = string> {
 	private readonly parser: ApiResponseParser<TCode>;
 	private readonly cache?: ApiCacheOptions;
 	private readonly offlineQueue?: ApiClientOptions<TCode>['offlineQueue'];
+
+	private getCacheKey(url: string, init: RequestInit): string | null {
+		if (!this.cache || !(this.cache.shouldCache?.(url) ?? true)) return null;
+		const scope = typeof this.cache.scope === 'function' ? this.cache.scope() : this.cache.scope;
+		if (this.cache.scope !== undefined && !scope) return null;
+		const headers = new Headers(init.headers);
+		const privateRequest =
+			init.credentials !== 'omit' ||
+			headers.has('authorization') ||
+			headers.has('cookie') ||
+			headers.has('proxy-authorization');
+		// Cookies cannot be inspected reliably. Private responses require explicit partitioning.
+		if (privateRequest && !scope && !this.cache.getKey) return null;
+		if (this.cache.getKey) {
+			const key = this.cache.getKey({ url, init });
+			return scope ? JSON.stringify([scope, key]) : key;
+		}
+		const variants = [...headers.entries()].filter(
+			([name]) => !['authorization', 'cookie', 'proxy-authorization'].includes(name)
+		);
+		return scope || variants.length ? JSON.stringify([scope ?? null, url, variants]) : url;
+	}
 
 	constructor(options: ApiClientOptions<TCode> = {}) {
 		this.baseUrl = options.baseUrl?.replace(/\/$/, '') ?? '';
@@ -285,6 +313,29 @@ export class ApiClient<TCode extends string = string> {
 			};
 		}
 
+		let saveHandle: FileSystemFileHandle | null = null;
+		const picker = (
+			window as Window & {
+				showSaveFilePicker?: (options: { suggestedName: string }) => Promise<FileSystemFileHandle>;
+			}
+		).showSaveFilePicker;
+		if (picker && navigator.userActivation?.isActive !== false) {
+			try {
+				saveHandle = await picker.call(window, {
+					suggestedName: this.sanitizeFilename(
+						options.suggestedName ?? options.fallbackBaseName ?? 'download'
+					)
+				});
+			} catch (error) {
+				if (this.isAbortError(error)) return { error: false, cancelled: true };
+				if (!this.canFallBackFromSave(error))
+					return {
+						error: true,
+						message: error instanceof Error ? error.message : 'Saving failed.'
+					};
+			}
+		}
+
 		const url = this.makeUrl(path);
 		let response: Response;
 
@@ -340,7 +391,7 @@ export class ApiClient<TCode extends string = string> {
 			const filename = this.sanitizeFilename(rawFilename);
 
 			const blob = await response.blob();
-			await this.saveBlobToDevice(blob, filename);
+			await this.saveBlobToDevice(blob, filename, saveHandle);
 
 			return {
 				error: false,
@@ -397,11 +448,14 @@ export class ApiClient<TCode extends string = string> {
 			credentials: requestInit.credentials ?? this.credentials
 		};
 
-		const cacheEnabled =
-			method === 'GET' && this.cache !== undefined && (this.cache.shouldCache?.(url) ?? true);
-		const cacheKey = cacheEnabled
-			? (this.cache!.getKey?.({ url, init: effectiveInit }) ?? url)
-			: url;
+		let selectedCacheKey: string | null = null;
+		try {
+			if (method === 'GET') selectedCacheKey = this.getCacheKey(url, effectiveInit);
+		} catch (error) {
+			this.reportCacheError(error, 'get', url);
+		}
+		const cacheEnabled = selectedCacheKey !== null;
+		const cacheKey = selectedCacheKey ?? url;
 
 		let response: Response;
 
@@ -619,27 +673,33 @@ export class ApiClient<TCode extends string = string> {
 		return sanitized || 'download';
 	}
 
-	private async saveBlobToDevice(blob: Blob, filename: string): Promise<void> {
-		// Android
-		ConsiderSavePicker: {
-			type WindowWithSavePicker = Window & {
-				showSaveFilePicker?: (options?: {
-					suggestedName?: string;
-					types?: {
-						description?: string;
-						accept: Record<string, string[]>;
-					}[];
-				}) => Promise<FileSystemFileHandle>;
-			};
+	private canFallBackFromSave(error: unknown): boolean {
+		return (
+			typeof error === 'object' &&
+			error !== null &&
+			'name' in error &&
+			['SecurityError', 'NotAllowedError', 'NotSupportedError'].includes(String(error.name))
+		);
+	}
 
-			const picker = (window as WindowWithSavePicker).showSaveFilePicker;
-			if (typeof picker !== 'function') break ConsiderSavePicker;
-
-			const handle = await picker({ suggestedName: filename });
-
+	private async saveBlobToDevice(
+		blob: Blob,
+		filename: string,
+		handle: FileSystemFileHandle | null
+	): Promise<void> {
+		if (handle) {
 			const writable = await handle.createWritable();
-			await writable.write(blob);
-			await writable.close();
+			try {
+				await writable.write(blob);
+				await writable.close();
+			} catch (error) {
+				try {
+					await writable.abort();
+				} catch {
+					/* Preserve the original failure. */
+				}
+				throw error;
+			}
 			return;
 		}
 
@@ -648,8 +708,13 @@ export class ApiClient<TCode extends string = string> {
 			if (!navigator.canShare || !navigator.share) break ConsiderShare;
 			const file = new File([blob], filename, { type: blob.type || 'application/octet-stream' });
 			if (!navigator.canShare({ files: [file] })) break ConsiderShare;
-			await navigator.share({ files: [file], title: filename });
-			return;
+			if (navigator.userActivation?.isActive === false) break ConsiderShare;
+			try {
+				await navigator.share({ files: [file], title: filename });
+				return;
+			} catch (error) {
+				if (!this.canFallBackFromSave(error)) throw error;
+			}
 		}
 
 		// Fallback
@@ -666,7 +731,7 @@ export class ApiClient<TCode extends string = string> {
 		} finally {
 			a.remove();
 
-			setTimeout(() => URL.revokeObjectURL(url), 0);
+			setTimeout(() => URL.revokeObjectURL(url), 30_000);
 		}
 	}
 
@@ -683,11 +748,11 @@ export class ApiClient<TCode extends string = string> {
 
 		const id = this.offlineQueue.createActionId?.() ?? globalThis.crypto.randomUUID();
 		const idempotency = this.offlineQueue.idempotency;
-		const idempotencyKey = idempotency ? (idempotency.createKey?.() ?? id) : undefined;
+		const idempotencyKey = idempotency === false ? undefined : (idempotency?.createKey?.() ?? id);
 		const headers = new Headers(init.headers);
 
 		if (idempotencyKey) {
-			headers.set(idempotency?.headerName ?? 'Idempotency-Key', idempotencyKey);
+			headers.set((idempotency && idempotency.headerName) || 'Idempotency-Key', idempotencyKey);
 		}
 
 		return {
@@ -699,6 +764,8 @@ export class ApiClient<TCode extends string = string> {
 				id,
 				method,
 				endpoint: path,
+				url: this.makeUrl(path),
+				credentials: init.credentials ?? this.credentials,
 				headers: Array.from(headers.entries()),
 				body: typeof init.body === 'string' ? init.body : undefined,
 				createdAt: Date.now(),
